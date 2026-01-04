@@ -1,22 +1,21 @@
-import bcrypt from "bcrypt";
-import { createUser, findByEmail } from "./user.repository";
-import { CreateUserDTO, User } from "./user.types";
+import { userRepository } from './user.repository';
+import { CreateUserDto } from './user.dto';
+import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
 
 export class UserService {
-  async register(data: CreateUserDTO): Promise<User> {
-    const { email, password } = data;
+  async create(dto: CreateUserDto): Promise<User> {
+    const passwordHash = await bcrypt.hash(dto.password, 10);
 
-    if (!email || !password) {
-      throw new Error("Email and password are required");
-    }
+    const user = userRepository.create({
+      email: dto.email,
+      passwordHash,
+    });
 
-    const existingUser = await findByEmail(email);
-    if (existingUser) {
-      throw new Error("User already exists");
-    }
+    return userRepository.save(user);
+  }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    return createUser(email, passwordHash);
+  async findAll(): Promise<User[]> {
+    return userRepository.find();
   }
 }
