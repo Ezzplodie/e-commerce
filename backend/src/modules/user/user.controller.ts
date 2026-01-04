@@ -27,8 +27,20 @@ export class UserController {
     return res.status(201).json(user);
   }
 
+
+    async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+    try {
+      const tokens = await userService.login(email, password);
+      res.json(tokens);
+    } catch (err: any) {
+      res.status(400).json({ message: err.message });
+    }
+  }
+
   async findAll(req: Request, res: Response) {
     const users = await userService.findAll();
     return res.json(users);
   }
+
 }
