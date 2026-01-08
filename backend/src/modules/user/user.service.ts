@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 export class UserService {
-  // Index signature (if you strictly need this, otherwise it can be removed)
+
   [x: string]: any;
 
   async create(dto: CreateUserDto): Promise<User> {
@@ -26,7 +26,6 @@ export class UserService {
     return userRepository.save(user);
   }
 
-  // FIXED: Removed 'function' keyword to make it a proper class method
   async login(email: string, password: string) {
     // 1️⃣ Find user
     const user = await userRepository.findOne({
