@@ -1,5 +1,5 @@
-import Header from "@/components/Header";
+import Header from "@/widgets/header";
 
 export default function Page() {
-  return <Header></Header>;
+  return <Header />;
 }

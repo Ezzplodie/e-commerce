@@ -1,3 +1,6 @@
+body {
+  font-family: var(--font-montserrat);
+}
 .container {
   max-width: 1320px;
   width: 100%;
