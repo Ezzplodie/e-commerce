@@ -1,6 +1,6 @@
-import "@/shared/styles/globals.css";
-import "@/shared/styles/typography.css";
+import "@/shared/styles/normalize.css";
 import "@/shared/styles/variables.css";
+import "@/shared/styles/globals.css";
 import { Montserrat } from "next/font/google";
 
 const montserrat = Montserrat({

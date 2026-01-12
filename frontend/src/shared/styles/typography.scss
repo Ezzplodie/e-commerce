@@ -2,14 +2,14 @@
    DISPLAY
 ========================= */
 
-.display-1 {
+@mixin display-1 {
   font-size: 64px;
   font-weight: var(--fw-bold);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
-.display-2 {
+@mixin display-2 {
   font-size: 56px;
   font-weight: var(--fw-bold);
   line-height: 1.15;
@@ -20,37 +20,37 @@
    HEADINGS
 ========================= */
 
-.h1 {
+@mixin h1 {
   font-size: 44px;
   font-weight: var(--fw-bold);
   line-height: 1.2;
 }
 
-.h2 {
+@mixin h2 {
   font-size: 40px;
   font-weight: var(--fw-bold);
   line-height: 1.25;
 }
 
-.h3 {
+@mixin h3 {
   font-size: 32px;
   font-weight: var(--fw-semibold);
   line-height: 1.3;
 }
 
-.h4 {
+@mixin h4 {
   font-size: 24px;
   font-weight: var(--fw-bold);
   line-height: 1.35;
 }
 
-.h5 {
+@mixin h5 {
   font-size: 20px;
   font-weight: var(--fw-bold);
   line-height: 1.4;
 }
 
-.h6 {
+@mixin h6 {
   font-size: 16px;
   font-weight: var(--fw-bold);
   line-height: 1.45;
@@ -60,31 +60,31 @@
    BODY TEXT
 ========================= */
 
-.body-xl {
+@mixin body-xl {
   font-size: 20px;
   font-weight: var(--fw-regular);
   line-height: 1.6;
 }
 
-.body-lg {
+@mixin body-lg {
   font-size: 18px;
   font-weight: var(--fw-regular);
   line-height: 1.6;
 }
 
-.body-md {
+@mixin body-md {
   font-size: 16px;
   font-weight: var(--fw-regular);
   line-height: 1.6;
 }
 
-.body-sm {
+@mixin body-sm {
   font-size: 14px;
   font-weight: var(--fw-regular);
   line-height: 1.6;
 }
 
-.body-xs {
+@mixin body-xs {
   font-size: 12px;
   font-weight: var(--fw-regular);
   line-height: 1.5;
@@ -94,19 +94,19 @@
    CAPTION
 ========================= */
 
-.caption-lg {
+@mixin caption-lg {
   font-size: 14px;
   font-weight: var(--fw-semibold);
   line-height: 1.4;
 }
 
-.caption-md {
+@mixin caption-md {
   font-size: 12px;
   font-weight: var(--fw-regular);
   line-height: 1.4;
 }
 
-.caption-sm {
+@mixin caption-sm {
   font-size: 10px;
   font-weight: var(--fw-semibold);
   line-height: 1.3;
@@ -116,13 +116,13 @@
    BUTTON TEXT
 ========================= */
 
-.button-lg {
+@mixin button-lg {
   font-size: 16px;
   font-weight: var(--fw-regular);
   line-height: 1.2;
 }
 
-.button-sm {
+@mixin button-sm {
   font-size: 14px;
   font-weight: var(--fw-regular);
   line-height: 1.2;
@@ -132,7 +132,7 @@
    OVERLINE
 ========================= */
 
-.overline-lg {
+@mixin overline-lg {
   font-size: 16px;
   font-weight: var(--fw-regular);
   line-height: 1.2;
@@ -140,7 +140,7 @@
   letter-spacing: 0.08em;
 }
 
-.overline-sm {
+@mixin overline-sm {
   font-size: 12px;
   font-weight: var(--fw-semibold);
   line-height: 1.2;
