@@ -30,7 +30,7 @@ export class UserService {
     // 1️⃣ Find user
     const user = await userRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'passwordHash'],
+      select: ['id', 'email', 'passwordHash', 'role'],
     });
     if (!user) throw new Error('Invalid credentials');
 
@@ -51,7 +51,7 @@ export class UserService {
     }
 
     // 4️⃣ Create payload
-    const payload = { userId: user.id, email: user.email };
+    const payload = { userId: user.id, email: user.email, role: user.role };
 
     // 5️⃣ Sign tokens
     // FIX: Cast expiresIn to 'any' to bypass strict type checks
