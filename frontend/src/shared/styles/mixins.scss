@@ -1,0 +1,24 @@
+@mixin font($size, $weight, $lineHeight, $letterSpacing: null) {
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $lineHeight;
+
+  @if $letterSpacing != null {
+    letter-spacing: $letterSpacing;
+  }
+}
+@mixin flex(
+  $direction: row,
+  $align: stretch,
+  $justify: flex-start,
+  $gap: null
+) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: $align;
+  justify-content: $justify;
+
+  @if $gap != null {
+    gap: $gap;
+  }
+}

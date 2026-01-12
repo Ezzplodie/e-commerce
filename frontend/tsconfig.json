@@ -1,31 +1,132 @@
 {
   "compilerOptions": {
+    /* ============================================
+       LANGUAGE & ENVIRONMENT
+       ============================================ */
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "jsx": "preserve",
+    /* ============================================
+       MODULES
+       ============================================ */
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
+    "allowJs": true,
+    /* ============================================
+       EMIT
+       ============================================ */
+    "noEmit": true,
     "incremental": true,
-    "plugins": [{ "name": "next" }],
-
+    /* ============================================
+       INTEROP CONSTRAINTS
+       ============================================ */
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    /* ============================================
+       TYPE CHECKING
+       ============================================ */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    /* ============================================
+       DEPRECATION WARNING FIX
+       ============================================ */
+    "ignoreDeprecations": "5.0",
+    /* ============================================
+       PATH ALIASES (Feature-Sliced Design)
+       ============================================ */
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@/app/*": [
+        "./src/app/*"
+      ],
+      "@/widgets/*": [
+        "./src/widgets/*"
+      ],
+      "@/features/*": [
+        "./src/features/*"
+      ],
+      "@/entities/*": [
+        "./src/entities/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ],
+      "@/shared/ui": [
+        "./src/shared/ui"
+      ],
+      "@/shared/ui/*": [
+        "./src/shared/ui/*"
+      ],
+      "@/shared/lib": [
+        "./src/shared/lib"
+      ],
+      "@/shared/lib/*": [
+        "./src/shared/lib/*"
+      ],
+      "@/shared/api": [
+        "./src/shared/api"
+      ],
+      "@/shared/api/*": [
+        "./src/shared/api/*"
+      ],
+      "@/shared/config": [
+        "./src/shared/config"
+      ],
+      "@/shared/config/*": [
+        "./src/shared/config/*"
+      ],
+      "@/shared/hooks": [
+        "./src/shared/hooks"
+      ],
+      "@/shared/hooks/*": [
+        "./src/shared/hooks/*"
+      ],
+      "@/shared/types": [
+        "./src/shared/types"
+      ],
+      "@/shared/types/*": [
+        "./src/shared/types/*"
+      ],
+      "@/shared/styles": [
+        "./src/shared/styles"
+      ],
+      "@/shared/styles/*": [
+        "./src/shared/styles/*"
+      ],
+      "@/public/*": [
+        "./public/*"
+      ]
+    },
+    /* ============================================
+       NEXT.JS PLUGIN
+       ============================================ */
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

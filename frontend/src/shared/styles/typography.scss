@@ -1,0 +1,149 @@
+/* =========================
+   DISPLAY
+========================= */
+
+@mixin display-1 {
+  font-size: 64px;
+  font-weight: var(--fw-bold);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+@mixin display-2 {
+  font-size: 56px;
+  font-weight: var(--fw-bold);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* =========================
+   HEADINGS
+========================= */
+
+@mixin h1 {
+  font-size: 44px;
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+@mixin h2 {
+  font-size: 40px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+}
+
+@mixin h3 {
+  font-size: 32px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+}
+
+@mixin h4 {
+  font-size: 24px;
+  font-weight: var(--fw-bold);
+  line-height: 1.35;
+}
+
+@mixin h5 {
+  font-size: 20px;
+  font-weight: var(--fw-bold);
+  line-height: 1.4;
+}
+
+@mixin h6 {
+  font-size: 16px;
+  font-weight: var(--fw-bold);
+  line-height: 1.45;
+}
+
+/* =========================
+   BODY TEXT
+========================= */
+
+@mixin body-xl {
+  font-size: 20px;
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+}
+
+@mixin body-lg {
+  font-size: 18px;
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+}
+
+@mixin body-md {
+  font-size: 16px;
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+}
+
+@mixin body-sm {
+  font-size: 14px;
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+}
+
+@mixin body-xs {
+  font-size: 12px;
+  font-weight: var(--fw-regular);
+  line-height: 1.5;
+}
+
+/* =========================
+   CAPTION
+========================= */
+
+@mixin caption-lg {
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
+}
+
+@mixin caption-md {
+  font-size: 12px;
+  font-weight: var(--fw-regular);
+  line-height: 1.4;
+}
+
+@mixin caption-sm {
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+}
+
+/* =========================
+   BUTTON TEXT
+========================= */
+
+@mixin button-lg {
+  font-size: 16px;
+  font-weight: var(--fw-regular);
+  line-height: 1.2;
+}
+
+@mixin button-sm {
+  font-size: 14px;
+  font-weight: var(--fw-regular);
+  line-height: 1.2;
+}
+
+/* =========================
+   OVERLINE
+========================= */
+
+@mixin overline-lg {
+  font-size: 16px;
+  font-weight: var(--fw-regular);
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@mixin overline-sm {
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

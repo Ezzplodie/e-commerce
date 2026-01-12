@@ -1,0 +1,9 @@
+@use "@/shared/styles/typography" as type;
+.headerInner {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav {
+  @include type.body-lg;
+}
