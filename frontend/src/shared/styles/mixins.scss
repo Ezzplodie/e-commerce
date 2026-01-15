@@ -1,3 +1,23 @@
+@use "@/shared/styles/variables" as vars;
+
+@mixin mobile {
+  @media (max-width: vars.$bp-mobile-max) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: vars.$bp-tablet-max) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: vars.$bp-desktop-min) {
+    @content;
+  }
+}
+
 @mixin font($size, $weight, $lineHeight, $letterSpacing: null) {
   font-size: $size;
   font-weight: $weight;
@@ -7,6 +27,7 @@
     letter-spacing: $letterSpacing;
   }
 }
+
 @mixin flex(
   $direction: row,
   $align: stretch,

@@ -1,9 +1,88 @@
-@use "@/shared/styles/typography" as type;
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.info {
+  text-align: center;
+  color: var(--white);
+  background-color: var(--primary-600);
+  @include typo.overline-sm;
+  padding: 8px var(--side-paddings);
+}
+
+.header {
+  position: relative;
+  background-color: var(--white);
+  padding: 0 var(--side-paddings);
+}
+
 .headerInner {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 16px 0;
 }
 
 .nav {
-  @include type.body-lg;
+  @include typo.body-lg;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+
+  @include tablet {
+    display: none;
+  }
+
+  .navItem {
+    color: var(--neutral-gray);
+    text-decoration: none;
+    padding: 3px 12px;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.megaMenuItem {
+  position: relative;
+  display: contents;
+  &:hover .navDropdown {
+    display: flex !important;
+  }
+
+  .navDropdown {
+    background-color: red;
+    position: absolute;
+    width: 100vw;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 24px;
+
+  .action {
+    padding: 0;
+    border: 0;
+    background: none;
+    display: flex;
+  }
+  @include desktop {
+    .action.menu {
+      display: none;
+    }
+  }
+  @include tablet {
+    gap: 20px;
+  }
+  @include mobile {
+    gap: 10px;
+    .action.search,
+    .action.profile {
+      display: none;
+    }
+  }
 }

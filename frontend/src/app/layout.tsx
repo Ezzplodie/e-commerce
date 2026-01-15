@@ -1,5 +1,5 @@
 import "@/shared/styles/normalize.css";
-import "@/shared/styles/variables.css";
+// import "@/shared/styles/variables.scss";
 import "@/shared/styles/globals.css";
 import { Montserrat } from "next/font/google";
 

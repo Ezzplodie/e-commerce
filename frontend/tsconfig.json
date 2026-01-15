@@ -4,11 +4,7 @@
        LANGUAGE & ENVIRONMENT
        ============================================ */
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     /* ============================================
        MODULES
@@ -44,71 +40,29 @@
     /* ============================================
        PATH ALIASES (Feature-Sliced Design)
        ============================================ */
-    "baseUrl": ".",
+
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/app/*": [
-        "./src/app/*"
-      ],
-      "@/widgets/*": [
-        "./src/widgets/*"
-      ],
-      "@/features/*": [
-        "./src/features/*"
-      ],
-      "@/entities/*": [
-        "./src/entities/*"
-      ],
-      "@/shared/*": [
-        "./src/shared/*"
-      ],
-      "@/shared/ui": [
-        "./src/shared/ui"
-      ],
-      "@/shared/ui/*": [
-        "./src/shared/ui/*"
-      ],
-      "@/shared/lib": [
-        "./src/shared/lib"
-      ],
-      "@/shared/lib/*": [
-        "./src/shared/lib/*"
-      ],
-      "@/shared/api": [
-        "./src/shared/api"
-      ],
-      "@/shared/api/*": [
-        "./src/shared/api/*"
-      ],
-      "@/shared/config": [
-        "./src/shared/config"
-      ],
-      "@/shared/config/*": [
-        "./src/shared/config/*"
-      ],
-      "@/shared/hooks": [
-        "./src/shared/hooks"
-      ],
-      "@/shared/hooks/*": [
-        "./src/shared/hooks/*"
-      ],
-      "@/shared/types": [
-        "./src/shared/types"
-      ],
-      "@/shared/types/*": [
-        "./src/shared/types/*"
-      ],
-      "@/shared/styles": [
-        "./src/shared/styles"
-      ],
-      "@/shared/styles/*": [
-        "./src/shared/styles/*"
-      ],
-      "@/public/*": [
-        "./public/*"
-      ]
+      "@/*": ["./src/*"],
+      "@/app/*": ["./src/app/*"],
+      "@/widgets/*": ["./src/widgets/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/entities/*": ["./src/entities/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/shared/ui": ["./src/shared/ui"],
+      "@/shared/ui/*": ["./src/shared/ui/*"],
+      "@/shared/lib": ["./src/shared/lib"],
+      "@/shared/lib/*": ["./src/shared/lib/*"],
+      "@/shared/api": ["./src/shared/api"],
+      "@/shared/api/*": ["./src/shared/api/*"],
+      "@/shared/config": ["./src/shared/config"],
+      "@/shared/config/*": ["./src/shared/config/*"],
+      "@/shared/hooks": ["./src/shared/hooks"],
+      "@/shared/hooks/*": ["./src/shared/hooks/*"],
+      "@/shared/types": ["./src/shared/types"],
+      "@/shared/types/*": ["./src/shared/types/*"],
+      "@/shared/styles": ["./src/shared/styles"],
+      "@/shared/styles/*": ["./src/shared/styles/*"],
+      "@/public/*": ["./public/*"]
     },
     /* ============================================
        NEXT.JS PLUGIN
@@ -126,7 +80,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
