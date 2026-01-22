@@ -1,0 +1,153 @@
+.footerInner {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 30px 20px;
+}
+
+.footer_title,
+.all_rights_reserved,
+.all_rights_reserved_mobile {
+  color: #fff;
+}
+
+.social_box{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.footer_form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+.footer_form input[type="email"] {
+  padding: 10px 16px;
+  border: 1px solid #fff;
+  background: transparent;
+}
+
+.footer_form input::placeholder {
+  color: #fff;
+}
+
+.footer_form button {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.footer_form label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.footer_menus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.menu_box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: calc(50% - 8px);
+}
+
+.menu_box_title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.menu_box_nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu_box_nav a {
+  color: #fff;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.social_icons {
+  display: flex;
+  gap: 16px;
+}
+
+.social_icon_item {
+  cursor: pointer;
+}
+
+.social_icon_item svg path {
+  fill: #fff;
+}
+
+.all_rights_reserved {
+  display: none;
+}
+
+.all_rights_reserved_mobile {
+  display: inline;
+}
+
+.submt_button svg path{
+    stroke: #fff;
+    fill: #fff;
+}
+
+
+@media (min-width: 1279px) {
+  .footerInner {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 100px;
+    padding: 30px 10px;
+  }
+
+  .social_box {
+    display: flex ;
+    flex-direction: column;
+    width: 45%;
+    gap: 20px;
+  }
+
+  .footer_menus {
+    width: 55%;
+    gap: 36px;
+  }
+
+  .menu_box {
+    gap: 24px;
+    width: calc(33.333% - 24px);
+  }
+
+  .social_icons {
+    padding: 80px 0px 20px 0px;
+  }
+
+  .all_rights_reserved {
+    display: block;
+    margin-top: 40px;
+  }
+
+  .all_rights_reserved_mobile {
+    display: none;
+  }
+
+
+  .menu_box_title {
+    font-size: 20px;
+  }
+}
