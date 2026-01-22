@@ -1,9 +1,12 @@
 import styles from "./Footer.module.scss";
 import clsx from "clsx";
-import Instagram from "@/assets/icons/social media.svg";
-import Facebook from "@/assets/icons/social media1.svg";
-import Pinterest from "@/assets/icons/social media2.svg";
-import TikTok from "@/assets/icons/social media3.svg";
+import {
+  SocialMediaIcon,
+  SocialMedia1Icon,
+  SocialMedia2Icon,
+  SocialMedia3Icon,
+  ArrowForwardIcon,
+} from "@/shared/assets/icons";
 
 const FOOTER_MENUS = [
   {
@@ -22,10 +25,10 @@ const FOOTER_MENUS = [
 
 
 const SOCIAL_MEDIA = [
-  { icon: Instagram, link: "https://instagram.com/modimal" },
-  { icon: Facebook, link: "https://facebook.com/modimal" },
-  { icon: Pinterest, link: "https://facebook.com/modimal" },
-  { icon: TikTok, link: "https://facebook.com/modimal" },
+  { icon: SocialMediaIcon, link: "https://instagram.com/modimal" },
+  { icon: SocialMedia1Icon, link: "https://facebook.com/modimal" },
+  { icon: SocialMedia2Icon, link: "https://pinterest.com/modimal" },
+  { icon: SocialMedia3Icon, link: "https://tiktok.com/modimal" },
 ];
 
 
@@ -56,34 +59,23 @@ const Footer = () => {
             </div>
 
             <button type="submit" className={styles.submit_button} aria-label="Subscribe">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7.9974 2.667L7.0574 3.607L10.7774 7.334H2.664V8.667H10.7774L7.0574 12.394L7.9974 13.334L13.3307 8.0003L7.9974 2.667Z"
-                  fill="#fff"
-                  stroke="#fff"
-                />
-              </svg>
+              <ArrowForwardIcon width={16} height={16} />
             </button>
           </form>
 
 
 <div className={styles.social_icons}>
   {SOCIAL_MEDIA.map(({ icon: Icon, link }) => (
-    <div className={styles.social_icon_item} >
-    <a
-      key={link}
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={styles.social_icon}
-    >
-    </a>
-    <Icon />
+    <div key={link} className={styles.social_icon_item}>
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.social_icon}
+        aria-label={`Visit our ${link.includes("instagram") ? "Instagram" : link.includes("facebook") ? "Facebook" : link.includes("pinterest") ? "Pinterest" : "TikTok"} page`}
+      >
+        <Icon />
+      </a>
     </div>
   ))}
 </div>

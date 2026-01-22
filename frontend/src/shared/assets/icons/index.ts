@@ -1,4 +1,5 @@
 export { default as AccessibilityIcon } from "./accessibility.svg";
+export { default as ArrowForwardIcon } from "./arrow_forward.svg";
 export { default as BagIcon } from "./bag.svg";
 export { default as CloseIcon } from "./close.svg";
 export { default as DownIcon } from "./down.svg";
@@ -10,3 +11,7 @@ export { default as MenuIcon } from "./menu.svg";
 export { default as MenuCloseIcon } from "./menu_close.svg";
 export { default as ProfileIcon } from "./profile.svg";
 export { default as SearchIcon } from "./search.svg";
+export { default as SocialMediaIcon } from "./social media.svg";
+export { default as SocialMedia1Icon } from "./Social media1.svg";
+export { default as SocialMedia2Icon } from "./Social media2.svg";
+export { default as SocialMedia3Icon } from "./Social media3.svg";
