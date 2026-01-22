@@ -49,6 +49,9 @@
       "@/entities/*": ["./src/entities/*"],
       "@/shared/*": ["./src/shared/*"],
       "@/shared/ui": ["./src/shared/ui"],
+      "@/shared/assets": ["./src/shared/assets"],
+      "@/shared/assets/*": ["./src/shared/assets/*"],
+
       "@/shared/ui/*": ["./src/shared/ui/*"],
       "@/shared/lib": ["./src/shared/lib"],
       "@/shared/lib/*": ["./src/shared/lib/*"],

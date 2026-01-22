@@ -1,5 +1,5 @@
 "use client";
-
+import { DownIcon } from "@/shared/assets/icons";
 import { useState } from "react";
 import clsx from "clsx";
 import styles from "./Header.module.scss";
@@ -19,11 +19,17 @@ const MenuItem = ({ label, href = "#", children }: Props) => {
       onMouseEnter={() => setIsActive(true)}
       onMouseLeave={() => setIsActive(false)}
     >
-      <a href={href} className={styles.navItem}>
-        <span>{label}</span>
-      </a>
-
-      {isActive && children}
+      <div className={clsx(styles.navItem, isActive && styles.active)}>
+        <a href={href} className={clsx(styles.navLink)}>
+          {label}
+        </a>
+        {children && (
+          <span className={styles.navItemIcon}>
+            <DownIcon></DownIcon>
+          </span>
+        )}
+      </div>
+      {children}
     </div>
   );
 };

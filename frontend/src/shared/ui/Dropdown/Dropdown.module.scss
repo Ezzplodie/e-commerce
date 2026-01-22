@@ -1,0 +1,75 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.dropdownWrapper {
+  display: none;
+  position: absolute;
+  width: 100vw;
+  left: 0;
+  top: 0;
+  padding-top: 127px;
+}
+
+.dropdown {
+  background-color: var(--white);
+  padding: 27px var(--side-paddings);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  .container {
+    @include flex(row, start, flex-start, 80px);
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.menusBlock {
+  @include flex(row, start, flex-start, 54px);
+  width: 50%;
+  .title {
+    margin-bottom: 24px;
+    @include typo.body-lg;
+    color: var(--black);
+  }
+  .list {
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    .link {
+      text-decoration: none;
+      color: var(--neutral-gray);
+      @include typo.body-lg;
+      transition: var(--transition);
+      &:hover {
+        color: var(--primary-300);
+      }
+    }
+  }
+}
+
+.imagesBlock {
+  width: 50%;
+  @include flex(row, start, flex-start, 24px);
+  .imageBox {
+    width: 50%;
+
+    gap: 12px;
+    text-decoration: none;
+    @include typo.body-md;
+    color: var(--black);
+    transition: var(--transition);
+    &:hover {
+      color: var(--primary-300);
+    }
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+export { default as AccessibilityIcon } from "./accessibility.svg";
+export { default as BagIcon } from "./bag.svg";
+export { default as CloseIcon } from "./close.svg";
+export { default as DownIcon } from "./down.svg";
+export { default as FavoriteIcon } from "./favorite.svg";
+export { default as FooterCallIcon } from "./footer_call.svg";
+export { default as FooterLocationIcon } from "./footer_location.svg";
+export { default as LogoIcon } from "./logo.svg";
+export { default as MenuIcon } from "./menu.svg";
+export { default as MenuCloseIcon } from "./menu_close.svg";
+export { default as ProfileIcon } from "./profile.svg";
+export { default as SearchIcon } from "./search.svg";

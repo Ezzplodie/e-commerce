@@ -1,8 +1,9 @@
-import { MegaMenu } from "./types";
+import { navigationMenus } from "./menus";
+import type { MenuItem, MenuKey } from "./types";
 
-export const getMegaMenuByKey = (
-  menus: MegaMenu[],
-  key: MegaMenu["key"]
-): MegaMenu | undefined => {
-  return menus.find((menu) => menu.key === key);
+export const getMenusByKeys = (keys: MenuKey[]): MenuItem[] => {
+  return navigationMenus.filter((menu) => keys.includes(menu.key));
+};
+export const getMenuByKey = (key: MenuKey): MenuItem | undefined => {
+  return navigationMenus.find((menu) => menu.key === key);
 };
