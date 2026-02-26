@@ -1,7 +1,7 @@
 import { Product } from "@/entities/product/types";
 import { normalizeColor } from "@/shared/lib/color";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -22,26 +22,20 @@ export function useProductDetails(product: Product) {
     [product.variants],
   );
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const colorFromUrl = searchParams.get("color");
   const firstSelectableVariant = inStockVariants[0] ?? product.variants[0];
   const normalizedColorFromUrl = normalizeColor(colorFromUrl);
   const variantFromUrl = product.variants.find(
     (v) => normalizeColor(v.attributes.color) === normalizedColorFromUrl,
   );
-  const initialColor =
+
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+  const selectedColor =
     variantFromUrl?.attributes.color ?? firstSelectableVariant.attributes.color;
-  const initalVariantForColor =
-    product.variants.find(
-      (v) =>
-        normalizeColor(v.attributes.color) === normalizeColor(initialColor),
-    ) ??
-    firstSelectableVariant;
-  const [selectedSize, setSelectedSize] = useState(
-    initalVariantForColor.attributes.size,
-  );
-
-  const [selectedColor, setSelectedColor] = useState(initialColor);
-
   const availableColors = useMemo(
     () => Array.from(new Set(product.variants.map((v) => v.attributes.color))),
     [product.variants],
@@ -80,34 +74,57 @@ export function useProductDetails(product: Product) {
     () =>
       product.variants.find(
         (v) =>
-          normalizeColor(v.attributes.color) === normalizeColor(selectedColor) &&
-          v.attributes.size === selectedSize,
+          normalizeColor(v.attributes.color) ===
+            normalizeColor(selectedColor) && v.attributes.size === selectedSize,
       ),
     [product.variants, selectedColor, selectedSize],
   );
+  const activeVariantForDisplay = useMemo(() => {
+    if (selectedVariant) {
+      return selectedVariant;
+    }
+
+    return (
+      product.variants.find(
+        (v) =>
+          normalizeColor(v.attributes.color) ===
+            normalizeColor(selectedColor) && v.stock > 0,
+      ) ??
+      product.variants.find(
+        (v) =>
+          normalizeColor(v.attributes.color) === normalizeColor(selectedColor),
+      ) ??
+      firstSelectableVariant
+    );
+  }, [
+    firstSelectableVariant,
+    product.variants,
+    selectedColor,
+    selectedVariant,
+  ]);
 
   const isCompletelyOutOfStock = useMemo(
     () => product.variants.every((v) => v.stock === 0),
     [product.variants],
   );
-
-  const handleChangeColor = useCallback(
-    (color: string) => {
-      const variantsForColor = product.variants.filter(
+  const isSelectedColorOutOfStock = useMemo(
+    () =>
+      !product.variants.some(
         (v) =>
-          normalizeColor(v.attributes.color) === normalizeColor(color) &&
-          v.stock > 0,
-      );
-      if (variantsForColor.length === 0) return;
-
-      const sizesForColor = variantsForColor.map((v) => v.attributes.size);
-      if (!sizesForColor.includes(selectedSize)) {
-        setSelectedSize(sizesForColor[0]);
-      }
-      setSelectedColor(variantsForColor[0].attributes.color);
-    },
-    [product.variants, selectedSize],
+          normalizeColor(v.attributes.color) ===
+            normalizeColor(selectedColor) && v.stock > 0,
+      ),
+    [product.variants, selectedColor],
   );
+
+  const handleChangeColor = (color: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (color) {
+      params.set("color", normalizeColor(color));
+      router.push(`${pathname}?${params.toString()}`);
+    }
+    setSelectedSize(null);
+  };
 
   return {
     selectedSize,
@@ -117,8 +134,11 @@ export function useProductDetails(product: Product) {
     availableSizes,
     availableSizesForColor,
     selectedVariant,
+    activeVariantForDisplay,
     isCompletelyOutOfStock,
     setSelectedSize,
     handleChangeColor,
+    isSelectedColorOutOfStock,
+    variantFromUrl,
   };
 }

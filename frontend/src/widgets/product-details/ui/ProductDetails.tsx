@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { useState } from "react";
 import { useProductDetails } from "../model/useProductDetails";
 import styles from "./ProductDetails.module.scss";
-
+import Image from "next/image";
 type Props = {
   product: Product;
 };
@@ -23,10 +23,12 @@ export function ProductDetails({ product }: Props) {
     availableSizes,
     availableSizesForColor,
     selectedVariant,
-    isCompletelyOutOfStock,
     setSelectedSize,
+    variantFromUrl,
     handleChangeColor,
+    isSelectedColorOutOfStock,
   } = useProductDetails(product);
+  console.log(variantFromUrl, "variantFromUrl");
   return (
     <div className={clsx(styles.details_wrapper, "container")}>
       <div className={styles.product_details}>
@@ -57,7 +59,7 @@ export function ProductDetails({ product }: Props) {
           </button>
         </div>
 
-        {isCompletelyOutOfStock ? (
+        {isSelectedColorOutOfStock ? (
           <div className={styles.out_of_stock}>Out of stock</div>
         ) : (
           <div className={styles.size_dropdown}>
@@ -108,6 +110,23 @@ export function ProductDetails({ product }: Props) {
 
         <div className={styles.price}>
           Price: {selectedVariant?.price ?? product.base_price}
+          {variantFromUrl?.variant_images.map((img, index) => (
+            <div
+              key={img.id}
+              className={styles.image_wrapper}
+              style={{ order: img.image_order, position: "relative" }}
+            >
+              <Image
+                src={img.image_link}
+                alt={`${product.name} - ${index}`}
+                width={500}
+                height={500}
+                className={styles.product_image}
+                priority={index === 0}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

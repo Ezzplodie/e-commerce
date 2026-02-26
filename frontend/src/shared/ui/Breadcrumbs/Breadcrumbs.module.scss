@@ -1,6 +1,28 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
 .breadcrumbs_list {
   display: flex;
   gap: 8px;
   list-style: none;
   padding: 0;
+}
+.breadcrumbs_item {
+  position: relative;
+  padding: 4px 14px 4px 0;
+  @include typo.body-lg;
+  gap: 24px;
+  display: flex;
+
+  &:not(:last-child)::after {
+    content: "/";
+    display: flex;
+    color: var(--gray-500);
+  }
+
+  a {
+    text-decoration: none;
+
+    color: var(--primary-500);
+  }
 }
