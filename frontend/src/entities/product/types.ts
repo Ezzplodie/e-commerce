@@ -15,6 +15,7 @@ export type ProductVariant = {
 export type Product = {
   id: number;
   name: string;
+  description?: string | null;
   base_price: number;
   category_name: string;
   category_slug: string;

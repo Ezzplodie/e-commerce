@@ -1,0 +1,16 @@
+@use "@/shared/styles/typography" as typo;
+
+.input {
+  box-sizing: border-box;
+
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--gray-650);
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  color: var(--gray-650);
+  @include typo.body-xs;
+
+  &::placeholder {
+    color: var(--gray-650);
+  }
+}
