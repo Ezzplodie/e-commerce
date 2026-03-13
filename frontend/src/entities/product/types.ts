@@ -21,3 +21,10 @@ export type Product = {
   category_slug: string;
   variants: ProductVariant[];
 };
+
+export type ProductsResponse = {
+  products: Product[];
+  page: number;
+  limit: number;
+  total: number;
+};

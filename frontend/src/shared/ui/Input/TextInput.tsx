@@ -3,19 +3,11 @@ import styles from "./TextInput.module.scss";
 import { TextInputProps } from "./TextInput.types";
 
 export function TextInput({
-  placeholder,
-  value,
-  onChange,
-  type = "text",
   className,
+  type = "text",
+  ...props
 }: TextInputProps) {
   return (
-    <input
-      className={clsx(styles.input, className)}
-      placeholder={placeholder}
-      value={value}
-      type={type}
-      onChange={(e) => onChange(e.target.value)}
-    />
+    <input className={clsx(styles.input, className)} type={type} {...props} />
   );
 }

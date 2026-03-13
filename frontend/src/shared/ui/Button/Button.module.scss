@@ -1,0 +1,26 @@
+@use "@/shared/styles/typography" as typo;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 25px;
+  border: 1px solid var(--button-primary);
+  background-color: var(--button-primary);
+  color: var(--white);
+  transition:
+    background-color var(--transition),
+    border-color var(--transition);
+  @include typo.button-sm;
+
+  &:hover {
+    background-color: var(--button-primary-hover);
+    border-color: var(--button-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

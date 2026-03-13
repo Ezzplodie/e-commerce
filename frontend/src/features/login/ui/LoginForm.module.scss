@@ -1,0 +1,49 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+
+  span {
+    @include typo.body-xs;
+    color: var(--gray-800);
+  }
+}
+
+.fieldInput {
+  width: 100%;
+  background-color: var(--white);
+}
+
+.fieldInputError {
+  border-color: #d14343;
+}
+
+.errorText {
+  @include typo.body-xs;
+  color: #d14343;
+}
+
+.submit {
+  margin-top: 8px;
+  width: 100%;
+}
+
+@include tablet {
+  .main {
+    padding: 32px 16px;
+  }
+
+  .card {
+    padding: 24px;
+  }
+}

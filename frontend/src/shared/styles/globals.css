@@ -18,6 +18,8 @@
   --primary-100: #c2d7ba;
   --primary-50: #d1dbcf;
   --primary-25: #f0f2ef;
+  --button-primary: #5a6d57;
+  --button-primary-hover: #4a5b48;
 
   --neutral-gray: #404040;
   --black: #0c0c0c;
@@ -37,6 +39,11 @@ body {
   font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
+/* focus */
+*:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
 .footer {
   background: #404040 !important;
 }

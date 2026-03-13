@@ -7,9 +7,17 @@ import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/errorHandler.js";
 import categoryRouter from "./routes/category.routes.js";
+import cors from "cors";
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
