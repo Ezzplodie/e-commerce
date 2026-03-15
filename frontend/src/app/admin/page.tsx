@@ -1,3 +1,9 @@
+import { ProductList } from "@/features/product-management/ui/ProductList";
+
 export default function AdminPage() {
-  return <div>Admin</div>;
+  return (
+    <>
+      <ProductList />
+    </>
+  );
 }
