@@ -1,5 +1,6 @@
 import express from "express";
 import "dotenv/config";
+import path from "node:path";
 import productRouter from "./routes/product.routes.js";
 import productVariantRouter from "./routes/productVariants.routes.js";
 import variantImageRouter from "./routes/variantImages.routes.js";
@@ -14,10 +15,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:3105"],
     credentials: true,
   }),
 );
+app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });

@@ -3,6 +3,8 @@ import {
   createProductRepository,
   getProductBySlugRepository,
   getAllProductsRepository,
+  deleteProductRepository,
+  updateProductRepository,
 } from "../repositories/product.repository.js";
 const productSchema = z.object({
   category_id: z.number().min(1),
@@ -54,5 +56,60 @@ export const getAllProducts = async (req, res, next) => {
     res.json({ products: rows, page, limit, total });
   } catch (err) {
     next(err);
+  }
+};
+
+export const deleteProduct = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const deletedProduct = await deleteProductRepository(slug);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.json({
+      message: "Product deleted successfully",
+      product: deletedProduct,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateProductSchema = productSchema.partial();
+
+export const updateProduct = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const result = updateProductSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.errors });
+    }
+
+    const {
+      category_id,
+      name,
+      slug: newSlug,
+      description,
+      base_price,
+    } = result.data;
+
+    const updatedProduct = await updateProductRepository(
+      slug,
+      category_id,
+      name,
+      newSlug,
+      description,
+      base_price,
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    next(error);
   }
 };

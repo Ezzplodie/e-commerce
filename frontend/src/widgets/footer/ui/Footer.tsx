@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./Footer.module.scss";
 import clsx from "clsx";
 import {
@@ -95,9 +96,9 @@ const Footer = () => {
               <h3 className={styles.menu_box_title}>{title}</h3>
               <nav className={styles.menu_box_nav}>
                 {links.map((link) => (
-                  <a key={link} href="/" className={styles.navItem}>
+                  <Link key={link} href="/" className={styles.navItem}>
                     {link}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>

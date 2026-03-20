@@ -112,8 +112,10 @@ export function ProductDetails({ product }: Props) {
             items={[
               { label: "Home", href: "/" },
               {
-                label: product.category_name,
-                href: `/category/${product.category_slug}`,
+                label: product.category_name ?? "Category",
+                href: product.category_slug
+                  ? `/category/${product.category_slug}`
+                  : undefined,
               },
               { label: product.name },
             ]}

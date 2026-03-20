@@ -1,5 +1,4 @@
 "use client";
-import { redirect } from "next/navigation";
 import { Button } from "@/shared/ui/Button";
 import { TextInput } from "@/shared/ui/Input";
 import styles from "./LoginForm.module.scss";

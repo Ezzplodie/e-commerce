@@ -1,0 +1,878 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.productList {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 24px;
+  border: 1px solid var(--gray-200);
+  background: linear-gradient(180deg, var(--white) 0%, var(--primary-25) 100%);
+  border-radius: 16px;
+}
+
+.header {
+  @include flex(row, flex-start, space-between, 16px);
+  margin-bottom: 20px;
+
+  @include mobile {
+    @include flex(column, flex-start, flex-start, 12px);
+  }
+}
+
+.title {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h4;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.controls {
+  @include flex(row, center, flex-end, 12px);
+
+  @include mobile {
+    width: 100%;
+    @include flex(row, center, space-between, 8px);
+    flex-wrap: wrap;
+  }
+}
+
+.limitControl {
+  @include flex(row, center, flex-start, 8px);
+  color: var(--gray-700);
+  @include typo.caption-lg;
+
+  select {
+    min-width: 70px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: 10px;
+    background-color: var(--white);
+    color: var(--gray-900);
+    @include typo.body-sm;
+  }
+}
+
+.limitSelect {
+  width: 76px;
+  min-width: 76px;
+}
+
+.pageChip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--primary-100);
+  background-color: var(--white);
+  color: var(--primary-700);
+  @include typo.caption-lg;
+}
+
+.table {
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--white);
+}
+
+.tableHead,
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1fr 0.8fr 0.8fr 1.2fr 0.9fr;
+  gap: 12px;
+  padding: 14px 16px;
+  align-items: center;
+
+  @include tablet {
+    grid-template-columns: 2fr 1.2fr 1fr 0.9fr;
+  }
+}
+
+.tableHead {
+  background-color: var(--primary-25);
+  border-bottom: 1px solid var(--gray-200);
+  color: var(--gray-700);
+  @include typo.caption-lg;
+
+  @include tablet {
+    span:nth-child(4),
+    span:nth-child(5),
+    span:nth-child(6) {
+      display: none;
+    }
+  }
+}
+
+.row {
+  color: var(--gray-900);
+  @include typo.body-sm;
+  border-bottom: 1px solid var(--gray-100);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--primary-25);
+  }
+
+  @include tablet {
+    span:nth-child(4),
+    span:nth-child(5),
+    span:nth-child(6) {
+      display: none;
+    }
+  }
+}
+
+.name {
+  font-weight: var(--fw-semibold);
+  color: var(--primary-800);
+}
+
+.slug {
+  color: var(--gray-600);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.stateCard {
+  padding: 36px 20px;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  background-color: var(--white);
+  text-align: center;
+}
+
+.stateTitle {
+  margin: 0 0 6px;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.stateText {
+  margin: 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.footer {
+  margin-top: 16px;
+  @include flex(row, center, space-between, 12px);
+
+  @include mobile {
+    @include flex(column, flex-start, flex-start, 10px);
+  }
+}
+
+.counter {
+  margin: 0;
+  color: var(--gray-700);
+  @include typo.caption-lg;
+}
+
+.pagination {
+  @include flex(row, center, flex-end, 10px);
+}
+
+.actionButton {
+  min-width: 104px;
+}
+
+.rowActions {
+  @include flex(row, center, flex-start, 8px);
+}
+
+.editButton {
+  min-width: 74px;
+  height: 34px;
+  padding: 0 12px;
+}
+
+.deleteButton {
+  min-width: 74px;
+  height: 34px;
+  border-color: #aa3d3d;
+  background-color: #aa3d3d;
+  padding: 0 12px;
+
+  &:hover {
+    border-color: #8f3232;
+    background-color: #8f3232;
+  }
+}
+
+.variantPanel {
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid var(--primary-100);
+  background-color: var(--white);
+  border-radius: 12px;
+}
+
+.variantHeader {
+  @include flex(row, center, space-between, 12px);
+  margin-bottom: 14px;
+}
+
+.variantTitle {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.variantGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 12px;
+
+  @include tablet {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.field {
+  @include flex(column, flex-start, flex-start, 6px);
+
+  span {
+    color: var(--gray-700);
+    @include typo.caption-md;
+  }
+}
+
+.adminInput,
+.adminSelect {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  background-color: var(--white);
+  color: var(--gray-900);
+  @include typo.body-sm;
+
+  &::placeholder {
+    color: var(--gray-500);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-300);
+    box-shadow: 0 0 0 3px rgba(130, 167, 144, 0.14);
+  }
+}
+
+.adminInput {
+  padding: 0 12px;
+}
+
+.adminSelect {
+  padding: 0 40px 0 12px;
+}
+
+.variantHint {
+  margin: 12px 0 0;
+  color: var(--gray-650);
+  @include typo.caption-md;
+}
+
+.categorySection {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--primary-100);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--white) 0%, #f8fbf8 100%);
+}
+
+.categoryHeader {
+  @include flex(row, center, space-between, 16px);
+  gap: 16px;
+  margin-bottom: 16px;
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.categoryTitle {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.categorySubtitle {
+  margin: 4px 0 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.categoryCountChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid var(--primary-100);
+  border-radius: 999px;
+  background-color: var(--white);
+  color: var(--primary-700);
+  @include typo.caption-md;
+}
+
+.categoryCreateForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 16px;
+  align-items: end;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+
+  @include tablet {
+    flex-wrap: nowrap;
+  }
+
+  @include mobile {
+    flex-wrap: wrap;
+  }
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.categoryRow {
+  padding: 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background-color: var(--white);
+}
+
+.categoryDisplayRow {
+  @include flex(row, center, space-between, 16px);
+  gap: 16px;
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.categoryInfo {
+  min-width: 0;
+}
+
+.categoryName {
+  margin: 0;
+  color: var(--primary-800);
+  font-weight: var(--fw-semibold);
+  @include typo.body-md;
+}
+
+.categorySlug {
+  margin: 4px 0 0;
+  color: var(--gray-600);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  @include typo.caption-md;
+}
+
+.categoryEditGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+
+  @include tablet {
+    flex-wrap: nowrap;
+  }
+
+  @include mobile {
+    flex-wrap: wrap;
+  }
+}
+
+.categoryActions {
+  @include flex(row, center, flex-end, 8px);
+  flex-wrap: wrap;
+
+  @include mobile {
+    justify-content: flex-start;
+  }
+}
+
+.editPanel {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--primary-100);
+  background-color: var(--white);
+  border-radius: 16px;
+}
+
+.productEditorForm {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.editHeader {
+  @include flex(row, center, space-between, 12px);
+  margin-bottom: 16px;
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.editTitle {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.editGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+
+  @include tablet {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.textArea {
+  width: 100%;
+  min-height: 96px;
+  padding: 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  resize: vertical;
+  color: var(--gray-900);
+  @include typo.body-sm;
+}
+
+.editActions {
+  margin-top: 14px;
+  @include flex(row, center, flex-end, 10px);
+}
+
+.variantsBlock {
+  margin-top: 18px;
+}
+
+.variantsTitle {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.variantsHeader {
+  @include flex(row, center, space-between, 16px);
+  gap: 16px;
+  margin-bottom: 16px;
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.variantsSubtitle {
+  margin: 4px 0 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.variantCountChip,
+.photoCountChip,
+.photoOrderChip,
+.variantBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid var(--primary-100);
+  border-radius: 999px;
+  background-color: var(--primary-25);
+  color: var(--primary-700);
+  @include typo.caption-md;
+}
+
+.variantEmpty {
+  margin: 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.newVariantPanel {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fcfdfc 0%, #f6f9f6 100%);
+}
+
+.newVariantHeading {
+  margin-bottom: 14px;
+}
+
+.newVariantTitle {
+  margin: 0;
+  color: var(--primary-800);
+  font-weight: var(--fw-semibold);
+  @include typo.body-md;
+}
+
+.newVariantText {
+  margin: 4px 0 0;
+  color: var(--gray-650);
+  @include typo.caption-lg;
+}
+
+.variantCards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.variantCard {
+  border: 1px solid var(--primary-100);
+  border-radius: 16px;
+  padding: 18px;
+  background-color: var(--white);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05);
+}
+
+.variantImage {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+}
+
+.variantSku {
+  margin: 0;
+  color: var(--primary-800);
+  font-weight: var(--fw-semibold);
+  @include typo.body-md;
+}
+
+.variantMeta {
+  margin: 0;
+  margin-left: auto;
+  color: var(--gray-700);
+  @include typo.caption-md;
+
+  @include mobile {
+    margin-left: 0;
+  }
+}
+
+.attributeList {
+  margin: 0 0 14px;
+  @include flex(row, center, flex-start, 6px);
+  flex-wrap: wrap;
+}
+
+.attributeChip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--primary-100);
+  background-color: var(--primary-25);
+  color: var(--primary-700);
+  @include typo.caption-md;
+}
+
+.selectInput {
+  width: 100%;
+}
+
+.newVariantForm {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.3fr) repeat(2, minmax(140px, 0.8fr));
+  gap: 12px;
+
+  @include tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.variantField {
+  @include flex(column, flex-start, flex-start, 6px);
+  width: 100%;
+}
+
+.variantFieldLabel {
+  color: var(--gray-700);
+  @include typo.caption-md;
+}
+
+.variantCardHeader {
+  @include flex(row, flex-start, space-between, 12px);
+  gap: 12px;
+  margin-bottom: 14px;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.variantHeading {
+  @include flex(column, flex-start, flex-start, 8px);
+}
+
+.variantHeaderActions {
+  @include flex(row, center, flex-end, 10px);
+  flex-wrap: wrap;
+
+  @include mobile {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.variantBody {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+
+  @include tablet {
+    flex-direction: column;
+  }
+}
+
+.variantEditorColumn {
+  flex: 0 1 360px;
+
+  @include tablet {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+}
+
+.variantMediaColumn {
+  flex: 1 1 520px;
+
+  @include tablet {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+}
+
+.variantEditorColumn,
+.variantMediaColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.variantEditorPanel {
+  padding: 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fdfefd 0%, #f7faf7 100%);
+
+  @include tablet {
+    width: 100%;
+  }
+}
+
+.variantFormGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+
+    > :first-child {
+      grid-column: auto;
+    }
+  }
+}
+
+.variantActionsRow {
+  margin-top: 14px;
+  @include flex(row, center, flex-start, 10px);
+}
+
+.variantMediaHeader {
+  @include flex(row, center, flex-start, 12px);
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.variantSectionTitle {
+  margin: 0;
+  color: var(--primary-800);
+  font-weight: var(--fw-semibold);
+  @include typo.body-md;
+}
+
+.variantMetaHint {
+  margin: 0;
+  flex: 1 1 240px;
+  color: var(--gray-650);
+  @include typo.caption-md;
+}
+
+.imageList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.imageCard {
+  flex: 1 1 210px;
+  min-width: 190px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background-color: #fbfcfb;
+  padding: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @include mobile {
+    min-width: 100%;
+  }
+}
+
+.imageFrame {
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: var(--gray-100);
+}
+
+.imageCardFooter {
+  margin-top: 10px;
+  @include flex(column, flex-start, flex-start, 6px);
+  flex: 1;
+}
+
+.imageCardTopRow {
+  width: 100%;
+  @include flex(row, flex-start, space-between, 8px);
+  flex-wrap: wrap;
+}
+
+.imageOrderActions {
+  @include flex(row, center, flex-end, 6px);
+  flex-wrap: wrap;
+  width: 100%;
+  margin-left: auto;
+}
+
+.uploadPanel {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px dashed var(--gray-300);
+  border-radius: 14px;
+  background-color: #fafcf9;
+  @include flex(row, center, space-between, 12px);
+  gap: 12px;
+
+  @include tablet {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.compactButton {
+  min-width: 138px;
+  height: 38px;
+  padding: 0 14px;
+}
+
+.variantDeleteButton {
+  min-width: 134px;
+  height: 36px;
+}
+
+.photoDeleteButton {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  margin-top: auto;
+}
+
+.orderButton {
+  flex-grow: 1;
+  height: 30px;
+  padding: 0 10px;
+  border-color: var(--primary-100);
+  background-color: var(--white);
+  color: var(--primary-700);
+
+  &:hover {
+    border-color: var(--primary-200);
+    background-color: var(--primary-25);
+  }
+}
+
+.filePicker {
+  position: relative;
+  width: 100%;
+  @include flex(row, center, flex-start, 10px);
+  flex-wrap: wrap;
+}
+
+.fileInput {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.filePickerButton {
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  background-color: var(--gray-50);
+  color: var(--gray-900);
+  cursor: pointer;
+  @include flex(row, center, center, 0);
+  @include typo.body-sm;
+}
+
+.filePickerText {
+  color: var(--gray-650);
+  @include typo.caption-md;
+}
+
+.photoEmptyState {
+  min-height: 148px;
+  padding: 16px;
+  border: 1px dashed var(--gray-300);
+  border-radius: 14px;
+  background-color: #fafcf9;
+  color: var(--gray-650);
+  @include flex(row, center, center, 0);
+  @include typo.body-sm;
+}
