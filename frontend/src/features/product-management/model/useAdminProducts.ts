@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Product, VariantImage } from "@/entities/product/types";
 import {
+  createAttributeValue,
   createCategory,
   createProduct,
   createVariant,
@@ -10,6 +11,7 @@ import {
   deleteProduct,
   deleteVariant,
   deleteVariantImage,
+  getAttributeValues,
   getCategories,
   getProductBySlug,
   getProducts,
@@ -21,6 +23,8 @@ import {
   uploadVariantImage,
 } from "../api/products.api";
 import {
+  AttributeValue,
+  AttributeValueDto,
   Category,
   CategoryDto,
   ProductDto,
@@ -38,6 +42,7 @@ export const useAdminProducts = () => {
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [attributeValues, setAttributeValues] = useState<AttributeValue[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchProducts = useCallback(
@@ -66,6 +71,15 @@ export const useAdminProducts = () => {
       setCategories(categoriesResponse);
     } catch {
       setError("Failed to fetch categories");
+    }
+  }, []);
+
+  const fetchAttributeValues = useCallback(async () => {
+    try {
+      const attributeValuesResponse = await getAttributeValues();
+      setAttributeValues(attributeValuesResponse);
+    } catch {
+      setError("Failed to fetch attribute values");
     }
   }, []);
 
@@ -117,6 +131,25 @@ export const useAdminProducts = () => {
       }
     },
     [fetchCategories],
+  );
+
+  const addAttributeOption = useCallback(
+    async (attributeValueData: AttributeValueDto) => {
+      setActionLoading(true);
+      try {
+        const createdAttributeValue = await createAttributeValue(
+          attributeValueData,
+        );
+        await fetchAttributeValues();
+        return createdAttributeValue;
+      } catch (_error) {
+        setError("Failed to add attribute value");
+        throw _error;
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [fetchAttributeValues],
   );
 
   const fetchProductBySlug = useCallback(async (slug: string) => {
@@ -287,6 +320,10 @@ export const useAdminProducts = () => {
     fetchCategories();
   }, [fetchCategories]);
 
+  useEffect(() => {
+    fetchAttributeValues();
+  }, [fetchAttributeValues]);
+
   return {
     products,
     loading,
@@ -295,11 +332,13 @@ export const useAdminProducts = () => {
     error,
     total,
     categories,
+    attributeValues,
     actionLoading,
     fetchProducts,
     setPage,
     setLimit,
     fetchProductBySlug,
+    addAttributeOption,
     addCategory,
     editCategory,
     removeCategory,

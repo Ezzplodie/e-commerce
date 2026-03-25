@@ -7,7 +7,7 @@ export type VariantImage = {
 export type ProductVariant = {
   id: number;
   sku: string;
-  price: number;
+  price: number | null;
   stock: number;
   attributes: Record<string, string>;
   variant_images: VariantImage[];

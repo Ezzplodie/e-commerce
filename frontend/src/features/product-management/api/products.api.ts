@@ -5,6 +5,8 @@ import {
   VariantImage,
 } from "@/entities/product/types";
 import {
+  AttributeValue,
+  AttributeValueDto,
   Category,
   CategoryDto,
   ProductDto,
@@ -185,6 +187,35 @@ export const getCategories = async (): Promise<Category[]> => {
   });
 
   return parseResponse<Category[]>(response);
+};
+
+export const getAttributeValues = async (
+  attributeCode?: string,
+): Promise<AttributeValue[]> => {
+  const query = attributeCode
+    ? `?code=${encodeURIComponent(attributeCode)}`
+    : "";
+  const response = await fetch(`${API_BASE}/attribute-values${query}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  return parseResponse<AttributeValue[]>(response);
+};
+
+export const createAttributeValue = async (
+  attributeValueData: AttributeValueDto,
+): Promise<AttributeValue> => {
+  const response = await fetch(`${API_BASE}/attribute-values`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(attributeValueData),
+  });
+
+  return parseResponse<AttributeValue>(response);
 };
 
 export const createCategory = async (

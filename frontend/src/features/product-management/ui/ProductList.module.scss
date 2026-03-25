@@ -330,7 +330,7 @@
   flex-wrap: wrap;
   gap: 12px;
   padding-bottom: 16px;
-  align-items: end;
+  align-items: flex-end;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--gray-200);
 
@@ -388,7 +388,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: end;
+  align-items: flex-end;
 
   @include tablet {
     flex-wrap: nowrap;
@@ -525,6 +525,39 @@
   background: linear-gradient(180deg, #fcfdfc 0%, #f6f9f6 100%);
 }
 
+.attributeLibraryPanel {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fdfefd 0%, #f7faf7 100%);
+}
+
+.attributeLibraryHeader {
+  margin-bottom: 12px;
+}
+
+.attributeEmptyState {
+  padding: 14px 16px;
+  border: 1px dashed var(--gray-300);
+  border-radius: 12px;
+  background-color: #fafcf9;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.colorCreateRow {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 14px;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
 .newVariantHeading {
   margin-bottom: 14px;
 }
@@ -557,10 +590,7 @@
 }
 
 .variantImage {
-  width: 100%;
-  aspect-ratio: 4 / 5;
   object-fit: cover;
-  display: block;
   border-radius: 12px;
 }
 
@@ -613,6 +643,30 @@
   @include mobile {
     grid-template-columns: 1fr;
   }
+}
+
+.variantSelectionPanel {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  background-color: var(--white);
+  @include flex(column, flex-start, flex-start, 10px);
+}
+
+.colorPalette {
+  width: 100%;
+}
+
+.colorPaletteButton {
+  width: 32px;
+  height: 32px;
+}
+
+.selectionHint {
+  margin: 0;
+  color: var(--gray-650);
+  @include typo.caption-md;
 }
 
 .variantField {
@@ -763,6 +817,8 @@
 }
 
 .imageFrame {
+  position: relative;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 12px;
   background-color: var(--gray-100);

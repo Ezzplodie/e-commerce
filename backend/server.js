@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/errorHandler.js";
 import categoryRouter from "./routes/category.routes.js";
+import attributeValuesRouter from "./routes/attributeValues.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/variants", productVariantRouter);
 app.use("/variant-images", variantImageRouter);
 app.use("/auth", authRouter);
 app.use("/categories", categoryRouter);
+app.use("/attribute-values", attributeValuesRouter);
 
 app.use(errorHandler);
 app.listen(process.env.PORT || 4000, () => {

@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import * as z from "zod";
 import {
   createVariantImageRepository,
@@ -112,6 +113,14 @@ export const uploadVariantImage = async (req, res, next) => {
 
     res.status(201).json(variantImage);
   } catch (err) {
+    if (req.file?.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (_cleanupError) {
+        // Ignore cleanup failures and surface the original upload error.
+      }
+    }
+
     next(err);
   }
 };

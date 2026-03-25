@@ -1,5 +1,4 @@
 "use client";
-
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Button } from "@/shared/ui/Button";
 import { TextInput } from "@/shared/ui/Input";
@@ -14,14 +13,13 @@ const emptyCategoryForm: CategoryFormState = {
 type CategoryManagerProps = {
   categories: Category[];
   actionLoading: boolean;
-  onCreateCategory: (payload: CategoryFormState) => Promise<void>;
+  onCreateCategory: (data: CategoryFormState) => Promise<Category>;
   onUpdateCategory: (
     slug: string,
-    payload: Partial<CategoryFormState>,
-  ) => Promise<void>;
+    data: CategoryFormState,
+  ) => Promise<Partial<CategoryFormState>>;
   onDeleteCategory: (slug: string) => Promise<void>;
 };
-
 export const CategoryManager = ({
   categories,
   actionLoading,
@@ -29,53 +27,48 @@ export const CategoryManager = ({
   onUpdateCategory,
   onDeleteCategory,
 }: CategoryManagerProps) => {
-  const [createForm, setCreateForm] =
-    useState<CategoryFormState>(emptyCategoryForm);
+  const [createForm, setCreateForm] = useState(emptyCategoryForm);
+  const [editForm, setEditForm] = useState<Partial<CategoryFormState>>({});
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<CategoryFormState>(emptyCategoryForm);
 
   const handleCreateField =
-    (field: keyof CategoryFormState) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setCreateForm((prev) => ({ ...prev, [field]: event.target.value }));
+    (field: keyof CategoryFormState) => (e: ChangeEvent<HTMLInputElement>) => {
+      setCreateForm((prev) => ({ ...prev, [field]: e.target.value }));
     };
-
   const handleEditField =
-    (field: keyof CategoryFormState) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setEditForm((prev) => ({ ...prev, [field]: event.target.value }));
+    (field: keyof CategoryFormState) => (e: ChangeEvent<HTMLInputElement>) => {
+      setEditForm((prev) => ({ ...prev, [field]: e.target.value }));
     };
-
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await onCreateCategory({
-      name: createForm.name.trim(),
-      slug: createForm.slug.trim(),
-    });
-    setCreateForm(emptyCategoryForm);
-  };
 
   const startEditing = (category: Category) => {
     setEditingSlug(category.slug);
-    setEditForm({
-      name: category.name,
-      slug: category.slug,
-    });
+    setEditForm({ name: category.name, slug: category.slug });
   };
-
   const cancelEditing = () => {
     setEditingSlug(null);
-    setEditForm(emptyCategoryForm);
+    setEditForm({});
   };
-
   const handleSave = async (originalSlug: string) => {
-    await onUpdateCategory(originalSlug, {
-      name: editForm.name.trim(),
-      slug: editForm.slug.trim(),
-    });
-    cancelEditing();
+    if (!editForm.name || !editForm.slug) {
+      return;
+    }
+    try {
+      await onUpdateCategory(originalSlug, editForm as CategoryFormState);
+      cancelEditing();
+    } catch (error) {
+      console.error("Failed to update category:", error);
+    }
   };
 
+  const handleCreate = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await onCreateCategory(createForm);
+      setCreateForm(emptyCategoryForm);
+    } catch (error) {
+      console.error("Failed to create category:", error);
+    }
+  };
   return (
     <section className={styles.categorySection}>
       <div className={styles.categoryHeader}>

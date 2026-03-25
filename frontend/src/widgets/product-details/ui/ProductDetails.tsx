@@ -38,13 +38,22 @@ export function ProductDetails({ product }: Props) {
     isSelectedColorOutOfStock,
   } = useProductDetails(product);
 
-  const galleryImages = useMemo(
-    () =>
-      [...(activeVariantForDisplay?.variant_images ?? [])].sort(
-        (a, b) => a.image_order - b.image_order,
-      ),
-    [activeVariantForDisplay?.variant_images],
-  );
+  const galleryImages = useMemo(() => {
+    const seenImages = new Set<string>();
+
+    return [...(activeVariantForDisplay?.variant_images ?? [])]
+      .filter((image) => {
+        const imageKey = `${image.id}-${image.image_link}-${image.image_order}`;
+
+        if (seenImages.has(imageKey)) {
+          return false;
+        }
+
+        seenImages.add(imageKey);
+        return true;
+      })
+      .sort((a, b) => a.image_order - b.image_order);
+  }, [activeVariantForDisplay?.variant_images]);
 
   const safeThumbsSwiper =
     thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null;
@@ -63,7 +72,9 @@ export function ProductDetails({ product }: Props) {
                 className={styles.main_swiper}
               >
                 {galleryImages.map((img, index) => (
-                  <SwiperSlide key={img.id}>
+                  <SwiperSlide
+                    key={`gallery-${img.id}-${img.image_order}-${index}`}
+                  >
                     <div className={styles.main_image_wrapper}>
                       <Image
                         src={img.image_link}
@@ -89,7 +100,9 @@ export function ProductDetails({ product }: Props) {
                   className={styles.thumbs_swiper}
                 >
                   {galleryImages.map((img, index) => (
-                    <SwiperSlide key={`thumb-${img.id}`}>
+                    <SwiperSlide
+                      key={`thumb-${img.id}-${img.image_order}-${index}`}
+                    >
                       <div className={styles.thumb_image_wrapper}>
                         <Image
                           src={img.image_link}

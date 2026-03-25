@@ -16,7 +16,9 @@ type ProductFormPanelProps = {
   onFieldChange: (
     field: keyof ProductFormState,
   ) => (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => void;
   headerAction?: ReactNode;
   footerAction?: ReactNode;
@@ -67,7 +69,7 @@ export const ProductFormPanel = ({
             type="number"
             value={form.base_price}
             onChange={onFieldChange("base_price")}
-            placeholder="0.00"
+            placeholder="0.002"
             className={styles.adminInput}
             required
           />

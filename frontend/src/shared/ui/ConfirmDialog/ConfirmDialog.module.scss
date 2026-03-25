@@ -1,0 +1,59 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: rgba(18, 24, 21, 0.44);
+  backdrop-filter: blur(3px);
+}
+
+.dialog {
+  width: min(100%, 420px);
+  padding: 22px;
+  border: 1px solid var(--primary-100);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--white) 0%, #f8fbf8 100%);
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
+}
+
+.title {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.message {
+  margin: 10px 0 0;
+  color: var(--gray-700);
+  @include typo.body-sm;
+}
+
+.actions {
+  margin-top: 18px;
+  @include flex(row, center, flex-end, 10px);
+
+  @include mobile {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+.button {
+  min-width: 112px;
+}
+
+.danger {
+  border-color: #aa3d3d;
+  background-color: #aa3d3d;
+
+  &:hover {
+    border-color: #8f3232;
+    background-color: #8f3232;
+  }
+}

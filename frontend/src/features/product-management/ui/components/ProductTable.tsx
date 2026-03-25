@@ -37,14 +37,19 @@ export const ProductTable = ({
 
         return (
           <article key={product.id ?? slug} className={styles.row}>
-            <span className={styles.name}>{name}</span>
+            <a href={`/products/${slug}`} className={styles.name}>
+              {name}
+            </a>
             <span>{categoryName}</span>
             <span>${basePrice.toFixed(2)}</span>
             <span>{variants}</span>
             <span>{totalStock}</span>
             <span className={styles.slug}>{slug}</span>
             <div className={styles.rowActions}>
-              <Button className={styles.editButton} onClick={() => onEdit(slug)}>
+              <Button
+                className={styles.editButton}
+                onClick={() => onEdit(slug)}
+              >
                 Edit
               </Button>
               <Button

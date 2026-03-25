@@ -1,12 +1,14 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { ProductVariant, VariantImage } from "@/entities/product/types";
 import { Button } from "@/shared/ui/Button";
+import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
 import { Loading } from "@/shared/ui/Loading";
 import { SelectInput } from "@/shared/ui/Input";
 import { useAdminProducts } from "../model/useAdminProducts";
 import {
+  AttributeValue,
   CategoryFormState,
   ProductFormState,
   VariantFormState,
@@ -29,6 +31,7 @@ const emptyVariantForm: VariantFormState = {
   sku: "",
   price: "",
   stock: "0",
+  color: "",
 };
 
 const moveItem = <T,>(items: T[], fromIndex: number, toIndex: number) => {
@@ -43,6 +46,64 @@ const moveItem = <T,>(items: T[], fromIndex: number, toIndex: number) => {
   return nextItems;
 };
 
+const normalizeAttributeText = (value: string | null | undefined) =>
+  value?.trim().toLowerCase() ?? "";
+
+const parseVariantPrice = (value: string) => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  const parsedValue = Number(trimmedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+};
+
+const getVariantAttributeValueIds = (
+  attributes: Record<string, string>,
+  attributeValues: AttributeValue[],
+  selectedColor: string,
+) => {
+  const nextAttributes = new Map<string, string>();
+
+  for (const [code, value] of Object.entries(attributes || {})) {
+    const normalizedCode = normalizeAttributeText(code);
+    const trimmedValue = value?.trim();
+
+    if (!normalizedCode || !trimmedValue) {
+      continue;
+    }
+
+    nextAttributes.set(normalizedCode, trimmedValue);
+  }
+
+  const trimmedColor = selectedColor.trim();
+  if (trimmedColor) {
+    nextAttributes.set("color", trimmedColor);
+  } else {
+    nextAttributes.delete("color");
+  }
+
+  return Array.from(nextAttributes.entries()).flatMap(([code, value]) => {
+    const matchedValue = attributeValues.find(
+      (attributeValue) =>
+        attributeValue.attribute_code === code &&
+        normalizeAttributeText(attributeValue.value) ===
+          normalizeAttributeText(value),
+    );
+
+    return matchedValue ? [matchedValue.id] : [];
+  });
+};
+
+type ConfirmState = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void | Promise<void>;
+};
+
 export const ProductList = () => {
   const {
     products,
@@ -52,11 +113,13 @@ export const ProductList = () => {
     limit,
     total,
     categories,
+    attributeValues,
     actionLoading,
     fetchProducts,
     setPage,
     setLimit,
     fetchProductBySlug,
+    addAttributeOption,
     addCategory,
     editCategory,
     removeCategory,
@@ -80,6 +143,7 @@ export const ProductList = () => {
   const [editForm, setEditForm] = useState<ProductFormState>(emptyProductForm);
   const [newVariantForm, setNewVariantForm] =
     useState<VariantFormState>(emptyVariantForm);
+  const [newColorValue, setNewColorValue] = useState("");
 
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(
     null,
@@ -95,6 +159,7 @@ export const ProductList = () => {
     Record<number, VariantFormState>
   >({});
   const [variantFiles, setVariantFiles] = useState<Record<number, File[]>>({});
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const firstItemNumber = products.length ? (page - 1) * limit + 1 : 0;
@@ -102,20 +167,33 @@ export const ProductList = () => {
     ? Math.min((page - 1) * limit + products.length, total)
     : 0;
 
-  const syncVariantDrafts = (
-    variants: Array<{
-      id: number;
-      sku: string;
-      price: number;
-      stock: number;
-    }>,
-  ) => {
+  const colorOptions = useMemo(() => {
+    const uniqueColors = new Map<string, string>();
+
+    for (const attributeValue of attributeValues) {
+      if (attributeValue.attribute_code !== "color") {
+        continue;
+      }
+
+      const normalizedColor = normalizeAttributeText(attributeValue.value);
+      if (!normalizedColor || uniqueColors.has(normalizedColor)) {
+        continue;
+      }
+
+      uniqueColors.set(normalizedColor, attributeValue.value);
+    }
+
+    return Array.from(uniqueColors.values());
+  }, [attributeValues]);
+
+  const syncVariantDrafts = (variants: ProductVariant[]) => {
     const nextDrafts: Record<number, VariantFormState> = {};
     for (const variant of variants) {
       nextDrafts[variant.id] = {
         sku: variant.sku || "",
         price: String(variant.price ?? ""),
         stock: String(variant.stock ?? 0),
+        color: variant.attributes?.color ?? "",
       };
     }
     setVariantDrafts(nextDrafts);
@@ -147,6 +225,10 @@ export const ProductList = () => {
       setNewVariantForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
+  const handleNewVariantColor = (color: string) => {
+    setNewVariantForm((prev) => ({ ...prev, color }));
+  };
+
   const handleVariantDraftField =
     (variantId: number, field: keyof VariantFormState) =>
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -158,6 +240,16 @@ export const ProductList = () => {
         },
       }));
     };
+
+  const handleVariantDraftColor = (variantId: number, color: string) => {
+    setVariantDrafts((prev) => ({
+      ...prev,
+      [variantId]: {
+        ...prev[variantId],
+        color,
+      },
+    }));
+  };
 
   const refreshSelectedProduct = async (slug?: string) => {
     const targetSlug = slug || selectedProductSlug;
@@ -191,18 +283,44 @@ export const ProductList = () => {
   };
 
   const handleCreateCategory = async (payload: CategoryFormState) => {
-    await addCategory(payload);
+    return await addCategory(payload);
+  };
+
+  const handleCreateColor = async () => {
+    const trimmedColor = newColorValue.trim();
+    if (!trimmedColor) {
+      return;
+    }
+
+    const createdColor = await addAttributeOption({
+      attribute_code: "color",
+      value: trimmedColor,
+    });
+
+    setNewColorValue("");
+    setNewVariantForm((prev) =>
+      prev.color ? prev : { ...prev, color: createdColor.value },
+    );
   };
 
   const handleUpdateCategory = async (
     slug: string,
     payload: Partial<CategoryFormState>,
   ) => {
-    await editCategory(slug, payload);
+    return await editCategory(slug, payload);
   };
 
   const handleDeleteCategory = async (slug: string) => {
     await removeCategory(slug);
+  };
+
+  const requestDeleteCategory = async (slug: string) => {
+    setConfirmState({
+      title: "Delete category?",
+      message: `Category "${slug}" will be removed. This action cannot be undone.`,
+      confirmLabel: "Delete Category",
+      onConfirm: () => handleDeleteCategory(slug),
+    });
   };
 
   const handleCreateProduct = async (event: FormEvent<HTMLFormElement>) => {
@@ -248,17 +366,32 @@ export const ProductList = () => {
     }
   };
 
+  const requestDeleteProduct = async (slug: string) => {
+    setConfirmState({
+      title: "Delete product?",
+      message: `Product "${slug}" will be permanently deleted.`,
+      confirmLabel: "Delete Product",
+      onConfirm: () => handleDeleteProduct(slug),
+    });
+  };
+
   const handleAddVariant = async () => {
     if (!selectedProductId) {
       return;
     }
 
+    const attributeValueIds = getVariantAttributeValueIds(
+      {},
+      attributeValues,
+      newVariantForm.color,
+    );
+
     await addVariant({
       product_id: selectedProductId,
       sku: newVariantForm.sku.trim(),
-      price: Number(newVariantForm.price),
+      price: parseVariantPrice(newVariantForm.price),
       stock: Number(newVariantForm.stock),
-      attribute_value_ids: [],
+      attribute_value_ids: attributeValueIds,
     });
 
     setNewVariantForm(emptyVariantForm);
@@ -268,16 +401,23 @@ export const ProductList = () => {
 
   const handleSaveVariant = async (variantId: number) => {
     const draft = variantDrafts[variantId];
-    if (!draft || !selectedProductId) {
+    const variant = selectedVariants.find((item) => item.id === variantId);
+    if (!draft || !selectedProductId || !variant) {
       return;
     }
+
+    const attributeValueIds = getVariantAttributeValueIds(
+      variant.attributes || {},
+      attributeValues,
+      draft.color,
+    );
 
     await editVariant(variantId, {
       product_id: selectedProductId,
       sku: draft.sku.trim(),
-      price: Number(draft.price),
+      price: parseVariantPrice(draft.price),
       stock: Number(draft.stock),
-      attribute_value_ids: [],
+      attribute_value_ids: attributeValueIds,
     });
 
     await refreshSelectedProduct();
@@ -288,6 +428,15 @@ export const ProductList = () => {
     await removeVariant(variantId);
     await refreshSelectedProduct();
     await fetchProducts();
+  };
+
+  const requestDeleteVariant = async (variantId: number) => {
+    setConfirmState({
+      title: "Delete variant?",
+      message: `Variant #${variantId} will be removed from this product.`,
+      confirmLabel: "Delete Variant",
+      onConfirm: () => handleDeleteVariant(variantId),
+    });
   };
 
   const handleVariantFiles = (variantId: number, files: FileList | null) => {
@@ -331,6 +480,15 @@ export const ProductList = () => {
     await refreshSelectedProduct();
   };
 
+  const requestDeleteVariantImage = async (imageId: number) => {
+    setConfirmState({
+      title: "Delete photo?",
+      message: "This variant photo will be permanently removed.",
+      confirmLabel: "Delete Photo",
+      onConfirm: () => handleDeleteVariantImage(imageId),
+    });
+  };
+
   const handleMoveVariantImage = async (
     images: VariantImage[],
     imageId: number,
@@ -350,6 +508,19 @@ export const ProductList = () => {
     const reorderedImages = moveItem(images, currentIndex, targetIndex);
     await reorderVariantImages(reorderedImages);
     await refreshSelectedProduct();
+  };
+
+  const handleConfirmAction = async () => {
+    if (!confirmState) {
+      return;
+    }
+
+    try {
+      await confirmState.onConfirm();
+      setConfirmState(null);
+    } catch (error) {
+      console.error("Confirmation action failed:", error);
+    }
   };
 
   return (
@@ -390,7 +561,7 @@ export const ProductList = () => {
         actionLoading={actionLoading}
         onCreateCategory={handleCreateCategory}
         onUpdateCategory={handleUpdateCategory}
-        onDeleteCategory={handleDeleteCategory}
+        onDeleteCategory={requestDeleteCategory}
       />
 
       {showCreatePanel && (
@@ -440,19 +611,26 @@ export const ProductList = () => {
 
           <VariantManager
             variants={selectedVariants}
+            basePrice={Number(editForm.base_price) || 0}
+            availableColors={colorOptions}
             newVariantForm={newVariantForm}
+            newColorValue={newColorValue}
             variantDrafts={variantDrafts}
             variantFiles={variantFiles}
             actionLoading={actionLoading}
             toAbsoluteImageUrl={toAbsoluteImageUrl}
             onNewVariantField={handleNewVariantField}
+            onNewVariantColor={handleNewVariantColor}
             onVariantDraftField={handleVariantDraftField}
+            onVariantDraftColor={handleVariantDraftColor}
+            onNewColorValue={(event) => setNewColorValue(event.target.value)}
+            onCreateColor={handleCreateColor}
             onAddVariant={handleAddVariant}
             onSaveVariant={handleSaveVariant}
-            onDeleteVariant={handleDeleteVariant}
+            onDeleteVariant={requestDeleteVariant}
             onVariantFiles={handleVariantFiles}
             onUploadVariantImages={handleUploadVariantImages}
-            onDeleteVariantImage={handleDeleteVariantImage}
+            onDeleteVariantImage={requestDeleteVariantImage}
             onMoveVariantImage={handleMoveVariantImage}
           />
         </div>
@@ -491,7 +669,7 @@ export const ProductList = () => {
           <ProductTable
             products={products}
             onEdit={loadProductForEdit}
-            onDelete={handleDeleteProduct}
+            onDelete={requestDeleteProduct}
           />
 
           <div className={styles.footer}>
@@ -517,6 +695,16 @@ export const ProductList = () => {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmState !== null}
+        title={confirmState?.title || ""}
+        message={confirmState?.message || ""}
+        confirmLabel={confirmState?.confirmLabel || "Confirm"}
+        loading={actionLoading}
+        onCancel={() => setConfirmState(null)}
+        onConfirm={handleConfirmAction}
+      />
     </section>
   );
 };

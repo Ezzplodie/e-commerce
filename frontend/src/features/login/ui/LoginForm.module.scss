@@ -36,6 +36,12 @@
 .submit {
   margin-top: 8px;
   width: 100%;
+  gap: 10px;
+}
+
+.buttonSpinner {
+  width: auto;
+  padding: 0;
 }
 
 @include tablet {

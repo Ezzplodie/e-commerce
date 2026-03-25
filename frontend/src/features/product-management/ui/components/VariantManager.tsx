@@ -1,10 +1,9 @@
 "use client";
 
 import { ChangeEvent } from "react";
-import {
-  ProductVariant,
-  VariantImage,
-} from "@/entities/product/types";
+import Image from "next/image";
+import { ProductVariant, VariantImage } from "@/entities/product/types";
+import { AvailableColors } from "@/shared/ui/AvailableColors";
 import { Button } from "@/shared/ui/Button";
 import { TextInput } from "@/shared/ui/Input";
 import { VariantFormState } from "../../types";
@@ -26,7 +25,10 @@ const sortVariantImages = (images: VariantImage[]) =>
 
 type VariantManagerProps = {
   variants: ProductVariant[];
+  basePrice: number;
+  availableColors: string[];
   newVariantForm: VariantFormState;
+  newColorValue: string;
   variantDrafts: Record<number, VariantFormState>;
   variantFiles: Record<number, File[]>;
   actionLoading: boolean;
@@ -34,10 +36,14 @@ type VariantManagerProps = {
   onNewVariantField: (
     field: keyof VariantFormState,
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
+  onNewVariantColor: (color: string) => void;
   onVariantDraftField: (
     variantId: number,
     field: keyof VariantFormState,
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
+  onVariantDraftColor: (variantId: number, color: string) => void;
+  onNewColorValue: (event: ChangeEvent<HTMLInputElement>) => void;
+  onCreateColor: () => void | Promise<void>;
   onAddVariant: () => void | Promise<void>;
   onSaveVariant: (variantId: number) => void | Promise<void>;
   onDeleteVariant: (variantId: number) => void | Promise<void>;
@@ -56,13 +62,20 @@ type VariantManagerProps = {
 
 export const VariantManager = ({
   variants,
+  basePrice,
+  availableColors,
   newVariantForm,
+  newColorValue,
   variantDrafts,
   variantFiles,
   actionLoading,
   toAbsoluteImageUrl,
   onNewVariantField,
+  onNewVariantColor,
   onVariantDraftField,
+  onVariantDraftColor,
+  onNewColorValue,
+  onCreateColor,
   onAddVariant,
   onSaveVariant,
   onDeleteVariant,
@@ -77,12 +90,57 @@ export const VariantManager = ({
         <div>
           <h3 className={styles.variantsTitle}>Product Variants</h3>
           <p className={styles.variantsSubtitle}>
-            Manage SKU, price, stock, and photos for every variant.
+            Manage SKU, optional price override, stock, and photos for every
+            variant.
           </p>
         </div>
         <span className={styles.variantCountChip}>
           {variants.length} variant{variants.length === 1 ? "" : "s"}
         </span>
+      </div>
+
+      <div className={styles.attributeLibraryPanel}>
+        <div className={styles.attributeLibraryHeader}>
+          <div>
+            <p className={styles.variantSectionTitle}>Color Options</p>
+            <p className={styles.variantMetaHint}>
+              Pick a shared color for each variant or add a new one once for
+              the whole product.
+            </p>
+          </div>
+        </div>
+
+        {availableColors.length > 0 ? (
+          <AvailableColors
+            colors={availableColors}
+            className={styles.colorPalette}
+            buttonClassName={styles.colorPaletteButton}
+          />
+        ) : (
+          <div className={styles.attributeEmptyState}>
+            No colors available yet. Add the first color below.
+          </div>
+        )}
+
+        <div className={styles.colorCreateRow}>
+          <label className={styles.variantField}>
+            <span className={styles.variantFieldLabel}>New Color</span>
+            <TextInput
+              value={newColorValue}
+              onChange={onNewColorValue}
+              placeholder="Add a color, e.g. Olive"
+              className={styles.adminInput}
+            />
+          </label>
+          <Button
+            type="button"
+            className={`${styles.actionButton} ${styles.compactButton}`}
+            disabled={actionLoading || !newColorValue.trim()}
+            onClick={onCreateColor}
+          >
+            Add Color
+          </Button>
+        </div>
       </div>
 
       <div className={styles.newVariantPanel}>
@@ -104,12 +162,12 @@ export const VariantManager = ({
             />
           </label>
           <label className={styles.variantField}>
-            <span className={styles.variantFieldLabel}>Price</span>
+            <span className={styles.variantFieldLabel}>Price Override</span>
             <TextInput
               type="number"
               value={newVariantForm.price}
               onChange={onNewVariantField("price")}
-              placeholder="Price"
+              placeholder="Use product base price"
               className={styles.adminInput}
             />
           </label>
@@ -123,6 +181,33 @@ export const VariantManager = ({
               className={styles.adminInput}
             />
           </label>
+        </div>
+
+        <div className={styles.variantSelectionPanel}>
+          <p className={styles.selectionHint}>
+            Leave price empty to use the product base price: ${basePrice.toFixed(2)}
+          </p>
+          <span className={styles.variantFieldLabel}>Color</span>
+          {availableColors.length > 0 ? (
+            <>
+              <AvailableColors
+                colors={availableColors}
+                selectedColor={newVariantForm.color}
+                onSelectColor={onNewVariantColor}
+                className={styles.colorPalette}
+                buttonClassName={styles.colorPaletteButton}
+              />
+              <p className={styles.selectionHint}>
+                {newVariantForm.color
+                  ? `Selected color: ${newVariantForm.color}`
+                  : "Choose a color for the new variant."}
+              </p>
+            </>
+          ) : (
+            <p className={styles.selectionHint}>
+              Add a color option first, then assign it to the variant.
+            </p>
+          )}
         </div>
 
         <div className={styles.variantActionsRow}>
@@ -147,16 +232,20 @@ export const VariantManager = ({
         <div className={styles.variantCards}>
           {variants.map((variant) => {
             const images = sortVariantImages(
-              Array.isArray(variant.variant_images) ? variant.variant_images : [],
+              Array.isArray(variant.variant_images)
+                ? variant.variant_images
+                : [],
             );
             const attributes = Object.entries(variant.attributes || {});
             const draft = variantDrafts[variant.id] || {
               sku: "",
               price: "",
               stock: "0",
+              color: "",
             };
             const selectedFilesCount = variantFiles[variant.id]?.length || 0;
-            const variantLabel = draft.sku || variant.sku || `Variant ${variant.id}`;
+            const variantLabel =
+              draft.sku || variant.sku || `Variant ${variant.id}`;
 
             return (
               <article key={variant.id} className={styles.variantCard}>
@@ -210,17 +299,21 @@ export const VariantManager = ({
                           />
                         </label>
                         <label className={styles.variantField}>
-                          <span className={styles.variantFieldLabel}>Price</span>
+                          <span className={styles.variantFieldLabel}>
+                            Price Override
+                          </span>
                           <TextInput
                             type="number"
                             value={draft.price}
                             onChange={onVariantDraftField(variant.id, "price")}
-                            placeholder="Price"
+                            placeholder="Use product base price"
                             className={styles.adminInput}
                           />
                         </label>
                         <label className={styles.variantField}>
-                          <span className={styles.variantFieldLabel}>Stock</span>
+                          <span className={styles.variantFieldLabel}>
+                            Stock
+                          </span>
                           <TextInput
                             type="number"
                             value={draft.stock}
@@ -229,6 +322,36 @@ export const VariantManager = ({
                             className={styles.adminInput}
                           />
                         </label>
+                      </div>
+
+                      <div className={styles.variantSelectionPanel}>
+                        <p className={styles.selectionHint}>
+                          Leave price empty to use the product base price: $
+                          {basePrice.toFixed(2)}
+                        </p>
+                        <span className={styles.variantFieldLabel}>Color</span>
+                        {availableColors.length > 0 ? (
+                          <>
+                            <AvailableColors
+                              colors={availableColors}
+                              selectedColor={draft.color}
+                              onSelectColor={(color) =>
+                                onVariantDraftColor(variant.id, color)
+                              }
+                              className={styles.colorPalette}
+                              buttonClassName={styles.colorPaletteButton}
+                            />
+                            <p className={styles.selectionHint}>
+                              {draft.color
+                                ? `Selected color: ${draft.color}`
+                                : "Choose the color for this variant."}
+                            </p>
+                          </>
+                        ) : (
+                          <p className={styles.selectionHint}>
+                            Add a color option above to assign it here.
+                          </p>
+                        )}
                       </div>
 
                       <div className={styles.variantActionsRow}>
@@ -260,9 +383,11 @@ export const VariantManager = ({
                         {images.map((image, imageIndex) => (
                           <div key={image.id} className={styles.imageCard}>
                             <div className={styles.imageFrame}>
-                              <img
+                              <Image
                                 src={toAbsoluteImageUrl(image.image_link)}
                                 alt={`${variantLabel} photo ${imageIndex + 1}`}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 320px"
                                 className={styles.variantImage}
                               />
                             </div>
@@ -290,7 +415,11 @@ export const VariantManager = ({
                                     type="button"
                                     className={styles.orderButton}
                                     onClick={() =>
-                                      onMoveVariantImage(images, image.id, "later")
+                                      onMoveVariantImage(
+                                        images,
+                                        image.id,
+                                        "later",
+                                      )
                                     }
                                     disabled={
                                       actionLoading ||
@@ -343,9 +472,12 @@ export const VariantManager = ({
                       <Button
                         type="button"
                         className={`${styles.actionButton} ${styles.compactButton}`}
-                        onClick={() => onUploadVariantImages(variant.id, images)}
+                        onClick={() =>
+                          onUploadVariantImages(variant.id, images)
+                        }
                         disabled={
-                          actionLoading || !(variantFiles[variant.id]?.length > 0)
+                          actionLoading ||
+                          !(variantFiles[variant.id]?.length > 0)
                         }
                       >
                         Upload Photos

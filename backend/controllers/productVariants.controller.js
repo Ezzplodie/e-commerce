@@ -8,7 +8,7 @@ import {
 const productVariantSchema = z.object({
   product_id: z.number().min(1),
   sku: z.string().min(1),
-  price: z.number().positive(),
+  price: z.number().positive().nullable().optional(),
   stock: z.number().int().min(0).optional(),
   attribute_value_ids: z.array(z.number().min(1)).optional(),
 });
@@ -22,7 +22,7 @@ export const createProductVariant = async (req, res, next) => {
     const {
       product_id,
       sku,
-      price,
+      price = null,
       stock = 0,
       attribute_value_ids = [],
     } = result.data;

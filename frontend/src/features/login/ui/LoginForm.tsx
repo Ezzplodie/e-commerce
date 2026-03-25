@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/shared/ui/Button";
 import { TextInput } from "@/shared/ui/Input";
+import { Loading } from "@/shared/ui/Loading";
 import styles from "./LoginForm.module.scss";
 import { useState } from "react";
 import z from "zod";
@@ -27,8 +28,9 @@ export const LoginForm = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
-  console.log(errors);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const sendLoginRequest = async () => {
+    setIsSubmitting(true);
     try {
       const response = await fetch("http://localhost:4000/auth/login", {
         method: "POST",
@@ -42,11 +44,12 @@ export const LoginForm = () => {
         }),
       });
       if (response.ok) {
-        console.log("Success");
         router.push("/admin");
       }
     } catch (error) {
       console.error("Login failed:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const handleSubmit = (e: React.FormEvent) => {
@@ -79,6 +82,7 @@ export const LoginForm = () => {
           placeholder="Enter your email"
           autoComplete="email"
           className={`${styles.fieldInput} ${errors.email ? styles.fieldInputError : ""}`}
+          disabled={isSubmitting}
         />
         {errors.email ? (
           <span className={styles.errorText}>{errors.email}</span>
@@ -99,14 +103,26 @@ export const LoginForm = () => {
           placeholder="Enter your password"
           autoComplete="current-password"
           className={`${styles.fieldInput} ${errors.password ? styles.fieldInputError : ""}`}
+          disabled={isSubmitting}
         />
         {errors.password ? (
           <span className={styles.errorText}>{errors.password}</span>
         ) : null}
       </label>
 
-      <Button type="submit" className={styles.submit}>
-        Log In
+      <Button type="submit" className={styles.submit} disabled={isSubmitting}>
+        {isSubmitting ? (
+          <>
+            <Loading
+              size="sm"
+              label="Logging in"
+              className={styles.buttonSpinner}
+            />
+            <span>Logging In...</span>
+          </>
+        ) : (
+          "Log In"
+        )}
       </Button>
     </form>
   );
