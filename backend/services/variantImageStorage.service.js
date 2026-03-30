@@ -3,10 +3,67 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { getVariantImageStorageContextRepository } from "../repositories/variantImages.repository.js";
 
-const LOCAL_UPLOAD_ROOT = path.resolve(process.cwd(), "uploads", "variants");
-const DEFAULT_BUCKET = "product-images";
+const LEGACY_UPLOAD_PREFIX = "/uploads/variants/";
+const LEGACY_UPLOAD_ROOT = path.resolve(process.cwd(), "uploads", "variants");
+const REQUIRED_BUCKET = "product-images";
+const SUPPORTED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+]);
 
-const sanitizeFileName = (fileName) => {
+export const MAX_VARIANT_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+
+const slugifySegment = (value) =>
+  value
+    ?.trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") ?? "";
+
+const encodeObjectPath = (storagePath) =>
+  storagePath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+const getRequiredEnvValue = (name) => {
+  const value = process.env[name]?.trim();
+
+  if (!value) {
+    const error = new Error(`${name} is required for Supabase Storage`);
+    error.status = 500;
+    throw error;
+  }
+
+  return value;
+};
+
+const getSupabaseConfig = () => {
+  const url = getRequiredEnvValue("SUPABASE_URL").replace(/\/+$/, "");
+  const serviceRoleKey = getRequiredEnvValue("SUPABASE_SERVICE_ROLE_KEY");
+  const bucket = getRequiredEnvValue("SUPABASE_STORAGE_BUCKET");
+
+  if (bucket !== REQUIRED_BUCKET) {
+    const error = new Error(
+      `SUPABASE_STORAGE_BUCKET must be "${REQUIRED_BUCKET}"`,
+    );
+    error.status = 500;
+    throw error;
+  }
+
+  return {
+    url,
+    serviceRoleKey,
+    bucket,
+  };
+};
+
+export const assertSupabaseStorageConfigured = () => getSupabaseConfig();
+
+export const sanitizeFileName = (fileName) => {
   const extension = path.extname(fileName);
   const baseName = path.basename(fileName, extension);
   const safeBaseName = baseName
@@ -19,204 +76,211 @@ const sanitizeFileName = (fileName) => {
   return `${safeBaseName || "image"}${safeExtension || ""}`;
 };
 
-const slugifySegment = (value) =>
-  value
-    ?.trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "") || "unassigned";
+export const buildStoragePath = ({
+  productId,
+  variantId,
+  color,
+  originalName,
+}) => {
+  const normalizedColor = slugifySegment(color);
 
-const encodeObjectPath = (objectPath) =>
-  objectPath
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
-    .join("/");
-
-const getSupabaseProjectRefFromDatabaseUrl = () => {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    return null;
+  if (!normalizedColor) {
+    const error = new Error(
+      "Variant color is required before uploading images",
+    );
+    error.status = 400;
+    throw error;
   }
-
-  try {
-    const parsedUrl = new URL(databaseUrl);
-    const username = decodeURIComponent(parsedUrl.username);
-
-    if (!username.startsWith("postgres.")) {
-      return null;
-    }
-
-    return username.slice("postgres.".length) || null;
-  } catch {
-    return null;
-  }
-};
-
-const getSupabaseBaseUrl = () => {
-  const configuredUrl = process.env.SUPABASE_URL?.trim();
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/+$/, "");
-  }
-
-  const projectRef = getSupabaseProjectRefFromDatabaseUrl();
-  return projectRef ? `https://${projectRef}.supabase.co` : null;
-};
-
-const getStorageBucket = () =>
-  process.env.SUPABASE_STORAGE_BUCKET?.trim() || DEFAULT_BUCKET;
-
-const getStorageApiKey = () =>
-  process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
-  process.env.SUPABASE_ANON_KEY?.trim() ||
-  null;
-
-const isSupabaseStorageConfigured = () =>
-  Boolean(getSupabaseBaseUrl() && getStorageApiKey());
-
-const buildVariantObjectPath = (context, fileName) => {
-  const colorSegment = slugifySegment(context?.color);
-  const safeFileName = sanitizeFileName(fileName);
-  // to avoid potential filename collisions, we prepend a unique prefix to the filename
-  const uniquePrefix = `${Date.now()}-${crypto.randomUUID()}`;
 
   return [
     "products",
-    String(context.product_id),
+    String(productId),
     "variants",
-    String(context.variant_id),
+    String(variantId),
     "colors",
-    colorSegment,
-    `${uniquePrefix}-${safeFileName}`,
+    normalizedColor,
+    `${Date.now()}-${crypto.randomUUID()}-${sanitizeFileName(originalName)}`,
   ].join("/");
 };
-// This structure allows for efficient organization and retrieval of variant images based on their associated product, variant, and color, while also ensuring that filenames are safe and unique to prevent collisions
-const buildSupabasePublicUrl = (objectPath) => {
-  const supabaseBaseUrl = getSupabaseBaseUrl();
-  const bucket = getStorageBucket();
 
-  if (!supabaseBaseUrl) {
-    throw new Error("Supabase URL is not configured");
-  }
-
-  return `${supabaseBaseUrl}/storage/v1/object/public/${bucket}/${encodeObjectPath(objectPath)}`;
+export const generatePublicUrl = (storagePath, bucket = REQUIRED_BUCKET) => {
+  const { url } = getSupabaseConfig();
+  return `${url}/storage/v1/object/public/${bucket}/${encodeObjectPath(storagePath)}`;
 };
 
-const uploadToSupabaseStorage = async (objectPath, file) => {
-  const supabaseBaseUrl = getSupabaseBaseUrl();
-  const apiKey = getStorageApiKey();
-  const bucket = getStorageBucket();
-
-  if (!supabaseBaseUrl || !apiKey) {
-    throw new Error("Supabase storage credentials are not configured");
-  }
+export const uploadBufferToSupabaseStorage = async ({
+  storagePath,
+  buffer,
+  contentType,
+}) => {
+  const { url, serviceRoleKey, bucket } = getSupabaseConfig();
 
   const response = await fetch(
-    `${supabaseBaseUrl}/storage/v1/object/${bucket}/${encodeObjectPath(objectPath)}`,
+    `${url}/storage/v1/object/${bucket}/${encodeObjectPath(storagePath)}`,
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        apikey: apiKey,
-        "Content-Type": file.mimetype || "application/octet-stream",
+        Authorization: `Bearer ${serviceRoleKey}`,
+        apikey: serviceRoleKey,
+        "Content-Type": contentType,
         "x-upsert": "false",
       },
-      body: file.buffer,
+      body: buffer,
     },
   );
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || "Supabase storage upload failed");
+    const error = new Error(errorText || "Supabase storage upload failed");
+    error.status = response.status >= 400 ? response.status : 502;
+    throw error;
   }
 
-  return buildSupabasePublicUrl(objectPath);
+  return {
+    storage_bucket: bucket,
+    storage_path: storagePath,
+  };
 };
 
-const uploadToLocalStorage = async (objectPath, file) => {
-  const targetPath = path.resolve(LOCAL_UPLOAD_ROOT, objectPath);
-  const targetDir = path.dirname(targetPath);
+export const assertVariantImageUploadIsAllowed = (file) => {
+  if (!file) {
+    const error = new Error("Image file is required");
+    error.status = 400;
+    throw error;
+  }
 
-  await fs.mkdir(targetDir, { recursive: true });
-  await fs.writeFile(targetPath, file.buffer);
+  if (!SUPPORTED_IMAGE_TYPES.has(file.mimetype)) {
+    const error = new Error("Unsupported image type");
+    error.status = 400;
+    throw error;
+  }
 
-  return `/uploads/variants/${objectPath.replace(/\\/g, "/")}`;
+  if (!Number.isFinite(file.size) || file.size <= 0) {
+    const error = new Error("Image file is invalid");
+    error.status = 400;
+    throw error;
+  }
+
+  if (file.size > MAX_VARIANT_IMAGE_SIZE_BYTES) {
+    const error = new Error("Image file is too large");
+    error.status = 413;
+    throw error;
+  }
 };
 
-const extractSupabaseObjectPath = (imageLink) => {
-  const supabaseBaseUrl = getSupabaseBaseUrl();
-  const bucket = getStorageBucket();
-
-  if (!supabaseBaseUrl || !imageLink) {
+export const convertLegacyUploadsImageLinkToStoragePath = (imageLink) => {
+  if (!imageLink?.startsWith(LEGACY_UPLOAD_PREFIX)) {
     return null;
   }
 
+  return imageLink.slice(LEGACY_UPLOAD_PREFIX.length);
+};
+
+const extractStoragePathFromPublicUrl = (imageLink) => {
+  if (!imageLink) {
+    return null;
+  }
+
+  const { url, bucket } = getSupabaseConfig();
+
   try {
     const imageUrl = new URL(imageLink);
-    const supabaseUrl = new URL(supabaseBaseUrl);
-    const prefix = `/storage/v1/object/public/${bucket}/`;
+    const supabaseUrl = new URL(url);
+    const expectedPrefix = `/storage/v1/object/public/${bucket}/`;
 
     if (
       imageUrl.origin !== supabaseUrl.origin ||
-      !imageUrl.pathname.startsWith(prefix)
+      !imageUrl.pathname.startsWith(expectedPrefix)
     ) {
       return null;
     }
 
-    return decodeURIComponent(imageUrl.pathname.slice(prefix.length));
+    return decodeURIComponent(imageUrl.pathname.slice(expectedPrefix.length));
   } catch {
     return null;
   }
 };
 
-const deleteFromSupabaseStorage = async (objectPath) => {
-  const supabaseBaseUrl = getSupabaseBaseUrl();
-  const apiKey = getStorageApiKey();
-  const bucket = getStorageBucket();
+const resolveStoredImageTarget = (imageRecord) => {
+  const legacyImageLink = imageRecord?.legacy_image_link ?? imageRecord?.image_link;
 
-  if (!supabaseBaseUrl || !apiKey || !objectPath) {
-    return;
+  if (imageRecord?.storage_path) {
+    return {
+      type: "supabase",
+      bucket: imageRecord.storage_bucket || REQUIRED_BUCKET,
+      storagePath: imageRecord.storage_path,
+    };
   }
 
+  const legacyStoragePath = convertLegacyUploadsImageLinkToStoragePath(
+    legacyImageLink,
+  );
+
+  if (legacyStoragePath) {
+    return {
+      type: "legacy-local",
+      storagePath: legacyStoragePath,
+    };
+  }
+
+  const publicStoragePath = extractStoragePathFromPublicUrl(legacyImageLink);
+
+  if (publicStoragePath) {
+    return {
+      type: "supabase",
+      bucket: imageRecord.storage_bucket || REQUIRED_BUCKET,
+      storagePath: publicStoragePath,
+    };
+  }
+
+  return null;
+};
+
+const deleteObjectFromSupabaseStorage = async ({ bucket, storagePath }) => {
+  const { url, serviceRoleKey } = getSupabaseConfig();
+
   const response = await fetch(
-    `${supabaseBaseUrl}/storage/v1/object/${bucket}/${encodeObjectPath(objectPath)}`,
+    `${url}/storage/v1/object/${bucket}/${encodeObjectPath(storagePath)}`,
     {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        apikey: apiKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+        apikey: serviceRoleKey,
       },
     },
   );
 
   if (!response.ok && response.status !== 404) {
     const errorText = await response.text();
-    throw new Error(errorText || "Supabase storage delete failed");
+    const error = new Error(errorText || "Supabase storage delete failed");
+    error.status = response.status >= 400 ? response.status : 502;
+    throw error;
   }
 };
 
-const deleteFromLocalStorage = async (imageLink) => {
-  if (!imageLink?.startsWith("/uploads/variants/")) {
-    return;
-  }
+const deleteLegacyLocalFile = async (storagePath) => {
+  const filePath = path.resolve(LEGACY_UPLOAD_ROOT, storagePath);
 
-  const relativePath = imageLink.slice("/uploads/variants/".length);
-  const targetPath = path.resolve(LOCAL_UPLOAD_ROOT, relativePath);
-
-  if (!targetPath.startsWith(LOCAL_UPLOAD_ROOT)) {
-    return;
+  if (!filePath.startsWith(LEGACY_UPLOAD_ROOT)) {
+    const error = new Error("Legacy image path is outside the uploads directory");
+    error.status = 500;
+    throw error;
   }
 
   try {
-    await fs.unlink(targetPath);
+    await fs.unlink(filePath);
   } catch (error) {
-    if (error?.code !== "ENOENT") {
-      throw error;
+    if (error?.code === "ENOENT") {
+      return;
     }
+
+    throw error;
   }
 };
 
 export const uploadVariantImageFile = async (variantId, file) => {
+  assertVariantImageUploadIsAllowed(file);
+
   const context = await getVariantImageStorageContextRepository(variantId);
 
   if (!context) {
@@ -225,24 +289,90 @@ export const uploadVariantImageFile = async (variantId, file) => {
     throw error;
   }
 
-  const objectPath = buildVariantObjectPath(context, file.originalname);
-
-  if (isSupabaseStorageConfigured()) {
-    const imageLink = await uploadToSupabaseStorage(objectPath, file);
-    return { imageLink, objectPath, storage: "supabase" };
+  if (!context.color?.trim()) {
+    const error = new Error(
+      "Variant color is required before uploading images",
+    );
+    error.status = 400;
+    throw error;
   }
 
-  const imageLink = await uploadToLocalStorage(objectPath, file);
-  return { imageLink, objectPath, storage: "local" };
+  const storagePath = buildStoragePath({
+    productId: context.product_id,
+    variantId: context.variant_id,
+    color: context.color,
+    originalName: file.originalname,
+  });
+
+  const storedFile = await uploadBufferToSupabaseStorage({
+    storagePath,
+    buffer: file.buffer,
+    contentType: file.mimetype,
+  });
+
+  return {
+    ...storedFile,
+    content_type: file.mimetype,
+    file_size: file.size,
+  };
 };
 
-export const removeStoredVariantImage = async (imageLink) => {
-  const supabaseObjectPath = extractSupabaseObjectPath(imageLink);
+export const deleteStoredVariantImage = async (imageRecord) => {
+  const target = resolveStoredImageTarget(imageRecord);
 
-  if (supabaseObjectPath) {
-    await deleteFromSupabaseStorage(supabaseObjectPath);
+  if (!target) {
+    const error = new Error(
+      "Cannot resolve storage target for this image; manual cleanup is required",
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  if (target.type === "legacy-local") {
+    await deleteLegacyLocalFile(target.storagePath);
     return;
   }
 
-  await deleteFromLocalStorage(imageLink);
+  await deleteObjectFromSupabaseStorage(target);
+};
+
+export const mapVariantImageRecordToResponse = (imageRecord) => {
+  const target = resolveStoredImageTarget(imageRecord);
+  const legacyImageLink = imageRecord?.legacy_image_link ?? imageRecord?.image_link;
+  const derivedImageLink =
+    target?.type === "supabase"
+      ? generatePublicUrl(target.storagePath, target.bucket)
+      : legacyImageLink || "";
+
+  return {
+    id: imageRecord.id,
+    image_link: derivedImageLink,
+    image_order: imageRecord.image_order,
+    storage_bucket: imageRecord.storage_bucket ?? null,
+    storage_path: imageRecord.storage_path ?? null,
+    content_type: imageRecord.content_type ?? null,
+    file_size: imageRecord.file_size ?? null,
+  };
+};
+
+export const mapProductImagesToResponse = (product) => ({
+  ...product,
+  variants: (product.variants || []).map((variant) => ({
+    ...variant,
+    variant_images: (variant.variant_images || []).map(
+      mapVariantImageRecordToResponse,
+    ),
+  })),
+});
+
+export const buildStoragePathFromLegacyUploadsLink = (imageLink) => {
+  const storagePath = convertLegacyUploadsImageLinkToStoragePath(imageLink);
+
+  if (!storagePath) {
+    const error = new Error("Legacy image link does not point to /uploads");
+    error.status = 400;
+    throw error;
+  }
+
+  return storagePath;
 };

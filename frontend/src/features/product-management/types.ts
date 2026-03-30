@@ -32,7 +32,6 @@ export type AttributeValueDto = {
 };
 
 export type UpdateVariantImageDto = {
-  image_link?: string;
   image_order?: number;
 };
 

@@ -40,7 +40,11 @@ export const getProductBySlugRepository = async (slug) => {
                       SELECT jsonb_agg(
                         jsonb_build_object(
                           'id', vi.id,
-                          'image_link', vi.image_link,
+                          'legacy_image_link', vi.image_link,
+                          'storage_bucket', vi.storage_bucket,
+                          'storage_path', vi.storage_path,
+                          'content_type', vi.content_type,
+                          'file_size', vi.file_size,
                           'image_order', vi.image_order
                         )
                         ORDER BY vi.image_order ASC, vi.id ASC

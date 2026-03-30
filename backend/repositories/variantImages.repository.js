@@ -9,24 +9,49 @@ const syncVariantImagesIdSequence = async () => {
     )
   `);
 };
-// This function ensures that the sequence for the 'id' column in the 'variant_images' table is correctly set to avoid conflicts when inserting new records, especially after manual inserts or deletions that might have caused the sequence to become out of sync with the actual data in the table.
+
+const variantImageSelect = `
+  SELECT
+    vi.id,
+    vi.variant_id,
+    vi.image_order,
+    vi.image_link,
+    vi.storage_bucket,
+    vi.storage_path,
+    vi.content_type,
+    vi.file_size
+  FROM ecommerce.variant_images vi
+`;
+
 export const createVariantImageRepository = async (
   variantId,
-  image_link,
-  image_order,
+  { storage_bucket, storage_path, content_type, file_size, image_order },
 ) => {
   const insertQuery = `
-    INSERT INTO ecommerce.variant_images(variant_id, image_link, image_order)
-    VALUES ($1, $2, $3)
+    INSERT INTO ecommerce.variant_images(
+      variant_id,
+      image_order,
+      storage_bucket,
+      storage_path,
+      content_type,
+      file_size,
+      image_link
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, NULL)
     RETURNING *
   `;
 
+  const values = [
+    variantId,
+    image_order,
+    storage_bucket,
+    storage_path,
+    content_type,
+    file_size,
+  ];
+
   try {
-    const { rows } = await pool.query(insertQuery, [
-      variantId,
-      image_link,
-      image_order,
-    ]);
+    const { rows } = await pool.query(insertQuery, values);
     return rows[0];
   } catch (error) {
     if (
@@ -34,11 +59,7 @@ export const createVariantImageRepository = async (
       error?.constraint === "variant_images_pkey"
     ) {
       await syncVariantImagesIdSequence();
-      const { rows } = await pool.query(insertQuery, [
-        variantId,
-        image_link,
-        image_order,
-      ]);
+      const { rows } = await pool.query(insertQuery, values);
       return rows[0];
     }
 
@@ -46,7 +67,6 @@ export const createVariantImageRepository = async (
   }
 };
 
-// The getVariantImageStorageContextRepository function retrieves the necessary context for storing variant images, such as the variant ID, product ID, and color attribute (if available). This information is crucial for determining where and how to store the image, especially when using structured storage solutions like Supabase or local file systems.
 export const getVariantImageStorageContextRepository = async (variantId) => {
   const { rows } = await pool.query(
     `
@@ -67,21 +87,25 @@ export const getVariantImageStorageContextRepository = async (variantId) => {
   return rows[0] ?? null;
 };
 
-export const updateVariantImageRepository = async (
-  imageId,
-  image_link,
-  image_order,
-) => {
+export const getVariantImageRepository = async (imageId) => {
   const { rows } = await pool.query(
-    `UPDATE ecommerce.variant_images
-     SET image_link = COALESCE($1, image_link),
-         image_order = COALESCE($2, image_order)
-     WHERE id = $3
-     RETURNING *`,
-    [image_link, image_order, imageId],
+    `${variantImageSelect} WHERE vi.id = $1`,
+    [imageId],
   );
 
-  return rows[0];
+  return rows[0] ?? null;
+};
+
+export const updateVariantImageRepository = async (imageId, image_order) => {
+  const { rows } = await pool.query(
+    `UPDATE ecommerce.variant_images
+     SET image_order = COALESCE($1, image_order)
+     WHERE id = $2
+     RETURNING *`,
+    [image_order, imageId],
+  );
+
+  return rows[0] ?? null;
 };
 
 export const deleteVariantImageRepository = async (imageId) => {
@@ -90,5 +114,5 @@ export const deleteVariantImageRepository = async (imageId) => {
     [imageId],
   );
 
-  return rows[0];
+  return rows[0] ?? null;
 };

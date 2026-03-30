@@ -1,43 +1,19 @@
 import * as z from "zod";
 import {
   createVariantImageRepository,
-  updateVariantImageRepository,
   deleteVariantImageRepository,
+  getVariantImageRepository,
+  updateVariantImageRepository,
 } from "../repositories/variantImages.repository.js";
 import {
-  removeStoredVariantImage,
+  deleteStoredVariantImage,
+  mapVariantImageRecordToResponse,
   uploadVariantImageFile,
 } from "../services/variantImageStorage.service.js";
 
-const variantImageSchema = z.object({
-  image_link: z.string().min(1),
+const updateVariantImageSchema = z.object({
   image_order: z.number().int().min(0),
 });
-
-export const createVariantImage = async (req, res, next) => {
-  try {
-    const result = variantImageSchema.safeParse(req.body);
-    if (!result.success) {
-      return res.status(400).json({ error: result.error.errors });
-    }
-    const variantId = Number(req.params.variantId);
-    if (!Number.isInteger(variantId) || variantId <= 0) {
-      return res.status(400).json({ error: "Invalid variant id" });
-    }
-
-    const { image_link, image_order } = result.data;
-    const variantImage = await createVariantImageRepository(
-      variantId,
-      image_link,
-      image_order,
-    );
-    res.status(201).json(variantImage);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const updateVariantImageSchema = variantImageSchema.partial();
 
 export const updateVariantImage = async (req, res, next) => {
   try {
@@ -51,19 +27,16 @@ export const updateVariantImage = async (req, res, next) => {
       return res.status(400).json({ error: result.error.errors });
     }
 
-    const { image_link, image_order } = result.data;
-
     const updatedImage = await updateVariantImageRepository(
       imageId,
-      image_link,
-      image_order,
+      result.data.image_order,
     );
 
     if (!updatedImage) {
       return res.status(404).json({ error: "Image not found" });
     }
 
-    res.json(updatedImage);
+    res.json(mapVariantImageRecordToResponse(updatedImage));
   } catch (err) {
     next(err);
   }
@@ -76,21 +49,27 @@ export const deleteVariantImage = async (req, res, next) => {
       return res.status(400).json({ error: "Invalid image id" });
     }
 
-    const deletedImage = await deleteVariantImageRepository(imageId);
+    const existingImage = await getVariantImageRepository(imageId);
 
-    if (!deletedImage) {
+    if (!existingImage) {
       return res.status(404).json({ error: "Image not found" });
     }
 
-    try {
-      await removeStoredVariantImage(deletedImage.image_link);
-    } catch (cleanupError) {
-      console.error("Failed to clean up variant image file:", cleanupError);
+    await deleteStoredVariantImage(existingImage);
+
+    const deletedImage = await deleteVariantImageRepository(imageId);
+
+    if (!deletedImage) {
+      const error = new Error(
+        "Image record could not be deleted after storage removal",
+      );
+      error.status = 500;
+      throw error;
     }
 
     res.json({
       message: "Image deleted successfully",
-      image: deletedImage,
+      image: mapVariantImageRecordToResponse(deletedImage),
     });
   } catch (err) {
     next(err);
@@ -104,10 +83,6 @@ export const uploadVariantImage = async (req, res, next) => {
       return res.status(400).json({ error: "Invalid variant id" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: "Image file is required" });
-    }
-
     const parsedOrder = Number(req.body.image_order);
     const image_order =
       Number.isInteger(parsedOrder) && parsedOrder >= 0 ? parsedOrder : 0;
@@ -117,17 +92,19 @@ export const uploadVariantImage = async (req, res, next) => {
     let variantImage;
 
     try {
-      variantImage = await createVariantImageRepository(
-        variantId,
-        uploadedFile.imageLink,
+      variantImage = await createVariantImageRepository(variantId, {
+        storage_bucket: uploadedFile.storage_bucket,
+        storage_path: uploadedFile.storage_path,
+        content_type: uploadedFile.content_type,
+        file_size: uploadedFile.file_size,
         image_order,
-      );
+      });
     } catch (error) {
-      await removeStoredVariantImage(uploadedFile.imageLink);
+      await deleteStoredVariantImage(uploadedFile);
       throw error;
     }
 
-    res.status(201).json(variantImage);
+    res.status(201).json(mapVariantImageRecordToResponse(variantImage));
   } catch (err) {
     next(err);
   }

@@ -6,6 +6,7 @@ import {
   deleteProductRepository,
   updateProductRepository,
 } from "../repositories/product.repository.js";
+import { mapProductImagesToResponse } from "../services/variantImageStorage.service.js";
 const productSchema = z.object({
   category_id: z.number().min(1),
   name: z.string().min(1),
@@ -40,7 +41,7 @@ export const getProductBySlug = async (req, res, next) => {
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    res.json(product);
+    res.json(mapProductImagesToResponse(product));
   } catch (err) {
     next(err);
   }

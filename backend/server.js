@@ -10,8 +10,10 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import categoryRouter from "./routes/category.routes.js";
 import attributeValuesRouter from "./routes/attributeValues.routes.js";
 import cors from "cors";
+import { assertSupabaseStorageConfigured } from "./services/variantImageStorage.service.js";
 
 const app = express();
+assertSupabaseStorageConfigured();
 app.use(express.json());
 app.use(cookieParser());
 app.use(

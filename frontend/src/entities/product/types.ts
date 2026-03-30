@@ -2,6 +2,10 @@ export type VariantImage = {
   id: number;
   image_link: string;
   image_order: number;
+  storage_bucket?: string | null;
+  storage_path?: string | null;
+  content_type?: string | null;
+  file_size?: number | null;
 };
 
 export type ProductVariant = {
