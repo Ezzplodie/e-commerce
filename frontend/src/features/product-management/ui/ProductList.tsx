@@ -32,6 +32,7 @@ const emptyVariantForm: VariantFormState = {
   price: "",
   stock: "0",
   color: "",
+  size: "",
 };
 
 const moveItem = <T,>(items: T[], fromIndex: number, toIndex: number) => {
@@ -49,6 +50,24 @@ const moveItem = <T,>(items: T[], fromIndex: number, toIndex: number) => {
 const normalizeAttributeText = (value: string | null | undefined) =>
   value?.trim().toLowerCase() ?? "";
 
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
+const getSizeSortRank = (size: string) => {
+  const rank = SIZE_ORDER.indexOf(size.toUpperCase());
+  return rank === -1 ? Number.POSITIVE_INFINITY : rank;
+};
+
+const compareAttributeValues = (attributeCode: string, a: string, b: string) => {
+  if (attributeCode === "size") {
+    const rankDiff = getSizeSortRank(a) - getSizeSortRank(b);
+    if (rankDiff !== 0) {
+      return rankDiff;
+    }
+  }
+
+  return a.localeCompare(b, undefined, { sensitivity: "base" });
+};
+
 const parseVariantPrice = (value: string) => {
   const trimmedValue = value.trim();
 
@@ -63,10 +82,10 @@ const parseVariantPrice = (value: string) => {
 const getVariantAttributeValueIds = (
   attributes: Record<string, string>,
   attributeValues: AttributeValue[],
-  selectedColor: string,
+  overrides: Partial<Record<"color" | "size", string>>,
 ) => {
   const nextAttributes = new Map<string, string>();
-
+  // clear and normalize upcoming attributes
   for (const [code, value] of Object.entries(attributes || {})) {
     const normalizedCode = normalizeAttributeText(code);
     const trimmedValue = value?.trim();
@@ -78,11 +97,19 @@ const getVariantAttributeValueIds = (
     nextAttributes.set(normalizedCode, trimmedValue);
   }
 
-  const trimmedColor = selectedColor.trim();
-  if (trimmedColor) {
-    nextAttributes.set("color", trimmedColor);
-  } else {
-    nextAttributes.delete("color");
+  for (const [code, value] of Object.entries(overrides)) {
+    const normalizedCode = normalizeAttributeText(code);
+    const trimmedValue = value?.trim();
+
+    if (!normalizedCode) {
+      continue;
+    }
+
+    if (trimmedValue) {
+      nextAttributes.set(normalizedCode, trimmedValue);
+    } else {
+      nextAttributes.delete(normalizedCode);
+    }
   }
 
   return Array.from(nextAttributes.entries()).flatMap(([code, value]) => {
@@ -144,6 +171,7 @@ export const ProductList = () => {
   const [newVariantForm, setNewVariantForm] =
     useState<VariantFormState>(emptyVariantForm);
   const [newColorValue, setNewColorValue] = useState("");
+  const [newSizeValue, setNewSizeValue] = useState("");
 
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(
     null,
@@ -186,6 +214,27 @@ export const ProductList = () => {
     return Array.from(uniqueColors.values());
   }, [attributeValues]);
 
+  const sizeOptions = useMemo(() => {
+    const uniqueSizes = new Map<string, string>();
+
+    for (const attributeValue of attributeValues) {
+      if (attributeValue.attribute_code !== "size") {
+        continue;
+      }
+
+      const normalizedSize = normalizeAttributeText(attributeValue.value);
+      if (!normalizedSize || uniqueSizes.has(normalizedSize)) {
+        continue;
+      }
+
+      uniqueSizes.set(normalizedSize, attributeValue.value);
+    }
+
+    return Array.from(uniqueSizes.values()).sort((a, b) =>
+      compareAttributeValues("size", a, b),
+    );
+  }, [attributeValues]);
+
   const syncVariantDrafts = (variants: ProductVariant[]) => {
     const nextDrafts: Record<number, VariantFormState> = {};
     for (const variant of variants) {
@@ -194,6 +243,7 @@ export const ProductList = () => {
         price: String(variant.price ?? ""),
         stock: String(variant.stock ?? 0),
         color: variant.attributes?.color ?? "",
+        size: variant.attributes?.size ?? "",
       };
     }
     setVariantDrafts(nextDrafts);
@@ -221,7 +271,7 @@ export const ProductList = () => {
 
   const handleNewVariantField =
     (field: keyof VariantFormState) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setNewVariantForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
@@ -231,7 +281,7 @@ export const ProductList = () => {
 
   const handleVariantDraftField =
     (variantId: number, field: keyof VariantFormState) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setVariantDrafts((prev) => ({
         ...prev,
         [variantId]: {
@@ -300,6 +350,23 @@ export const ProductList = () => {
     setNewColorValue("");
     setNewVariantForm((prev) =>
       prev.color ? prev : { ...prev, color: createdColor.value },
+    );
+  };
+
+  const handleCreateSize = async () => {
+    const trimmedSize = newSizeValue.trim();
+    if (!trimmedSize) {
+      return;
+    }
+
+    const createdSize = await addAttributeOption({
+      attribute_code: "size",
+      value: trimmedSize,
+    });
+
+    setNewSizeValue("");
+    setNewVariantForm((prev) =>
+      prev.size ? prev : { ...prev, size: createdSize.value },
     );
   };
 
@@ -383,7 +450,10 @@ export const ProductList = () => {
     const attributeValueIds = getVariantAttributeValueIds(
       {},
       attributeValues,
-      newVariantForm.color,
+      {
+        color: newVariantForm.color,
+        size: newVariantForm.size,
+      },
     );
 
     await addVariant({
@@ -409,7 +479,10 @@ export const ProductList = () => {
     const attributeValueIds = getVariantAttributeValueIds(
       variant.attributes || {},
       attributeValues,
-      draft.color,
+      {
+        color: draft.color,
+        size: draft.size,
+      },
     );
 
     await editVariant(variantId, {
@@ -613,8 +686,10 @@ export const ProductList = () => {
             variants={selectedVariants}
             basePrice={Number(editForm.base_price) || 0}
             availableColors={colorOptions}
+            availableSizes={sizeOptions}
             newVariantForm={newVariantForm}
             newColorValue={newColorValue}
+            newSizeValue={newSizeValue}
             variantDrafts={variantDrafts}
             variantFiles={variantFiles}
             actionLoading={actionLoading}
@@ -624,7 +699,9 @@ export const ProductList = () => {
             onVariantDraftField={handleVariantDraftField}
             onVariantDraftColor={handleVariantDraftColor}
             onNewColorValue={(event) => setNewColorValue(event.target.value)}
+            onNewSizeValue={(event) => setNewSizeValue(event.target.value)}
             onCreateColor={handleCreateColor}
+            onCreateSize={handleCreateSize}
             onAddVariant={handleAddVariant}
             onSaveVariant={handleSaveVariant}
             onDeleteVariant={requestDeleteVariant}

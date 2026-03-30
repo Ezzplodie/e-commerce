@@ -62,6 +62,7 @@ export type VariantFormState = {
   price: string;
   stock: string;
   color: string;
+  size: string;
 };
 
 export type CategoryFormState = {

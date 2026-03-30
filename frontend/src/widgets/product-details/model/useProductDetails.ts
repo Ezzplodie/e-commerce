@@ -59,6 +59,7 @@ export function useProductDetails(product: Product) {
       Array.from(
         new Set(
           product.variants
+
             .filter(
               (v) =>
                 normalizeColor(v.attributes.color) ===

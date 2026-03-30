@@ -1,10 +1,13 @@
-import fs from "node:fs/promises";
 import * as z from "zod";
 import {
   createVariantImageRepository,
   updateVariantImageRepository,
   deleteVariantImageRepository,
 } from "../repositories/variantImages.repository.js";
+import {
+  removeStoredVariantImage,
+  uploadVariantImageFile,
+} from "../services/variantImageStorage.service.js";
 
 const variantImageSchema = z.object({
   image_link: z.string().min(1),
@@ -79,6 +82,12 @@ export const deleteVariantImage = async (req, res, next) => {
       return res.status(404).json({ error: "Image not found" });
     }
 
+    try {
+      await removeStoredVariantImage(deletedImage.image_link);
+    } catch (cleanupError) {
+      console.error("Failed to clean up variant image file:", cleanupError);
+    }
+
     res.json({
       message: "Image deleted successfully",
       image: deletedImage,
@@ -103,24 +112,23 @@ export const uploadVariantImage = async (req, res, next) => {
     const image_order =
       Number.isInteger(parsedOrder) && parsedOrder >= 0 ? parsedOrder : 0;
 
-    const imageLink = `/uploads/variants/${req.file.filename}`;
+    const uploadedFile = await uploadVariantImageFile(variantId, req.file);
 
-    const variantImage = await createVariantImageRepository(
-      variantId,
-      imageLink,
-      image_order,
-    );
+    let variantImage;
+
+    try {
+      variantImage = await createVariantImageRepository(
+        variantId,
+        uploadedFile.imageLink,
+        image_order,
+      );
+    } catch (error) {
+      await removeStoredVariantImage(uploadedFile.imageLink);
+      throw error;
+    }
 
     res.status(201).json(variantImage);
   } catch (err) {
-    if (req.file?.path) {
-      try {
-        await fs.unlink(req.file.path);
-      } catch (_cleanupError) {
-        // Ignore cleanup failures and surface the original upload error.
-      }
-    }
-
     next(err);
   }
 };

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ProductVariant, VariantImage } from "@/entities/product/types";
 import { AvailableColors } from "@/shared/ui/AvailableColors";
 import { Button } from "@/shared/ui/Button";
-import { TextInput } from "@/shared/ui/Input";
+import { SelectInput, TextInput } from "@/shared/ui/Input";
 import { VariantFormState } from "../../types";
 import styles from "../ProductList.module.scss";
 
@@ -27,23 +27,27 @@ type VariantManagerProps = {
   variants: ProductVariant[];
   basePrice: number;
   availableColors: string[];
+  availableSizes: string[];
   newVariantForm: VariantFormState;
   newColorValue: string;
+  newSizeValue: string;
   variantDrafts: Record<number, VariantFormState>;
   variantFiles: Record<number, File[]>;
   actionLoading: boolean;
   toAbsoluteImageUrl: (imageLink: string) => string;
   onNewVariantField: (
     field: keyof VariantFormState,
-  ) => (event: ChangeEvent<HTMLInputElement>) => void;
+  ) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onNewVariantColor: (color: string) => void;
   onVariantDraftField: (
     variantId: number,
     field: keyof VariantFormState,
-  ) => (event: ChangeEvent<HTMLInputElement>) => void;
+  ) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onVariantDraftColor: (variantId: number, color: string) => void;
   onNewColorValue: (event: ChangeEvent<HTMLInputElement>) => void;
+  onNewSizeValue: (event: ChangeEvent<HTMLInputElement>) => void;
   onCreateColor: () => void | Promise<void>;
+  onCreateSize: () => void | Promise<void>;
   onAddVariant: () => void | Promise<void>;
   onSaveVariant: (variantId: number) => void | Promise<void>;
   onDeleteVariant: (variantId: number) => void | Promise<void>;
@@ -64,8 +68,10 @@ export const VariantManager = ({
   variants,
   basePrice,
   availableColors,
+  availableSizes,
   newVariantForm,
   newColorValue,
+  newSizeValue,
   variantDrafts,
   variantFiles,
   actionLoading,
@@ -75,7 +81,9 @@ export const VariantManager = ({
   onVariantDraftField,
   onVariantDraftColor,
   onNewColorValue,
+  onNewSizeValue,
   onCreateColor,
+  onCreateSize,
   onAddVariant,
   onSaveVariant,
   onDeleteVariant,
@@ -102,44 +110,101 @@ export const VariantManager = ({
       <div className={styles.attributeLibraryPanel}>
         <div className={styles.attributeLibraryHeader}>
           <div>
-            <p className={styles.variantSectionTitle}>Color Options</p>
+            <p className={styles.variantSectionTitle}>Attribute Options</p>
             <p className={styles.variantMetaHint}>
-              Pick a shared color for each variant or add a new one once for
-              the whole product.
+              Create reusable color and size values, then assign them to
+              variants below.
             </p>
           </div>
         </div>
 
-        {availableColors.length > 0 ? (
-          <AvailableColors
-            colors={availableColors}
-            className={styles.colorPalette}
-            buttonClassName={styles.colorPaletteButton}
-          />
-        ) : (
-          <div className={styles.attributeEmptyState}>
-            No colors available yet. Add the first color below.
+        <div className={styles.attributeLibrarySection}>
+          <div className={styles.attributeLibraryHeader}>
+            <div>
+              <p className={styles.variantSectionTitle}>Color Options</p>
+              <p className={styles.variantMetaHint}>
+                Pick a shared color for each variant or add a new one once for
+                the whole product.
+              </p>
+            </div>
           </div>
-        )}
 
-        <div className={styles.colorCreateRow}>
-          <label className={styles.variantField}>
-            <span className={styles.variantFieldLabel}>New Color</span>
-            <TextInput
-              value={newColorValue}
-              onChange={onNewColorValue}
-              placeholder="Add a color, e.g. Olive"
-              className={styles.adminInput}
+          {availableColors.length > 0 ? (
+            <AvailableColors
+              colors={availableColors}
+              className={styles.colorPalette}
+              buttonClassName={styles.colorPaletteButton}
             />
-          </label>
-          <Button
-            type="button"
-            className={`${styles.actionButton} ${styles.compactButton}`}
-            disabled={actionLoading || !newColorValue.trim()}
-            onClick={onCreateColor}
-          >
-            Add Color
-          </Button>
+          ) : (
+            <div className={styles.attributeEmptyState}>
+              No colors available yet. Add the first color below.
+            </div>
+          )}
+
+          <div className={styles.attributeCreateRow}>
+            <label className={styles.variantField}>
+              <span className={styles.variantFieldLabel}>New Color</span>
+              <TextInput
+                value={newColorValue}
+                onChange={onNewColorValue}
+                placeholder="Add a color, e.g. Olive"
+                className={styles.adminInput}
+              />
+            </label>
+            <Button
+              type="button"
+              className={`${styles.actionButton} ${styles.compactButton}`}
+              disabled={actionLoading || !newColorValue.trim()}
+              onClick={onCreateColor}
+            >
+              Add Color
+            </Button>
+          </div>
+        </div>
+
+        <div className={styles.attributeLibrarySection}>
+          <div className={styles.attributeLibraryHeader}>
+            <div>
+              <p className={styles.variantSectionTitle}>Size Options</p>
+              <p className={styles.variantMetaHint}>
+                Create reusable sizes once, then choose them for each variant.
+              </p>
+            </div>
+          </div>
+
+          {availableSizes.length > 0 ? (
+            <div className={styles.attributeList}>
+              {availableSizes.map((size) => (
+                <span key={size} className={styles.attributeChip}>
+                  {size}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.attributeEmptyState}>
+              No sizes available yet. Add the first size below.
+            </div>
+          )}
+
+          <div className={styles.attributeCreateRow}>
+            <label className={styles.variantField}>
+              <span className={styles.variantFieldLabel}>New Size</span>
+              <TextInput
+                value={newSizeValue}
+                onChange={onNewSizeValue}
+                placeholder="Add a size, e.g. M"
+                className={styles.adminInput}
+              />
+            </label>
+            <Button
+              type="button"
+              className={`${styles.actionButton} ${styles.compactButton}`}
+              disabled={actionLoading || !newSizeValue.trim()}
+              onClick={onCreateSize}
+            >
+              Add Size
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -208,6 +273,34 @@ export const VariantManager = ({
               Add a color option first, then assign it to the variant.
             </p>
           )}
+
+          <label className={styles.variantField}>
+            <span className={styles.variantFieldLabel}>Size</span>
+            <SelectInput
+              value={newVariantForm.size}
+              onChange={onNewVariantField("size")}
+              className={styles.selectInput}
+              disabled={availableSizes.length === 0}
+            >
+              <option value="">
+                {availableSizes.length > 0
+                  ? "Choose size"
+                  : "Add a size option first"}
+              </option>
+              {availableSizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </SelectInput>
+          </label>
+          <p className={styles.selectionHint}>
+            {newVariantForm.size
+              ? `Selected size: ${newVariantForm.size}`
+              : availableSizes.length > 0
+                ? "Choose the size for this variant."
+                : "Add a size option above to assign it here."}
+          </p>
         </div>
 
         <div className={styles.variantActionsRow}>
@@ -242,6 +335,7 @@ export const VariantManager = ({
               price: "",
               stock: "0",
               color: "",
+              size: "",
             };
             const selectedFilesCount = variantFiles[variant.id]?.length || 0;
             const variantLabel =
@@ -352,6 +446,34 @@ export const VariantManager = ({
                             Add a color option above to assign it here.
                           </p>
                         )}
+
+                        <label className={styles.variantField}>
+                          <span className={styles.variantFieldLabel}>Size</span>
+                          <SelectInput
+                            value={draft.size}
+                            onChange={onVariantDraftField(variant.id, "size")}
+                            className={styles.selectInput}
+                            disabled={availableSizes.length === 0}
+                          >
+                            <option value="">
+                              {availableSizes.length > 0
+                                ? "Choose size"
+                                : "Add a size option first"}
+                            </option>
+                            {availableSizes.map((size) => (
+                              <option key={size} value={size}>
+                                {size}
+                              </option>
+                            ))}
+                          </SelectInput>
+                        </label>
+                        <p className={styles.selectionHint}>
+                          {draft.size
+                            ? `Selected size: ${draft.size}`
+                            : availableSizes.length > 0
+                              ? "Choose the size for this variant."
+                              : "Add a size option above to assign it here."}
+                        </p>
                       </div>
 
                       <div className={styles.variantActionsRow}>

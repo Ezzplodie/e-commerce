@@ -57,7 +57,7 @@ export function ProductDetails({ product }: Props) {
 
   const safeThumbsSwiper =
     thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null;
-
+  console.log(availableSizesForColor, "availableSizesForColor");
   return (
     <div className={clsx(styles.details_wrapper, "container")}>
       <div className={styles.product_details}>
