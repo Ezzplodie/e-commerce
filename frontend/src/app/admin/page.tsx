@@ -1,9 +1,9 @@
-import { ProductList } from "@/features/product-management/ui/ProductList";
+import AdminCatalog from "@/widgets/admin-catalog";
 
 export default function AdminPage() {
   return (
     <>
-      <ProductList />
+      <AdminCatalog />
     </>
   );
 }

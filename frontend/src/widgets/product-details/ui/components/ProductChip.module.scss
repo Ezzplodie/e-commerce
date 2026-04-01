@@ -1,0 +1,14 @@
+@use "@/shared/styles/typography" as typo;
+
+.chip {
+  @include typo.body-xs;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--white);
+  background: var(--white);
+  color: var(--neutral-gray);
+  text-transform: capitalize;
+}

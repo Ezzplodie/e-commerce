@@ -17,7 +17,7 @@
     opacity 0.2s ease,
     transform 0.2s ease;
   .container {
-    @include flex(row, start, flex-start, 80px);
+    @include flex(row, flex-start, flex-start, 80px);
   }
 }
 
@@ -27,7 +27,7 @@
 }
 
 .menusBlock {
-  @include flex(row, start, flex-start, 54px);
+  @include flex(row, flex-start, flex-start, 54px);
   width: 50%;
   .title {
     margin-bottom: 24px;
@@ -54,7 +54,7 @@
 
 .imagesBlock {
   width: 50%;
-  @include flex(row, start, flex-start, 24px);
+  @include flex(row, flex-start, flex-start, 24px);
   .imageBox {
     width: 50%;
 

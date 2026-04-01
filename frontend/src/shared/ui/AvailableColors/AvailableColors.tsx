@@ -12,10 +12,13 @@ export function AvailableColors({
   onSelectColor,
   className,
   buttonClassName,
+  variant = "default",
 }: AvailableColorsProps) {
-  const enabledSet = enabledColors
-    ? new Set(Array.from(enabledColors, normalizeColor))
-    : null;
+  const enabledSet = useMemo(
+    () =>
+      enabledColors ? new Set(Array.from(enabledColors, normalizeColor)) : null,
+    [enabledColors],
+  );
   const normalizedSelectedColor = normalizeColor(selectedColor);
   const uniqueColors = useMemo(() => {
     const seenColors = new Set<string>();
@@ -33,7 +36,13 @@ export function AvailableColors({
   }, [colors]);
 
   return (
-    <div className={clsx(styles.colors_row, className)}>
+    <div
+      className={clsx(
+        styles.colorsRow,
+        variant === "productDetails" && styles.productDetails,
+        className,
+      )}
+    >
       {uniqueColors.map((color) => {
         const normalized = normalizeColor(color);
         const isEnabled = enabledSet ? enabledSet.has(normalized) : true;
@@ -46,6 +55,7 @@ export function AvailableColors({
             disabled={!isEnabled}
             selected={normalizedSelectedColor === normalized}
             className={buttonClassName}
+            variant={variant}
           />
         );
       })}

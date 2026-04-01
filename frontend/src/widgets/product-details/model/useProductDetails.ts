@@ -1,4 +1,4 @@
-import { Product } from "@/entities/product/types";
+import { Product } from "@/entities/product";
 import { normalizeColor } from "@/shared/lib/color";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";

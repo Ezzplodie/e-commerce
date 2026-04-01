@@ -1,19 +1,14 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { Category } from "@/entities/category/types";
 import { ProductVariant, VariantImage } from "@/entities/product/types";
 import { Button } from "@/shared/ui/Button";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
 import { Loading } from "@/shared/ui/Loading";
 import { SelectInput } from "@/shared/ui/Input";
 import { useAdminProducts } from "../model/useAdminProducts";
-import {
-  AttributeValue,
-  CategoryFormState,
-  ProductFormState,
-  VariantFormState,
-} from "../types";
-import { CategoryManager } from "./components/CategoryManager";
+import { AttributeValue, ProductFormState, VariantFormState } from "../types";
 import { ProductFormPanel } from "./components/ProductFormPanel";
 import { ProductTable } from "./components/ProductTable";
 import { VariantManager } from "./components/VariantManager";
@@ -131,7 +126,11 @@ type ConfirmState = {
   onConfirm: () => void | Promise<void>;
 };
 
-export const ProductList = () => {
+type ProductListProps = {
+  categories: Category[];
+};
+
+export const ProductList = ({ categories }: ProductListProps) => {
   const {
     products,
     loading,
@@ -139,7 +138,6 @@ export const ProductList = () => {
     page,
     limit,
     total,
-    categories,
     attributeValues,
     actionLoading,
     fetchProducts,
@@ -147,9 +145,6 @@ export const ProductList = () => {
     setLimit,
     fetchProductBySlug,
     addAttributeOption,
-    addCategory,
-    editCategory,
-    removeCategory,
     addProduct,
     editProduct,
     removeProduct,
@@ -332,10 +327,6 @@ export const ProductList = () => {
     setShowEditPanel(true);
   };
 
-  const handleCreateCategory = async (payload: CategoryFormState) => {
-    return await addCategory(payload);
-  };
-
   const handleCreateColor = async () => {
     const trimmedColor = newColorValue.trim();
     if (!trimmedColor) {
@@ -368,26 +359,6 @@ export const ProductList = () => {
     setNewVariantForm((prev) =>
       prev.size ? prev : { ...prev, size: createdSize.value },
     );
-  };
-
-  const handleUpdateCategory = async (
-    slug: string,
-    payload: Partial<CategoryFormState>,
-  ) => {
-    return await editCategory(slug, payload);
-  };
-
-  const handleDeleteCategory = async (slug: string) => {
-    await removeCategory(slug);
-  };
-
-  const requestDeleteCategory = async (slug: string) => {
-    setConfirmState({
-      title: "Delete category?",
-      message: `Category "${slug}" will be removed. This action cannot be undone.`,
-      confirmLabel: "Delete Category",
-      onConfirm: () => handleDeleteCategory(slug),
-    });
   };
 
   const handleCreateProduct = async (event: FormEvent<HTMLFormElement>) => {
@@ -628,14 +599,6 @@ export const ProductList = () => {
           </span>
         </div>
       </div>
-
-      <CategoryManager
-        categories={categories}
-        actionLoading={actionLoading}
-        onCreateCategory={handleCreateCategory}
-        onUpdateCategory={handleUpdateCategory}
-        onDeleteCategory={requestDeleteCategory}
-      />
 
       {showCreatePanel && (
         <div className={styles.editPanel}>

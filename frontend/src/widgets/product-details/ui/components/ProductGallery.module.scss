@@ -1,0 +1,77 @@
+@use "@/shared/styles/mixins" as *;
+
+.gallery {
+  display: grid;
+  grid-template-columns: 125px minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.thumbRail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 512px;
+  overflow: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(173, 173, 173, 0.9) transparent;
+}
+
+.thumbButton {
+  position: relative;
+  aspect-ratio: 125 / 160;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: var(--primary-25);
+  opacity: 0.4;
+  cursor: pointer;
+  transition:
+    opacity var(--transition),
+    transform var(--transition);
+
+  &:hover {
+    opacity: 0.78;
+  }
+}
+
+.thumbButtonActive {
+  opacity: 1;
+}
+
+.thumbImage,
+.mainImage {
+  object-fit: cover;
+}
+
+.mainFrame {
+  position: relative;
+  min-height: 512px;
+  border: 1px solid var(--gray-200);
+  background: var(--primary-25);
+  overflow: hidden;
+}
+
+@include mobile {
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .thumbRail {
+    order: 2;
+    flex-direction: row;
+    max-height: none;
+    padding-right: 0;
+    padding-bottom: 4px;
+  }
+
+  .thumbButton {
+    flex: 0 0 84px;
+    aspect-ratio: 84 / 108;
+  }
+
+  .mainFrame {
+    min-height: 360px;
+  }
+}

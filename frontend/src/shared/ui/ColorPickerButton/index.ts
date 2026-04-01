@@ -1,2 +1,5 @@
 export { ColorPickerButton } from "./ColorPickerButton";
-export type { ColorPickerButtonProps } from "./ColorPickerButton.types";
+export type {
+  ColorPickerButtonProps,
+  ColorPickerButtonVariant,
+} from "./ColorPickerButton.types";

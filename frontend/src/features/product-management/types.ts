@@ -35,19 +35,6 @@ export type UpdateVariantImageDto = {
   image_order?: number;
 };
 
-export type Category = {
-  id: number;
-  name: string;
-  slug: string;
-};
-
-export type CategoryDto = {
-  name: string;
-  slug: string;
-};
-
-export type UpdateCategoryDto = Partial<CategoryDto>;
-
 export type ProductFormState = {
   category_id: string;
   name: string;
@@ -62,9 +49,4 @@ export type VariantFormState = {
   stock: string;
   color: string;
   size: string;
-};
-
-export type CategoryFormState = {
-  name: string;
-  slug: string;
 };

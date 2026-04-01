@@ -1,18 +1,19 @@
 import Link from "next/link";
-import styles from "./Footer.module.scss";
-import clsx from "clsx";
 import {
-  SocialMediaIcon,
+  AccessibilityIcon,
+  ArrowForwardIcon,
   SocialMedia1Icon,
   SocialMedia2Icon,
   SocialMedia3Icon,
-  ArrowForwardIcon,
+  SocialMediaIcon,
 } from "@/shared/assets/icons";
+import { TextInput } from "@/shared/ui/Input";
+import styles from "./Footer.module.scss";
 
 const FOOTER_MENUS = [
   {
     title: "About Modimal",
-    links: ["Collection", "New In", "Modiweek", "Plus Size", "Sustainability"],
+    links: ["Collection", "Sustainability", "Privacy Policy", "Support System", "Terms & Condition", "Copyright Notice"],
   },
   {
     title: "Help & Support",
@@ -24,93 +25,88 @@ const FOOTER_MENUS = [
   },
 ];
 
-
 const SOCIAL_MEDIA = [
-  { icon: SocialMediaIcon, link: "https://instagram.com/modimal" },
-  { icon: SocialMedia1Icon, link: "https://facebook.com/modimal" },
-  { icon: SocialMedia2Icon, link: "https://pinterest.com/modimal" },
-  { icon: SocialMedia3Icon, link: "https://tiktok.com/modimal" },
+  { icon: SocialMediaIcon, link: "https://instagram.com/modimal", label: "Instagram" },
+  { icon: SocialMedia1Icon, link: "https://facebook.com/modimal", label: "Facebook" },
+  { icon: SocialMedia2Icon, link: "https://pinterest.com/modimal", label: "Pinterest" },
+  { icon: SocialMedia3Icon, link: "https://tiktok.com/modimal", label: "TikTok" },
 ];
-
 
 const Footer = () => {
   return (
-    <footer className="footer">
-      <div className={clsx(styles.footerInner, "container")}>
-        
-
-        <div className={styles.social_box}>
-          <h2 className={styles.footer_title}>
+    <footer className={styles.footer}>
+      <div className={styles.inner}>
+        <div className={styles.newsletterColumn}>
+          <h2 className={styles.title}>
             Join our club, get 15% off for your Birthday
           </h2>
 
-          <form method="post" className={styles.footer_form}>
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter Your Email Address"
-              required
-            />
+          <form className={styles.form}>
+            <div className={styles.inputWrap}>
+              <TextInput
+                type="email"
+                placeholder="Enter Your Email Address"
+                className={styles.input}
+              />
 
-            <div className={styles.checkboxRow}>
-              <input id="agree" type="checkbox" required />
-              <label htmlFor="agree">
-                By submitting your email, you agree to receive advertising emails from Modimal.
-              </label>
+              <button
+                type="submit"
+                className={styles.submitButton}
+                aria-label="Subscribe to the Modimal newsletter"
+              >
+                <ArrowForwardIcon width={16} height={16} />
+              </button>
             </div>
 
-            <button type="submit" className={styles.submit_button} aria-label="Subscribe">
-              <ArrowForwardIcon width={16} height={16} />
-            </button>
+            <label className={styles.checkboxRow}>
+              <input type="checkbox" />
+              <span>
+                By Submitting your email, you agree to receive advertising emails
+                from Modimal.
+              </span>
+            </label>
           </form>
 
+          <div className={styles.socialRow}>
+            <div className={styles.socialIcons}>
+              {SOCIAL_MEDIA.map(({ icon: Icon, link, label }) => (
+                <a
+                  key={label}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.socialLink}
+                  aria-label={`Visit Modimal on ${label}`}
+                >
+                  <Icon width={24} height={24} />
+                </a>
+              ))}
+            </div>
 
-<div className={styles.social_icons}>
-  {SOCIAL_MEDIA.map(({ icon: Icon, link }) => (
-    <div key={link} className={styles.social_icon_item}>
-      <a
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.social_icon}
-        aria-label={`Visit our ${link.includes("instagram") ? "Instagram" : link.includes("facebook") ? "Facebook" : link.includes("pinterest") ? "Pinterest" : "TikTok"} page`}
-      >
-        <Icon />
-      </a>
-    </div>
-  ))}
-</div>
-
-
-
-          <span className={styles.all_rights_reserved}>
-            © 2026 Modimal. All Rights Reserved.
-          </span>
-
+            <span className={styles.copy}>© 2023 Modimal. All Rights Reserved.</span>
+          </div>
         </div>
 
-
-        <div className={styles.footer_menus}>
+        <div className={styles.linksGrid}>
           {FOOTER_MENUS.map(({ title, links }) => (
-            <div key={title} className={styles.menu_box}>
-              <h3 className={styles.menu_box_title}>{title}</h3>
-              <nav className={styles.menu_box_nav}>
+            <div key={title} className={styles.menuColumn}>
+              <h3 className={styles.menuTitle}>{title}</h3>
+
+              <nav className={styles.menuNav} aria-label={title}>
                 {links.map((link) => (
-                  <Link key={link} href="/" className={styles.navItem}>
+                  <Link key={link} href="/" className={styles.menuLink}>
                     {link}
                   </Link>
                 ))}
               </nav>
             </div>
           ))}
-
-          <span className={styles.all_rights_reserved_mobile}>
-            © 2026 Modimal. All Rights Reserved.
-          </span>
-
         </div>
-
       </div>
+
+      <button type="button" className={styles.chatButton} aria-label="Accessibility options">
+        <AccessibilityIcon width={24} height={24} />
+      </button>
     </footer>
   );
 };

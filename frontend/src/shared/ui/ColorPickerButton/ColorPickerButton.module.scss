@@ -1,31 +1,38 @@
-.color_button {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  cursor: pointer;
+.colorButton {
   position: relative;
-  transition: all 0.2s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease-in-out,
+    opacity 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.defaultButton {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-picker-border-color, rgba(0, 0, 0, 0.1));
+  background: var(--color-picker-color);
 
   &:hover:not(:disabled) {
     transform: scale(1.1);
     border-color: rgba(0, 0, 0, 0.3);
   }
 
-  &.selected {
-    box-shadow:
-      0 0 0 2px #fff,
-      0 0 0 4px var(--primary-300);
-    z-index: 1;
-  }
-
   &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-
     &::after {
       content: "";
       position: absolute;
@@ -37,9 +44,66 @@
   }
 
   &:focus-visible {
-    outline: none;
     box-shadow:
       0 0 0 2px #fff,
       0 0 0 4px var(--primary-500);
+  }
+}
+
+.selected {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px var(--primary-300);
+  z-index: 1;
+}
+
+.productDetailsButton {
+  --swatch-size: 24px;
+
+  width: var(--swatch-size);
+  height: var(--swatch-size);
+  border: 0;
+  background: transparent;
+
+  &:hover:not(:disabled) {
+    transform: none;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border-radius: inherit;
+    background: var(--color-picker-color);
+    border: 1px solid rgba(12, 12, 12, 0.12);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px rgba(12, 12, 12, 0.12);
+  }
+}
+
+.productDetailsSelected {
+  z-index: 1;
+
+  &::before {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    width: calc(var(--swatch-size) - 8px);
+    height: calc(var(--swatch-size) - 8px);
+    transform: translate(-50%, -50%);
+    border-color: rgba(12, 12, 12, 0.2);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border-radius: inherit;
+    border: 1px solid var(--black);
   }
 }

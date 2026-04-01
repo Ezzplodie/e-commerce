@@ -1,9 +1,10 @@
 "use client";
 
 import { ChangeEvent, FormEvent, ReactNode } from "react";
+import { Category } from "@/entities/category/types";
 import { Button } from "@/shared/ui/Button";
 import { SelectInput, TextInput } from "@/shared/ui/Input";
-import { Category, ProductFormState } from "../../types";
+import { ProductFormState } from "../../types";
 import styles from "../ProductList.module.scss";
 
 type ProductFormPanelProps = {

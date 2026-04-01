@@ -1,0 +1,207 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.categorySection {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--primary-100);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--white) 0%, #f8fbf8 100%);
+}
+
+.categoryHeader {
+  @include flex(row, center, space-between, 16px);
+  gap: 16px;
+  margin-bottom: 16px;
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.categoryTitle {
+  margin: 0;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.categorySubtitle {
+  margin: 4px 0 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.categoryCountChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid var(--primary-100);
+  border-radius: 999px;
+  background-color: var(--white);
+  color: var(--primary-700);
+  @include typo.caption-md;
+}
+
+.categoryCreateForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+
+  @include tablet {
+    flex-wrap: nowrap;
+  }
+
+  @include mobile {
+    flex-wrap: wrap;
+  }
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.categoryRow {
+  padding: 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background-color: var(--white);
+}
+
+.categoryDisplayRow {
+  @include flex(row, center, space-between, 16px);
+  gap: 16px;
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.categoryInfo {
+  min-width: 0;
+}
+
+.categoryName {
+  margin: 0;
+  color: var(--primary-800);
+  font-weight: var(--fw-semibold);
+  @include typo.body-md;
+}
+
+.categorySlug {
+  margin: 4px 0 0;
+  color: var(--gray-600);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  @include typo.caption-md;
+}
+
+.categoryEditGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+
+  @include tablet {
+    flex-wrap: nowrap;
+  }
+
+  @include mobile {
+    flex-wrap: wrap;
+  }
+}
+
+.categoryActions {
+  @include flex(row, center, flex-end, 8px);
+  flex-wrap: wrap;
+
+  @include mobile {
+    justify-content: flex-start;
+  }
+}
+
+.field {
+  @include flex(column, flex-start, flex-start, 6px);
+
+  span {
+    color: var(--gray-700);
+    @include typo.caption-md;
+  }
+}
+
+.adminInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  background-color: var(--white);
+  color: var(--gray-900);
+  @include typo.body-sm;
+
+  &::placeholder {
+    color: var(--gray-500);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-300);
+    box-shadow: 0 0 0 3px rgba(130, 167, 144, 0.14);
+  }
+}
+
+.actionButton {
+  min-width: 104px;
+}
+
+.compactButton {
+  min-width: 138px;
+  height: 38px;
+  padding: 0 14px;
+}
+
+.editButton {
+  min-width: 74px;
+  height: 34px;
+  padding: 0 12px;
+}
+
+.deleteButton {
+  min-width: 74px;
+  height: 34px;
+  padding: 0 12px;
+  border-color: #aa3d3d;
+  background-color: #aa3d3d;
+
+  &:hover {
+    border-color: #8f3232;
+    background-color: #8f3232;
+  }
+}
+
+.stateCard {
+  padding: 20px;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  background-color: var(--white);
+  text-align: center;
+}
+
+.stateTitle {
+  margin: 0 0 6px;
+  color: var(--primary-800);
+  @include typo.h6;
+}
+
+.stateText {
+  margin: 0;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}

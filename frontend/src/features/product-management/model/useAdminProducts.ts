@@ -4,20 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import { Product, VariantImage } from "@/entities/product/types";
 import {
   createAttributeValue,
-  createCategory,
   createProduct,
   createVariant,
-  deleteCategory,
   deleteProduct,
   deleteVariant,
   deleteVariantImage,
   getAttributeValues,
-  getCategories,
   getProductBySlug,
   getProducts,
   toAbsoluteImageUrl,
   updateProduct,
-  updateCategory,
   updateVariantImage,
   updateVariant,
   uploadVariantImage,
@@ -25,10 +21,7 @@ import {
 import {
   AttributeValue,
   AttributeValueDto,
-  Category,
-  CategoryDto,
   ProductDto,
-  UpdateCategoryDto,
   UpdateProductDto,
   UpdateVariantDto,
   VariantDto,
@@ -41,7 +34,6 @@ export const useAdminProducts = () => {
   const [limit, setLimit] = useState(10);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [attributeValues, setAttributeValues] = useState<AttributeValue[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -65,15 +57,6 @@ export const useAdminProducts = () => {
     [limit, page],
   );
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      const categoriesResponse = await getCategories();
-      setCategories(categoriesResponse);
-    } catch {
-      setError("Failed to fetch categories");
-    }
-  }, []);
-
   const fetchAttributeValues = useCallback(async () => {
     try {
       const attributeValuesResponse = await getAttributeValues();
@@ -82,56 +65,6 @@ export const useAdminProducts = () => {
       setError("Failed to fetch attribute values");
     }
   }, []);
-
-  const addCategory = useCallback(
-    async (categoryData: CategoryDto) => {
-      setActionLoading(true);
-      try {
-        const createdCategory = await createCategory(categoryData);
-        await fetchCategories();
-        return createdCategory;
-      } catch (_error) {
-        setError("Failed to add category");
-        throw _error;
-      } finally {
-        setActionLoading(false);
-      }
-    },
-    [fetchCategories],
-  );
-
-  const editCategory = useCallback(
-    async (slug: string, categoryData: UpdateCategoryDto) => {
-      setActionLoading(true);
-      try {
-        const updatedCategory = await updateCategory(slug, categoryData);
-        await fetchCategories();
-        return updatedCategory;
-      } catch (_error) {
-        setError("Failed to update category");
-        throw _error;
-      } finally {
-        setActionLoading(false);
-      }
-    },
-    [fetchCategories],
-  );
-
-  const removeCategory = useCallback(
-    async (slug: string) => {
-      setActionLoading(true);
-      try {
-        await deleteCategory(slug);
-        await fetchCategories();
-      } catch (_error) {
-        setError("Failed to delete category");
-        throw _error;
-      } finally {
-        setActionLoading(false);
-      }
-    },
-    [fetchCategories],
-  );
 
   const addAttributeOption = useCallback(
     async (attributeValueData: AttributeValueDto) => {
@@ -317,10 +250,6 @@ export const useAdminProducts = () => {
   }, [page, limit, fetchProducts]);
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
-  useEffect(() => {
     fetchAttributeValues();
   }, [fetchAttributeValues]);
 
@@ -331,7 +260,6 @@ export const useAdminProducts = () => {
     limit,
     error,
     total,
-    categories,
     attributeValues,
     actionLoading,
     fetchProducts,
@@ -339,9 +267,6 @@ export const useAdminProducts = () => {
     setLimit,
     fetchProductBySlug,
     addAttributeOption,
-    addCategory,
-    editCategory,
-    removeCategory,
     addProduct,
     editProduct,
     removeProduct,
