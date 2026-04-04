@@ -22,16 +22,12 @@ function resolveImageSource(image?: string | StaticImageData | null) {
   return typeof image === "string" ? image || plusSizeImage.src : image.src;
 }
 
-/**
- * Single cart line item with quantity controls, price, and remove affordance.
- */
 export function CartItem({
   item,
   onRemove,
   onDecrease,
   onIncrease,
 }: CartItemProps) {
-  console.log(item);
   return (
     <article className={styles.cartItem}>
       <div className={styles.imageWrapper}>

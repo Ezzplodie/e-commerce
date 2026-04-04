@@ -1,4 +1,13 @@
 import { pool } from "../db.js";
+
+const PRODUCTS_TABLE = "ecommerce.products";
+const CATEGORIES_TABLE = "ecommerce.categories";
+const PRODUCT_VARIANTS_TABLE = "ecommerce.product_variants";
+const VARIANT_IMAGES_TABLE = "ecommerce.variant_images";
+const VARIANT_ATTRIBUTE_VALUES_TABLE = "ecommerce.variant_attribute_values";
+const ATTRIBUTE_VALUES_TABLE = "ecommerce.attribute_values";
+const ATTRIBUTES_TABLE = "ecommerce.attributes";
+
 export const createProductRepository = async (
   category_id,
   name,
@@ -7,7 +16,7 @@ export const createProductRepository = async (
   base_price,
 ) => {
   const { rows } = await pool.query(
-    `INSERT INTO ecommerce.products(category_id, name, slug, description, base_price ) 
+    `INSERT INTO ${PRODUCTS_TABLE}(category_id, name, slug, description, base_price )
           VALUES ($1, $2, $3, $4, $5) RETURNING * `,
     [category_id, name, slug, description, base_price],
   );
@@ -49,7 +58,7 @@ export const getProductBySlugRepository = async (slug) => {
                         )
                         ORDER BY vi.image_order ASC, vi.id ASC
                       )
-                      FROM ecommerce.variant_images vi
+                      FROM ${VARIANT_IMAGES_TABLE} vi
                       WHERE vi.variant_id = pv.id
                     ),
                     '[]'::jsonb
@@ -57,23 +66,23 @@ export const getProductBySlugRepository = async (slug) => {
                   'attributes', COALESCE(
                     (
                       SELECT jsonb_object_agg(a.code, av.value)
-                      FROM ecommerce.variant_attribute_values vav
-                      JOIN ecommerce.attribute_values av ON av.id = vav.attribute_value_id
-                      JOIN ecommerce.attributes a ON a.id = av.attribute_id
+                      FROM ${VARIANT_ATTRIBUTE_VALUES_TABLE} vav
+                      JOIN ${ATTRIBUTE_VALUES_TABLE} av ON av.id = vav.attribute_value_id
+                      JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
                       WHERE vav.variant_id = pv.id
                     ),
                     '{}'::jsonb
                   )
                 )
               )
-              FROM ecommerce.product_variants pv
+              FROM ${PRODUCT_VARIANTS_TABLE} pv
               WHERE pv.product_id = p.id
             ),
             '[]'::jsonb
           )
         ) AS result
-      FROM ecommerce.products p
-      LEFT JOIN ecommerce.categories c ON p.category_id = c.id
+      FROM ${PRODUCTS_TABLE} p
+      LEFT JOIN ${CATEGORIES_TABLE} c ON p.category_id = c.id
       WHERE p.slug = $1;
       `,
     [slug],
@@ -89,9 +98,9 @@ export const getAllProductsRepository = async (limit, offset) => {
       COUNT(pv.id)::int AS variant_count,
       COALESCE(SUM(pv.stock), 0)::int AS total_stock,
       COUNT(*) OVER() AS total_count
-    FROM ecommerce.products p
-    LEFT JOIN ecommerce.categories c ON c.id = p.category_id
-    LEFT JOIN ecommerce.product_variants pv ON pv.product_id = p.id
+    FROM ${PRODUCTS_TABLE} p
+    LEFT JOIN ${CATEGORIES_TABLE} c ON c.id = p.category_id
+    LEFT JOIN ${PRODUCT_VARIANTS_TABLE} pv ON pv.product_id = p.id
     GROUP BY p.id, c.name
     ORDER BY p.id DESC
     LIMIT $1 OFFSET $2`,
@@ -104,7 +113,7 @@ export const getAllProductsRepository = async (limit, offset) => {
 
 export const deleteProductRepository = async (slug) => {
   const { rows } = await pool.query(
-    `DELETE FROM ecommerce.products WHERE slug = $1 RETURNING *`,
+    `DELETE FROM ${PRODUCTS_TABLE} WHERE slug = $1 RETURNING *`,
     [slug],
   );
   return rows[0];
@@ -119,7 +128,7 @@ export const updateProductRepository = async (
   base_price,
 ) => {
   const { rows } = await pool.query(
-    `UPDATE ecommerce.products
+    `UPDATE ${PRODUCTS_TABLE}
      SET category_id = COALESCE($1, category_id),
          name = COALESCE($2, name),
          slug = COALESCE($3, slug),

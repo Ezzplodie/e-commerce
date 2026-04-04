@@ -17,6 +17,7 @@ interface HeaderActionsProps {
   isMenuOpen: boolean;
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onCartClick: () => void;
+  cartItemCount: number;
 }
 export const HeaderActions = (props: HeaderActionsProps) => {
   const {
@@ -25,6 +26,7 @@ export const HeaderActions = (props: HeaderActionsProps) => {
     isMenuOpen,
     setIsMenuOpen,
     onCartClick,
+    cartItemCount,
   } = props;
 
   const actions = [
@@ -53,6 +55,7 @@ export const HeaderActions = (props: HeaderActionsProps) => {
       onClick: onCartClick,
       ariaLabel: "Cart",
       variant: "cart",
+      badgeCount: cartItemCount > 0 ? cartItemCount : undefined,
     },
     {
       id: "menu",
@@ -65,21 +68,26 @@ export const HeaderActions = (props: HeaderActionsProps) => {
 
   return (
     <div className={styles.actions}>
-      {actions.map(({ id, icon: Icon, onClick, ariaLabel, variant }) => (
-        <button
-          key={id}
-          type="button"
-          className={clsx(
-            styles.action,
-            styles[variant],
-            variant === "menu" && isMenuOpen && styles.active,
-          )}
-          onClick={onClick}
-          aria-label={ariaLabel}
-        >
-          <Icon width={24} height={24} />
-        </button>
-      ))}
+      {actions.map(
+        ({ id, icon: Icon, onClick, ariaLabel, variant, badgeCount }) => (
+          <button
+            key={id}
+            type="button"
+            className={clsx(
+              styles.action,
+              styles[variant],
+              variant === "menu" && isMenuOpen && styles.active,
+            )}
+            onClick={onClick}
+            aria-label={ariaLabel}
+          >
+            <Icon width={24} height={24} />
+            {badgeCount !== undefined && (
+              <span className={styles.badge}>{badgeCount}</span>
+            )}
+          </button>
+        ),
+      )}
     </div>
   );
 };

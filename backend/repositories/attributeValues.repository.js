@@ -1,5 +1,8 @@
 import { pool } from "../db.js";
 
+const ATTRIBUTE_VALUES_TABLE = "ecommerce.attribute_values";
+const ATTRIBUTES_TABLE = "ecommerce.attributes";
+
 export const getAttributeValuesRepository = async (attributeCode) => {
   const query = `
     SELECT
@@ -8,8 +11,8 @@ export const getAttributeValuesRepository = async (attributeCode) => {
       a.code AS attribute_code,
       a.name AS attribute_name,
       av.value
-    FROM ecommerce.attribute_values av
-    JOIN ecommerce.attributes a ON a.id = av.attribute_id
+    FROM ${ATTRIBUTE_VALUES_TABLE} av
+    JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
     WHERE ($1::text IS NULL OR a.code = $1)
     ORDER BY a.name ASC, av.value ASC, av.id ASC
   `;
@@ -25,7 +28,7 @@ export const createAttributeValueRepository = async (attributeCode, value) => {
   const attributeResult = await pool.query(
     `
       SELECT id, code, name
-      FROM ecommerce.attributes
+      FROM ${ATTRIBUTES_TABLE}
       WHERE code = $1
       LIMIT 1
     `,
@@ -46,8 +49,8 @@ export const createAttributeValueRepository = async (attributeCode, value) => {
         a.code AS attribute_code,
         a.name AS attribute_name,
         av.value
-      FROM ecommerce.attribute_values av
-      JOIN ecommerce.attributes a ON a.id = av.attribute_id
+      FROM ${ATTRIBUTE_VALUES_TABLE} av
+      JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
       WHERE av.attribute_id = $1
         AND LOWER(av.value) = LOWER($2)
       LIMIT 1
@@ -64,7 +67,7 @@ export const createAttributeValueRepository = async (attributeCode, value) => {
 
   const insertResult = await pool.query(
     `
-      INSERT INTO ecommerce.attribute_values (attribute_id, value)
+      INSERT INTO ${ATTRIBUTE_VALUES_TABLE} (attribute_id, value)
       VALUES ($1, $2)
       RETURNING id, attribute_id, value
     `,

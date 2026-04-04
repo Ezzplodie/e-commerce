@@ -19,6 +19,7 @@ const Header = () => {
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const handleCloseCart = () => {
     console.log("close cart");
@@ -54,6 +55,7 @@ const Header = () => {
             isMenuOpen={isMenuOpen}
             setIsMenuOpen={setIsMenuOpen}
             onCartClick={() => setIsCartOpen(true)}
+            cartItemCount={cartItemCount}
           ></HeaderActions>
         </div>
       </header>

@@ -1,21 +1,23 @@
 import { pool } from "../db.js";
 
+const TABLE = "ecommerce.categories";
+
 export const createCategoryRepository = async (name, slug) => {
   const { rows } = await pool.query(
-    `INSERT INTO ecommerce.categories(name, slug) VALUES ($1, $2) RETURNING * `,
+    `INSERT INTO ${TABLE}(name, slug) VALUES ($1, $2) RETURNING * `,
     [name, slug],
   );
   return rows[0];
 };
 
 export const getAllCategoriesRepository = async () => {
-  const { rows } = await pool.query(`SELECT * FROM ecommerce.categories`);
+  const { rows } = await pool.query(`SELECT * FROM ${TABLE}`);
   return rows;
 };
 
 export const getCategoryBySlugRepository = async (slug) => {
   const { rows } = await pool.query(
-    `SELECT * FROM ecommerce.categories WHERE slug = $1`,
+    `SELECT * FROM ${TABLE} WHERE slug = $1`,
     [slug],
   );
   return rows[0];
@@ -23,7 +25,7 @@ export const getCategoryBySlugRepository = async (slug) => {
 
 export const updateCategoryRepository = async (slug, name, newSlug) => {
   const { rows } = await pool.query(
-    `UPDATE ecommerce.categories SET name = COALESCE($1, name), slug = COALESCE($2, slug) WHERE slug = $3 RETURNING *`,
+    `UPDATE ${TABLE} SET name = COALESCE($1, name), slug = COALESCE($2, slug) WHERE slug = $3 RETURNING *`,
     [name, newSlug, slug],
   );
   return rows[0];
@@ -31,7 +33,7 @@ export const updateCategoryRepository = async (slug, name, newSlug) => {
 
 export const deleteCategoryRepository = async (slug) => {
   const { rows } = await pool.query(
-    `DELETE FROM ecommerce.categories WHERE slug = $1 RETURNING *`,
+    `DELETE FROM ${TABLE} WHERE slug = $1 RETURNING *`,
     [slug],
   );
   return rows[0];

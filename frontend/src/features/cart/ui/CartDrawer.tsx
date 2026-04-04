@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { CloseIcon } from "@/shared/assets/icons";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
+import { CartEmptyState } from "./CartEmptyState";
 import type { CartItemData } from "../model/types";
 import styles from "./CartDrawer.module.scss";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
@@ -33,6 +34,7 @@ export function CartDrawer({
   onQuantityChange,
 }: CartDrawerProps) {
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+  const hasItems = items.length > 0;
 
   const confirmRemove = (item: CartItemData) => {
     setConfirmState({
@@ -78,40 +80,51 @@ export function CartDrawer({
         data-lock-scroll={isOpen ? "true" : undefined}
       >
         <aside
-          className={clsx(styles.drawer, isOpen && styles.drawerOpen)}
+          className={clsx(
+            styles.drawer,
+            isOpen && styles.drawerOpen,
+            !hasItems && styles.drawerEmpty,
+          )}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="cart-drawer-title"
+          aria-labelledby={hasItems ? "cart-drawer-title" : "empty-cart-title"}
           onClick={(event) => event.stopPropagation()}
         >
-          <div className={styles.header}>
-            <h2 id="cart-drawer-title" className={styles.title}>
-              Your Cart
-            </h2>
+          {hasItems ? (
+            <>
+              <div className={styles.header}>
+                <h2 id="cart-drawer-title" className={styles.title}>
+                  Your Cart
+                </h2>
 
-            <button
-              type="button"
-              className={styles.closeButton}
-              onClick={onClose}
-              aria-label="Close cart"
-            >
-              <CloseIcon width={24} height={24} />
-            </button>
-          </div>
+                <button
+                  type="button"
+                  className={styles.closeButton}
+                  onClick={onClose}
+                  aria-label="Close cart"
+                >
+                  <CloseIcon width={24} height={24} />
+                </button>
+              </div>
+              <div className={styles.itemsList}>
+                {items.map((item) => (
+                  <CartItem
+                    key={item.id}
+                    item={item}
+                    onRemove={() => deleteHandler(item)}
+                    onDecrease={() => decreaseHandler(item)}
+                    onIncrease={() => increaseHandler(item)}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className={styles.emptyStateWrap}>
+              <CartEmptyState onClose={onClose} />
+            </div>
+          )}
 
-          <div className={styles.itemsList}>
-            {items.map((item) => (
-              <CartItem
-                key={item.id}
-                item={item}
-                onRemove={() => deleteHandler(item)}
-                onDecrease={() => decreaseHandler(item)}
-                onIncrease={() => increaseHandler(item)}
-              />
-            ))}
-          </div>
-
-          <CartSummary onCheckout={onCheckout} />
+          {hasItems && <CartSummary onCheckout={onCheckout} />}
         </aside>
       </div>
       <ConfirmDialog

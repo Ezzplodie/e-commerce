@@ -1,15 +1,18 @@
 import express from "express";
 import "dotenv/config";
 import path from "node:path";
-import productRouter from "./routes/product.routes.js";
-import productVariantRouter from "./routes/productVariants.routes.js";
-import variantImageRouter from "./routes/variantImages.routes.js";
-import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "./middleware/errorHandler.js";
-import categoryRouter from "./routes/category.routes.js";
-import attributeValuesRouter from "./routes/attributeValues.routes.js";
 import cors from "cors";
+
+import { errorHandler } from "./middleware/errorHandler.js";
+import {
+  attributeValuesRouter,
+  authRouter,
+  categoryRouter,
+  productRouter,
+  productVariantRouter,
+  variantImageRouter,
+} from "./routes/index.js";
 import { assertSupabaseStorageConfigured } from "./services/variantImageStorage.service.js";
 
 const app = express();

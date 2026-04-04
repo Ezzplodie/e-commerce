@@ -1,10 +1,16 @@
 import { pool } from "../db.js";
 
+const VARIANT_IMAGES_TABLE = "ecommerce.variant_images";
+const PRODUCT_VARIANTS_TABLE = "ecommerce.product_variants";
+const VARIANT_ATTRIBUTE_VALUES_TABLE = "ecommerce.variant_attribute_values";
+const ATTRIBUTE_VALUES_TABLE = "ecommerce.attribute_values";
+const ATTRIBUTES_TABLE = "ecommerce.attributes";
+
 const syncVariantImagesIdSequence = async () => {
   await pool.query(`
     SELECT setval(
-      pg_get_serial_sequence('ecommerce.variant_images', 'id'),
-      COALESCE((SELECT MAX(id) FROM ecommerce.variant_images), 0) + 1,
+      pg_get_serial_sequence('${VARIANT_IMAGES_TABLE}', 'id'),
+      COALESCE((SELECT MAX(id) FROM ${VARIANT_IMAGES_TABLE}), 0) + 1,
       false
     )
   `);
@@ -20,7 +26,7 @@ const variantImageSelect = `
     vi.storage_path,
     vi.content_type,
     vi.file_size
-  FROM ecommerce.variant_images vi
+  FROM ${VARIANT_IMAGES_TABLE} vi
 `;
 
 export const createVariantImageRepository = async (
@@ -28,7 +34,7 @@ export const createVariantImageRepository = async (
   { storage_bucket, storage_path, content_type, file_size, image_order },
 ) => {
   const insertQuery = `
-    INSERT INTO ecommerce.variant_images(
+    INSERT INTO ${VARIANT_IMAGES_TABLE}(
       variant_id,
       image_order,
       storage_bucket,
@@ -74,10 +80,10 @@ export const getVariantImageStorageContextRepository = async (variantId) => {
         pv.id AS variant_id,
         pv.product_id,
         MAX(CASE WHEN a.code = 'color' THEN av.value END) AS color
-      FROM ecommerce.product_variants pv
-      LEFT JOIN ecommerce.variant_attribute_values vav ON vav.variant_id = pv.id
-      LEFT JOIN ecommerce.attribute_values av ON av.id = vav.attribute_value_id
-      LEFT JOIN ecommerce.attributes a ON a.id = av.attribute_id
+      FROM ${PRODUCT_VARIANTS_TABLE} pv
+      LEFT JOIN ${VARIANT_ATTRIBUTE_VALUES_TABLE} vav ON vav.variant_id = pv.id
+      LEFT JOIN ${ATTRIBUTE_VALUES_TABLE} av ON av.id = vav.attribute_value_id
+      LEFT JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
       WHERE pv.id = $1
       GROUP BY pv.id, pv.product_id
     `,
@@ -98,7 +104,7 @@ export const getVariantImageRepository = async (imageId) => {
 
 export const updateVariantImageRepository = async (imageId, image_order) => {
   const { rows } = await pool.query(
-    `UPDATE ecommerce.variant_images
+    `UPDATE ${VARIANT_IMAGES_TABLE}
      SET image_order = COALESCE($1, image_order)
      WHERE id = $2
      RETURNING *`,
@@ -110,7 +116,7 @@ export const updateVariantImageRepository = async (imageId, image_order) => {
 
 export const deleteVariantImageRepository = async (imageId) => {
   const { rows } = await pool.query(
-    `DELETE FROM ecommerce.variant_images WHERE id = $1 RETURNING *`,
+    `DELETE FROM ${VARIANT_IMAGES_TABLE} WHERE id = $1 RETURNING *`,
     [imageId],
   );
 
