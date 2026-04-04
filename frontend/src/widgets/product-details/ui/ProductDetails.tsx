@@ -11,6 +11,7 @@ import { formatPrice } from "@/shared/lib/formatters";
 import { AvailableColors } from "@/shared/ui/AvailableColors";
 import { Breadcrumbs } from "@/shared/ui/Breadcrumbs";
 import { Button } from "@/shared/ui/Button";
+import { useCartStore } from "@/features/cart";
 import {
   FABRIC_AND_CARE,
   FITTING_COPY,
@@ -53,7 +54,7 @@ export function ProductDetails({ product }: Props) {
     handleChangeColor,
     isSelectedColorOutOfStock,
   } = useProductDetails(product);
-
+  const { addItem } = useCartStore();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isSizeMenuOpen, setIsSizeMenuOpen] = useState(false);
 
@@ -118,7 +119,13 @@ export function ProductDetails({ product }: Props) {
     }
 
     return fallbackImages;
-  }, [activeVariantForDisplay, allImages, colorVariants, product.name, selectedVariant]);
+  }, [
+    activeVariantForDisplay,
+    allImages,
+    colorVariants,
+    product.name,
+    selectedVariant,
+  ]);
 
   const activeImageIndex =
     selectedImageIndex < galleryImages.length ? selectedImageIndex : 0;
@@ -193,7 +200,9 @@ export function ProductDetails({ product }: Props) {
             <div className={styles.optionGroup}>
               <span className={styles.optionLabel}>Colors</span>
               <AvailableColors
-                colors={availableColors.length ? availableColors : ["Red", "White"]}
+                colors={
+                  availableColors.length ? availableColors : ["Red", "White"]
+                }
                 selectedColor={selectedColor}
                 enabledColors={availableColorsInStock}
                 onSelectColor={(color) => {
@@ -261,8 +270,28 @@ export function ProductDetails({ product }: Props) {
                 <p className={styles.stockState}>Out of stock in this color</p>
               ) : null}
             </div>
-
-            <Button className={styles.primaryAction} disabled={isCompletelyOutOfStock}>
+            {/* add to cart button and meta actions */}
+            <Button
+              className={styles.primaryAction}
+              disabled={isCompletelyOutOfStock}
+              onClick={() => {
+                addItem({
+                  id:
+                    selectedVariant?.id ||
+                    activeVariantForDisplay?.id ||
+                    product.id,
+                  title: product.name || "Product",
+                  size: activeSize || "N/A",
+                  color: selectedColor || "N/A",
+                  quantity: 1,
+                  image:
+                    galleryImages[activeImageIndex]?.src ??
+                    galleryImages[0]?.src ??
+                    plusSizeImage,
+                  price: resolvedPrice,
+                });
+              }}
+            >
               {isCompletelyOutOfStock ? "Out Of Stock" : "Add To Cart"}
             </Button>
 

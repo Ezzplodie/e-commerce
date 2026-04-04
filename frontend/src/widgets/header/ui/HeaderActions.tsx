@@ -16,9 +16,16 @@ interface HeaderActionsProps {
   setIsSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isMenuOpen: boolean;
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onCartClick: () => void;
 }
 export const HeaderActions = (props: HeaderActionsProps) => {
-  const { isSearchOpen, setIsSearchOpen, isMenuOpen, setIsMenuOpen } = props;
+  const {
+    isSearchOpen,
+    setIsSearchOpen,
+    isMenuOpen,
+    setIsMenuOpen,
+    onCartClick,
+  } = props;
 
   const actions = [
     {
@@ -43,6 +50,7 @@ export const HeaderActions = (props: HeaderActionsProps) => {
     {
       id: "bag",
       icon: BagIcon,
+      onClick: onCartClick,
       ariaLabel: "Cart",
       variant: "cart",
     },

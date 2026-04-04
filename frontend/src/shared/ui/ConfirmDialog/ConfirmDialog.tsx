@@ -29,7 +29,11 @@ export function ConfirmDialog({
   }
 
   return (
-    <div className={styles.overlay} role="presentation">
+    <div
+      className={styles.overlay}
+      role="presentation"
+      data-lock-scroll="true"
+    >
       <div
         className={styles.dialog}
         role="dialog"
