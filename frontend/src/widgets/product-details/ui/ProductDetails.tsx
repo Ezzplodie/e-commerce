@@ -11,7 +11,7 @@ import { formatPrice } from "@/shared/lib/formatters";
 import { AvailableColors } from "@/shared/ui/AvailableColors";
 import { Breadcrumbs } from "@/shared/ui/Breadcrumbs";
 import { Button } from "@/shared/ui/Button";
-import { useCartStore } from "@/features/cart";
+import { CartFeedbackToast, useCartStore } from "@/features/cart";
 import {
   FABRIC_AND_CARE,
   FITTING_COPY,
@@ -179,215 +179,223 @@ export function ProductDetails({ product }: Props) {
     "Versatile and universally flattering, our wrap blouse can be tied, draped, snapped and wrapped multiple ways.";
 
   return (
-    <section className={styles.pageSection}>
-      <div className={styles.inner}>
-        <Breadcrumbs className={styles.breadcrumbs} items={breadcrumbItems} />
+    <>
+      <section className={styles.pageSection}>
+        <div className={styles.inner}>
+          <Breadcrumbs className={styles.breadcrumbs} items={breadcrumbItems} />
 
-        <div className={styles.heroGrid}>
-          <ProductGallery
-            images={galleryImages}
-            productName={heroTitle}
-            activeIndex={activeImageIndex}
-            onSelectImage={setSelectedImageIndex}
-          />
+          <div className={styles.heroGrid}>
+            <ProductGallery
+              images={galleryImages}
+              productName={heroTitle}
+              activeIndex={activeImageIndex}
+              onSelectImage={setSelectedImageIndex}
+            />
 
-          <div className={styles.summary}>
-            <div className={styles.summaryBlock}>
-              <h1 className={styles.title}>{heroTitle}</h1>
-              <p className={styles.description}>{heroDescription}</p>
-            </div>
-
-            <div className={styles.optionGroup}>
-              <span className={styles.optionLabel}>Colors</span>
-              <AvailableColors
-                colors={
-                  availableColors.length ? availableColors : ["Red", "White"]
-                }
-                selectedColor={selectedColor}
-                enabledColors={availableColorsInStock}
-                onSelectColor={(color) => {
-                  handleChangeColor(color);
-                  setSelectedImageIndex(0);
-                  setIsSizeMenuOpen(false);
-                }}
-                variant="productDetails"
-              />
-            </div>
-
-            <div className={styles.optionGroup}>
-              <div className={styles.optionHeader}>
-                <span className={styles.optionLabel}>Size</span>
-                <button type="button" className={styles.sizeGuide}>
-                  Size Guide
-                </button>
+            <div className={styles.summary}>
+              <div className={styles.summaryBlock}>
+                <h1 className={styles.title}>{heroTitle}</h1>
+                <p className={styles.description}>{heroDescription}</p>
               </div>
 
-              <div className={styles.sizeField}>
-                <button
-                  type="button"
-                  className={clsx(
-                    styles.sizeTrigger,
-                    isSizeMenuOpen && styles.sizeTriggerOpen,
-                  )}
-                  onClick={() => setIsSizeMenuOpen((current) => !current)}
-                  aria-expanded={isSizeMenuOpen}
-                >
-                  <span>{activeSize || "Select size"}</span>
-                  <span className={styles.sizeChevron} aria-hidden="true">
-                    {isSizeMenuOpen ? "-" : "+"}
-                  </span>
-                </button>
+              <div className={styles.optionGroup}>
+                <span className={styles.optionLabel}>Colors</span>
+                <AvailableColors
+                  colors={
+                    availableColors.length ? availableColors : ["Red", "White"]
+                  }
+                  selectedColor={selectedColor}
+                  enabledColors={availableColorsInStock}
+                  onSelectColor={(color) => {
+                    handleChangeColor(color);
+                    setSelectedImageIndex(0);
+                    setIsSizeMenuOpen(false);
+                  }}
+                  variant="productDetails"
+                />
+              </div>
 
-                {isSizeMenuOpen ? (
-                  <div className={styles.sizeMenu}>
-                    {availableSizes.map((size) => {
-                      const isAvailable = availableSizesForColor.includes(size);
+              <div className={styles.optionGroup}>
+                <div className={styles.optionHeader}>
+                  <span className={styles.optionLabel}>Size</span>
+                  <button type="button" className={styles.sizeGuide}>
+                    Size Guide
+                  </button>
+                </div>
 
-                      return (
-                        <button
-                          key={size}
-                          type="button"
-                          className={clsx(
-                            styles.sizeOption,
-                            activeSize === size && styles.sizeOptionActive,
-                          )}
-                          onClick={() => {
-                            setSelectedSize(size);
-                            setSelectedImageIndex(0);
-                            setIsSizeMenuOpen(false);
-                          }}
-                          disabled={!isAvailable}
-                        >
-                          {size}
-                        </button>
-                      );
-                    })}
-                  </div>
+                <div className={styles.sizeField}>
+                  <button
+                    type="button"
+                    className={clsx(
+                      styles.sizeTrigger,
+                      isSizeMenuOpen && styles.sizeTriggerOpen,
+                    )}
+                    onClick={() => setIsSizeMenuOpen((current) => !current)}
+                    aria-expanded={isSizeMenuOpen}
+                  >
+                    <span>{activeSize || "Select size"}</span>
+                    <span className={styles.sizeChevron} aria-hidden="true">
+                      {isSizeMenuOpen ? "-" : "+"}
+                    </span>
+                  </button>
+
+                  {isSizeMenuOpen ? (
+                    <div className={styles.sizeMenu}>
+                      {availableSizes.map((size) => {
+                        const isAvailable =
+                          availableSizesForColor.includes(size);
+
+                        return (
+                          <button
+                            key={size}
+                            type="button"
+                            className={clsx(
+                              styles.sizeOption,
+                              activeSize === size && styles.sizeOptionActive,
+                            )}
+                            onClick={() => {
+                              setSelectedSize(size);
+                              setSelectedImageIndex(0);
+                              setIsSizeMenuOpen(false);
+                            }}
+                            disabled={!isAvailable}
+                          >
+                            {size}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+
+                {isSelectedColorOutOfStock ? (
+                  <p className={styles.stockState}>
+                    Out of stock in this color
+                  </p>
                 ) : null}
               </div>
 
-              {isSelectedColorOutOfStock ? (
-                <p className={styles.stockState}>Out of stock in this color</p>
-              ) : null}
+              <Button
+                className={styles.primaryAction}
+                disabled={isCompletelyOutOfStock}
+                onClick={() => {
+                  addItem({
+                    id:
+                      selectedVariant?.id ||
+                      activeVariantForDisplay?.id ||
+                      product.id,
+                    title: product.name || "Product",
+                    size: activeSize || "N/A",
+                    color: selectedColor || "N/A",
+                    quantity: 1,
+                    image:
+                      galleryImages[activeImageIndex]?.src ??
+                      galleryImages[0]?.src ??
+                      plusSizeImage,
+                    price: resolvedPrice,
+                  });
+                }}
+              >
+                {isCompletelyOutOfStock
+                  ? "Out Of Stock"
+                  : ` Add To Cart ${formatPrice(resolvedPrice)}`}
+              </Button>
+
+              <div className={styles.metaRow}>
+                <button type="button" className={styles.metaAction}>
+                  <Truck size={16} strokeWidth={1.7} />
+                  <span>Easy Return</span>
+                </button>
+
+                <button type="button" className={styles.metaAction}>
+                  <Heart size={16} strokeWidth={1.7} />
+                  <span>Add To Wish List</span>
+                </button>
+              </div>
+
+              <div className={styles.mobilePrice}>
+                <span>Selected Price</span>
+                <strong>{formatPrice(resolvedPrice)}</strong>
+              </div>
             </div>
-            {/* add to cart button and meta actions */}
-            <Button
-              className={styles.primaryAction}
-              disabled={isCompletelyOutOfStock}
-              onClick={() => {
-                addItem({
-                  id:
-                    selectedVariant?.id ||
-                    activeVariantForDisplay?.id ||
-                    product.id,
-                  title: product.name || "Product",
-                  size: activeSize || "N/A",
-                  color: selectedColor || "N/A",
-                  quantity: 1,
-                  image:
-                    galleryImages[activeImageIndex]?.src ??
-                    galleryImages[0]?.src ??
-                    plusSizeImage,
-                  price: resolvedPrice,
-                });
-              }}
+          </div>
+
+          <div className={styles.detailsGrid}>
+            <div className={styles.accordionStack}>
+              <ProductAccordion title="Fitting">
+                <div className={styles.richText}>
+                  <p>{FITTING_COPY}</p>
+                </div>
+              </ProductAccordion>
+
+              <ProductAccordion title="Fabric & Care" defaultOpen accent>
+                <div className={styles.richText}>
+                  {FABRIC_AND_CARE.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              </ProductAccordion>
+
+              <ProductAccordion title="Product Detail">
+                <div className={styles.richText}>
+                  <p>{PRODUCT_DETAIL_COPY}</p>
+                </div>
+              </ProductAccordion>
+
+              <ProductAccordion title="Shipping And Return" defaultOpen accent>
+                <div className={styles.richText}>
+                  {SHIPPING_COPY.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              </ProductAccordion>
+            </div>
+
+            <aside className={styles.materialCard}>
+              <div className={styles.materialHeader}>
+                <span className={styles.materialEyebrow}>Silk</span>
+                <strong className={styles.materialPrice}>
+                  {formatPrice(resolvedPrice)}
+                </strong>
+              </div>
+
+              <p className={styles.materialDescription}>{MATERIAL_COPY}</p>
+
+              <div className={styles.chipRow}>
+                {MATERIAL_CHIPS.map((chip) => (
+                  <ProductChip key={chip} label={chip} />
+                ))}
+              </div>
+            </aside>
+          </div>
+
+          <section
+            className={styles.recommendationsSection}
+            aria-labelledby="recommendations-heading"
+          >
+            <h2
+              id="recommendations-heading"
+              className={styles.recommendationsTitle}
             >
-              {isCompletelyOutOfStock ? "Out Of Stock" : "Add To Cart"}
-            </Button>
+              You May Also Like
+            </h2>
 
-            <div className={styles.metaRow}>
-              <button type="button" className={styles.metaAction}>
-                <Truck size={16} strokeWidth={1.7} />
-                <span>Easy Return</span>
-              </button>
-
-              <button type="button" className={styles.metaAction}>
-                <Heart size={16} strokeWidth={1.7} />
-                <span>Add To Wish List</span>
-              </button>
-            </div>
-
-            <div className={styles.mobilePrice}>
-              <span>Selected Price</span>
-              <strong>{formatPrice(resolvedPrice)}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.detailsGrid}>
-          <div className={styles.accordionStack}>
-            <ProductAccordion title="Fitting">
-              <div className={styles.richText}>
-                <p>{FITTING_COPY}</p>
-              </div>
-            </ProductAccordion>
-
-            <ProductAccordion title="Fabric & Care" defaultOpen accent>
-              <div className={styles.richText}>
-                {FABRIC_AND_CARE.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-            </ProductAccordion>
-
-            <ProductAccordion title="Product Detail">
-              <div className={styles.richText}>
-                <p>{PRODUCT_DETAIL_COPY}</p>
-              </div>
-            </ProductAccordion>
-
-            <ProductAccordion title="Shipping And Return" defaultOpen accent>
-              <div className={styles.richText}>
-                {SHIPPING_COPY.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-            </ProductAccordion>
-          </div>
-
-          <aside className={styles.materialCard}>
-            <div className={styles.materialHeader}>
-              <span className={styles.materialEyebrow}>Silk</span>
-              <strong className={styles.materialPrice}>
-                {formatPrice(resolvedPrice)}
-              </strong>
-            </div>
-
-            <p className={styles.materialDescription}>{MATERIAL_COPY}</p>
-
-            <div className={styles.chipRow}>
-              {MATERIAL_CHIPS.map((chip) => (
-                <ProductChip key={chip} label={chip} />
+            <div className={styles.recommendationsGrid}>
+              {recommendations.map((item) => (
+                <ProductRecommendationCard
+                  key={item.title}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  price={item.price}
+                  image={item.image}
+                  colors={item.colors}
+                />
               ))}
             </div>
-          </aside>
+          </section>
         </div>
-
-        <section
-          className={styles.recommendationsSection}
-          aria-labelledby="recommendations-heading"
-        >
-          <h2
-            id="recommendations-heading"
-            className={styles.recommendationsTitle}
-          >
-            You May Also Like
-          </h2>
-
-          <div className={styles.recommendationsGrid}>
-            {recommendations.map((item) => (
-              <ProductRecommendationCard
-                key={item.title}
-                title={item.title}
-                subtitle={item.subtitle}
-                price={item.price}
-                image={item.image}
-                colors={item.colors}
-              />
-            ))}
-          </div>
-        </section>
-      </div>
-    </section>
+      </section>
+      <CartFeedbackToast />
+    </>
   );
 }

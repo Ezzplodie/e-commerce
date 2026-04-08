@@ -28,7 +28,7 @@
 .menuLabel {
   @include typo.body-lg;
   color: var(--black);
-  text-decoration: underline;
+  text-decoration: none;
   text-underline-offset: 4px;
   flex: 1;
   text-align: left;

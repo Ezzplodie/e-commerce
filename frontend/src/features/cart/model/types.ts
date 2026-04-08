@@ -13,9 +13,21 @@ export type CartItemData = {
   image: CartItemImage;
 };
 
+export type CartFeedback = {
+  item: CartItemData;
+  addedQuantity: number;
+  totalQuantity: number;
+  timestamp: number;
+};
+
 export type CartStore = {
   items: CartItemData[];
+  cartFeedback: CartFeedback | null;
+  isOpen: boolean;
   addItem: (item: CartItemData) => void;
+  dismissCartFeedback: () => void;
   removeItem: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
+  openCart: () => void;
+  closeCart: () => void;
 };

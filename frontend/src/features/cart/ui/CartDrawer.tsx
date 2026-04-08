@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import clsx from "clsx";
 import { CloseIcon } from "@/shared/assets/icons";
+import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
+import type { CartItemData } from "../model/types";
+import { useCartDrawerState } from "../model/useCartDrawerState";
+import { CartEmptyState } from "./CartEmptyState";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
-import { CartEmptyState } from "./CartEmptyState";
-import type { CartItemData } from "../model/types";
 import styles from "./CartDrawer.module.scss";
-import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
 
 type CartDrawerProps = {
   isOpen: boolean;
@@ -19,12 +19,6 @@ type CartDrawerProps = {
   onQuantityChange?: (item: CartItemData, quantity: number) => void;
 };
 
-type ConfirmState = {
-  title: string;
-  message: string;
-  onConfirm: () => void | Promise<void>;
-};
-
 export function CartDrawer({
   isOpen,
   items,
@@ -33,43 +27,12 @@ export function CartDrawer({
   onRemoveItem,
   onQuantityChange,
 }: CartDrawerProps) {
-  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
   const hasItems = items.length > 0;
-
-  const confirmRemove = (item: CartItemData) => {
-    setConfirmState({
-      title: "Remove item",
-      message: `Are you sure you want to remove ${item.title} from the cart?`,
-      onConfirm: () => onRemoveItem?.(item),
+  const { increaseHandler, decreaseHandler, deleteHandler, confirmationDialog } =
+    useCartDrawerState({
+      onRemoveItem,
+      onQuantityChange,
     });
-  };
-
-  const handleConfirmRemove = async () => {
-    if (!confirmState) {
-      return;
-    }
-
-    try {
-      await confirmState.onConfirm();
-      setConfirmState(null);
-    } catch (error) {
-      console.error("Failed to remove cart item:", error);
-    }
-  };
-
-  const increaseHandler = (item: CartItemData) => {
-    onQuantityChange?.(item, item.quantity + 1);
-  };
-  const decreaseHandler = (item: CartItemData) => {
-    if (item.quantity === 1) {
-      confirmRemove(item);
-    } else {
-      onQuantityChange?.(item, item.quantity - 1);
-    }
-  };
-  const deleteHandler = (item: CartItemData) => {
-    confirmRemove(item);
-  };
 
   return (
     <>
@@ -128,13 +91,13 @@ export function CartDrawer({
         </aside>
       </div>
       <ConfirmDialog
-        open={confirmState !== null}
-        title={confirmState?.title || ""}
-        message={confirmState?.message || ""}
+        open={confirmationDialog.open}
+        title={confirmationDialog.title}
+        message={confirmationDialog.message}
         confirmLabel="Remove Item"
         cancelLabel="Keep Item"
-        onCancel={() => setConfirmState(null)}
-        onConfirm={handleConfirmRemove}
+        onCancel={confirmationDialog.onCancel}
+        onConfirm={confirmationDialog.onConfirm}
       />
     </>
   );

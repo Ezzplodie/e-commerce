@@ -4,7 +4,7 @@ import {
   createWishList,
   getWishListByUserId,
   deleteWishList,
-} from "../controllers/wishList.controller.js";
+} from "../controllers/wishLists.controller.js";
 
 const wishListRouter = express.Router();
 wishListRouter.use(authMiddleware);
@@ -12,3 +12,5 @@ wishListRouter.use(authMiddleware);
 wishListRouter.post("/", createWishList);
 wishListRouter.get("/", getWishListByUserId);
 wishListRouter.delete("/:variantId", deleteWishList);
+
+export default wishListRouter;

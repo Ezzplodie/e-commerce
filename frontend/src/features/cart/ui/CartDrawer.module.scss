@@ -33,10 +33,6 @@
   transition: transform var(--transition);
 }
 
-.drawerEmpty {
-  width: min(100vw, 355px);
-}
-
 .drawerOpen {
   transform: translateX(0);
 }
@@ -92,10 +88,6 @@
 @include mobile {
   .drawer {
     width: 100%;
-  }
-
-  .drawerEmpty {
-    width: min(100vw, 355px);
   }
 
   .header {

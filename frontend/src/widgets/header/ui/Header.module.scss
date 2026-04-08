@@ -70,6 +70,17 @@
     background: none;
     display: flex;
   }
+  .action.favorites svg {
+    transition: var(--transition);
+    path {
+      fill: transparent;
+      transition: var(--transition);
+    }
+    &:hover path {
+      stroke: var(--favorite);
+      fill: var(--favorite);
+    }
+  }
   @include desktop {
     .action.menu {
       display: none;

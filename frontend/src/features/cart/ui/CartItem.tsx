@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import type { StaticImageData } from "next/image";
 import { plusSizeImage } from "@/shared/assets/images";
 import { CloseIcon } from "@/shared/assets/icons";
@@ -31,11 +31,12 @@ export function CartItem({
   return (
     <article className={styles.cartItem}>
       <div className={styles.imageWrapper}>
-        {/* Cart items may come from backend or static sources, so we keep the image source flexible here. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={resolveImageSource(item.image)}
           alt={item.title}
+          width={80}
+          height={100}
+          quality={60}
           className={styles.image}
         />
         <span className={styles.badge}>{item.badgeLabel ?? item.quantity}</span>

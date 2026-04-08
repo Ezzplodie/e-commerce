@@ -24,7 +24,7 @@ const MobileMenuItem = ({
   label,
   href,
   items,
- 
+
   onLinkClick,
 }: MobileMenuItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -38,7 +38,7 @@ const MobileMenuItem = ({
 
   return (
     <>
-      <div className={styles.menuItem}>
+      <div className={clsx(styles.menuItem, isExpanded && styles.active)}>
         {href ? (
           <a href={href} className={styles.menuLink} onClick={handleLinkClick}>
             {label}
@@ -87,7 +87,6 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   collectionMenus.forEach((menu) => {
     collectionItems.push(...menu.items);
   });
-
 
   return (
     <div className={styles.menuWrapper}>

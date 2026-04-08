@@ -6,23 +6,40 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set) => ({
       items: [],
+      cartFeedback: null,
+      isOpen: false,
       addItem: (item: CartItemData) =>
         set((state) => {
-          console.log("Adding item to cart:", item);
           const existingItem = state.items.find((i) => i.id === item.id);
+          const nextItems = existingItem
+            ? state.items.map((i) =>
+                i.id === item.id
+                  ? {
+                      ...i,
+                      quantity: i.quantity + item.quantity,
+                      image: i.image || item.image,
+                    }
+                  : i,
+              )
+            : [...state.items, item];
+
           return {
-            items: existingItem
-              ? state.items.map((i) =>
-                  i.id === item.id
-                    ? {
-                        ...i,
-                        quantity: i.quantity + item.quantity,
-                        image: i.image || item.image,
-                      }
-                    : i,
-                )
-              : [...state.items, item],
+            items: nextItems,
+            cartFeedback: {
+              item,
+              addedQuantity: item.quantity,
+              totalQuantity: nextItems.reduce(
+                (total, currentItem) => total + currentItem.quantity,
+                0,
+              ),
+              timestamp: Date.now(),
+            },
           };
+        }),
+
+      dismissCartFeedback: () =>
+        set({
+          cartFeedback: null,
         }),
 
       removeItem: (id: number) =>
@@ -37,9 +54,24 @@ export const useCartStore = create<CartStore>()(
               ? state.items.filter((i) => i.id !== id)
               : state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
         })),
+      openCart: () => {
+        console.log("Opening cart...");
+        set({
+          isOpen: true,
+        });
+      },
+      closeCart: () => {
+        console.log("Closing cart...");
+        set({
+          isOpen: false,
+        });
+      },
     }),
     {
       name: "cart-storage",
+      partialize: (state) => ({
+        items: state.items,
+      }),
     },
   ),
 );

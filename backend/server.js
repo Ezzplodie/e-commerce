@@ -12,6 +12,7 @@ import {
   productRouter,
   productVariantRouter,
   variantImageRouter,
+  wishListRouter,
 } from "./routes/index.js";
 import { assertSupabaseStorageConfigured } from "./services/variantImageStorage.service.js";
 
@@ -36,6 +37,7 @@ app.use("/variant-images", variantImageRouter);
 app.use("/auth", authRouter);
 app.use("/categories", categoryRouter);
 app.use("/attribute-values", attributeValuesRouter);
+app.use("/wish-lists", wishListRouter);
 
 app.use(errorHandler);
 app.listen(process.env.PORT || 4000, () => {

@@ -16,7 +16,7 @@
 
 .heroGrid {
   display: grid;
-  grid-template-columns: minmax(0, 600px) minmax(0, 600px);
+  grid-template-columns: 2fr 2fr;
   gap: 24px;
   align-items: start;
 }
@@ -191,7 +191,7 @@
 
 .detailsGrid {
   display: grid;
-  grid-template-columns: minmax(0, 600px) minmax(0, 600px);
+  grid-template-columns: 2fr 2fr;
   gap: 24px;
   margin-top: 24px;
   align-items: start;

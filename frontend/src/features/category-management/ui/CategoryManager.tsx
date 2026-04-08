@@ -1,18 +1,14 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
 import { Category } from "@/entities/category/types";
 import { Button } from "@/shared/ui/Button";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
-import { TextInput } from "@/shared/ui/Input";
 import { Loading } from "@/shared/ui/Loading";
+import { useCategoryManagerState } from "../model/useCategoryManagerState";
 import { CategoryFormState } from "../types";
+import { CategoryCreateForm } from "./components/CategoryCreateForm";
+import { CategoryRow } from "./components/CategoryRow";
 import styles from "./CategoryManager.module.scss";
-
-const emptyCategoryForm: CategoryFormState = {
-  name: "",
-  slug: "",
-};
 
 type CategoryManagerProps = {
   categories: Category[];
@@ -28,13 +24,6 @@ type CategoryManagerProps = {
   onDeleteCategory: (slug: string) => Promise<void>;
 };
 
-type ConfirmState = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  onConfirm: () => void | Promise<void>;
-};
-
 export const CategoryManager = ({
   categories,
   loading,
@@ -45,76 +34,23 @@ export const CategoryManager = ({
   onUpdateCategory,
   onDeleteCategory,
 }: CategoryManagerProps) => {
-  const [createForm, setCreateForm] = useState(emptyCategoryForm);
-  const [editForm, setEditForm] = useState<Partial<CategoryFormState>>({});
-  const [editingSlug, setEditingSlug] = useState<string | null>(null);
-  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
-
-  const handleCreateField =
-    (field: keyof CategoryFormState) => (event: ChangeEvent<HTMLInputElement>) => {
-      setCreateForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-
-  const handleEditField =
-    (field: keyof CategoryFormState) => (event: ChangeEvent<HTMLInputElement>) => {
-      setEditForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-
-  const startEditing = (category: Category) => {
-    setEditingSlug(category.slug);
-    setEditForm({ name: category.name, slug: category.slug });
-  };
-
-  const cancelEditing = () => {
-    setEditingSlug(null);
-    setEditForm({});
-  };
-
-  const handleSave = async (originalSlug: string) => {
-    if (!editForm.name || !editForm.slug) {
-      return;
-    }
-
-    try {
-      await onUpdateCategory(originalSlug, editForm as CategoryFormState);
-      cancelEditing();
-    } catch (categoryError) {
-      console.error("Failed to update category:", categoryError);
-    }
-  };
-
-  const handleCreate = async (event: FormEvent) => {
-    event.preventDefault();
-
-    try {
-      await onCreateCategory(createForm);
-      setCreateForm(emptyCategoryForm);
-    } catch (categoryError) {
-      console.error("Failed to create category:", categoryError);
-    }
-  };
-
-  const requestDeleteCategory = (slug: string) => {
-    setConfirmState({
-      title: "Delete category?",
-      message: `Category "${slug}" will be removed. This action cannot be undone.`,
-      confirmLabel: "Delete Category",
-      onConfirm: () => onDeleteCategory(slug),
-    });
-  };
-
-  const handleConfirmAction = async () => {
-    if (!confirmState) {
-      return;
-    }
-
-    try {
-      await confirmState.onConfirm();
-      setConfirmState(null);
-    } catch (categoryError) {
-      console.error("Failed to confirm category action:", categoryError);
-    }
-  };
+  const {
+    createForm,
+    editForm,
+    editingSlug,
+    handleCreateField,
+    handleEditField,
+    startEditing,
+    cancelEditing,
+    handleSave,
+    handleCreate,
+    requestDeleteCategory,
+    confirmationDialog,
+  } = useCategoryManagerState({
+    onCreateCategory,
+    onUpdateCategory,
+    onDeleteCategory,
+  });
 
   return (
     <>
@@ -131,35 +67,12 @@ export const CategoryManager = ({
           </span>
         </div>
 
-        <form className={styles.categoryCreateForm} onSubmit={handleCreate}>
-          <label className={styles.field}>
-            <span>Name</span>
-            <TextInput
-              value={createForm.name}
-              onChange={handleCreateField("name")}
-              placeholder="e.g. Men"
-              className={styles.adminInput}
-              required
-            />
-          </label>
-          <label className={styles.field}>
-            <span>Slug</span>
-            <TextInput
-              value={createForm.slug}
-              onChange={handleCreateField("slug")}
-              placeholder="e.g. men"
-              className={styles.adminInput}
-              required
-            />
-          </label>
-          <Button
-            type="submit"
-            className={`${styles.actionButton} ${styles.compactButton}`}
-            disabled={actionLoading}
-          >
-            Add Category
-          </Button>
-        </form>
+        <CategoryCreateForm
+          form={createForm}
+          actionLoading={actionLoading}
+          onSubmit={handleCreate}
+          onFieldChange={handleCreateField}
+        />
 
         {loading && (
           <div className={styles.stateCard}>
@@ -184,85 +97,32 @@ export const CategoryManager = ({
 
         {!loading && !error && (
           <div className={styles.categoryList}>
-            {categories.map((category) => {
-              const isEditing = editingSlug === category.slug;
-
-              return (
-                <article key={category.id} className={styles.categoryRow}>
-                  {isEditing ? (
-                    <div className={styles.categoryEditGrid}>
-                      <label className={styles.field}>
-                        <span>Name</span>
-                        <TextInput
-                          value={editForm.name}
-                          onChange={handleEditField("name")}
-                          className={styles.adminInput}
-                        />
-                      </label>
-                      <label className={styles.field}>
-                        <span>Slug</span>
-                        <TextInput
-                          value={editForm.slug}
-                          onChange={handleEditField("slug")}
-                          className={styles.adminInput}
-                        />
-                      </label>
-                      <div className={styles.categoryActions}>
-                        <Button
-                          className={styles.compactButton}
-                          onClick={() => handleSave(category.slug)}
-                          disabled={actionLoading}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          className={styles.actionButton}
-                          onClick={cancelEditing}
-                          disabled={actionLoading}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className={styles.categoryDisplayRow}>
-                      <div className={styles.categoryInfo}>
-                        <p className={styles.categoryName}>{category.name}</p>
-                        <p className={styles.categorySlug}>{category.slug}</p>
-                      </div>
-                      <div className={styles.categoryActions}>
-                        <Button
-                          className={styles.editButton}
-                          onClick={() => startEditing(category)}
-                          disabled={actionLoading}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          className={styles.deleteButton}
-                          onClick={() => requestDeleteCategory(category.slug)}
-                          disabled={actionLoading}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
+            {categories.map((category) => (
+              <CategoryRow
+                key={category.id}
+                category={category}
+                isEditing={editingSlug === category.slug}
+                editForm={editForm}
+                actionLoading={actionLoading}
+                onEditField={handleEditField}
+                onStartEditing={startEditing}
+                onCancelEditing={cancelEditing}
+                onSave={handleSave}
+                onRequestDelete={requestDeleteCategory}
+              />
+            ))}
           </div>
         )}
       </section>
 
       <ConfirmDialog
-        open={confirmState !== null}
-        title={confirmState?.title || ""}
-        message={confirmState?.message || ""}
-        confirmLabel={confirmState?.confirmLabel || "Confirm"}
+        open={confirmationDialog.open}
+        title={confirmationDialog.title}
+        message={confirmationDialog.message}
+        confirmLabel={confirmationDialog.confirmLabel}
         loading={actionLoading}
-        onCancel={() => setConfirmState(null)}
-        onConfirm={handleConfirmAction}
+        onCancel={confirmationDialog.onCancel}
+        onConfirm={confirmationDialog.onConfirm}
       />
     </>
   );

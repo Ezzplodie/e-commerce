@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import clsx from "clsx";
 import { CartDrawer } from "@/features/cart";
 import styles from "./Header.module.scss";
@@ -14,16 +14,21 @@ import { useCartStore } from "@/features/cart/model/cartStore";
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const collectionMenus = getMenusByKeys(["category", "featured", "more"]);
   const items = useCartStore((state) => state.items);
+  const isOpen = useCartStore((state) => state.isOpen);
+  const openCart = useCartStore((state) => state.openCart);
+  const closeCart = useCartStore((state) => state.closeCart);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
-  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
+  const cartItemCount = useMemo(
+    () => items.reduce((total, item) => total + item.quantity, 0),
+    [items],
+  );
 
   const handleCloseCart = () => {
     console.log("close cart");
-    setIsCartOpen(false);
+    closeCart();
   };
 
   return (
@@ -54,14 +59,14 @@ const Header = () => {
             setIsSearchOpen={setIsSearchOpen}
             isMenuOpen={isMenuOpen}
             setIsMenuOpen={setIsMenuOpen}
-            onCartClick={() => setIsCartOpen(true)}
+            onCartClick={() => openCart()}
             cartItemCount={cartItemCount}
           ></HeaderActions>
         </div>
       </header>
       <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <CartDrawer
-        isOpen={isCartOpen}
+        isOpen={isOpen}
         items={items}
         onClose={handleCloseCart}
         onRemoveItem={(item) => removeItem(item.id)}

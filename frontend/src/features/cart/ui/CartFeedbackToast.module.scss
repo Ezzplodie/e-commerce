@@ -1,0 +1,254 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1200;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 16px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 18px 18px 16px;
+  border: 1px solid color-mix(in srgb, var(--primary-100) 75%, var(--white));
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(240, 242, 239, 0.98)
+    ),
+    var(--white);
+  box-shadow: 0 20px 48px rgba(13, 16, 12, 0.16);
+  overflow: hidden;
+  animation: toast-enter 220ms ease-out;
+  backdrop-filter: blur(14px);
+}
+
+.dismissButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--gray-650);
+  cursor: pointer;
+  transition:
+    color var(--transition),
+    background-color var(--transition),
+    transform var(--transition);
+
+  &:hover {
+    background: var(--white);
+    color: var(--black);
+    transform: translateY(-1px);
+  }
+}
+
+.media {
+  position: relative;
+  min-height: 84px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--primary-50), var(--primary-25));
+}
+
+.image {
+  object-fit: cover;
+}
+
+.mediaFallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--button-primary);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.eyebrow {
+  @include typo.overline-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--button-primary);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  @include typo.h6;
+  margin: 0;
+  color: var(--black);
+}
+
+.price {
+  @include typo.body-sm;
+  color: var(--black);
+  white-space: nowrap;
+}
+
+.meta {
+  @include typo.body-sm;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  color: var(--gray-650);
+  text-transform: capitalize;
+}
+
+.caption {
+  @include typo.body-xs;
+  margin: 0;
+  color: var(--gray-600);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.secondaryAction,
+.primaryAction {
+  @include typo.button-sm;
+  min-height: 38px;
+
+  padding: 0 16px;
+  cursor: pointer;
+  transition:
+    color var(--transition),
+    background-color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.secondaryAction {
+  border: 1px solid var(--gray-300);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--gray-800);
+
+  &:hover {
+    border-color: var(--gray-500);
+    background: var(--white);
+  }
+}
+
+.primaryAction {
+  border: 1px solid var(--button-primary);
+  background: var(--button-primary);
+  color: var(--white);
+
+  &:hover {
+    border-color: var(--button-primary-hover);
+    background: var(--button-primary-hover);
+  }
+}
+
+.progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: rgba(194, 215, 186, 0.5);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      var(--button-primary),
+      var(--primary-300)
+    );
+    transform-origin: left center;
+    animation: toast-progress 3.4s linear forwards;
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@include tablet {
+  .toast {
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+@include mobile {
+  .toast {
+    bottom: max(12px, env(safe-area-inset-bottom));
+    right: 16px;
+    left: 16px;
+    grid-template-columns: 64px minmax(0, 1fr);
+    width: auto;
+    gap: 14px;
+    padding: 14px 14px 12px;
+    border-radius: 20px;
+    box-shadow: 0 14px 30px rgba(13, 16, 12, 0.16);
+  }
+
+  .media {
+    min-height: 76px;
+  }
+
+  .headerRow {
+    margin-top: 10px;
+    gap: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .secondaryAction,
+  .primaryAction {
+    width: 100%;
+  }
+}

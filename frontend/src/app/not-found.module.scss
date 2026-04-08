@@ -1,0 +1,64 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 80px var(--side-paddings);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  max-width: 480px;
+}
+
+.code {
+  @include typo.display-1;
+  color: var(--primary-600);
+
+  @include mobile {
+    font-size: 48px;
+  }
+}
+
+.title {
+  @include typo.h3;
+  color: var(--black);
+  margin: 0;
+
+  @include mobile {
+    @include typo.h4;
+  }
+}
+
+.description {
+  @include typo.body-md;
+  color: var(--gray-700);
+  margin: 0 0 8px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.secondaryLink {
+  @include typo.body-sm;
+  color: var(--primary-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition);
+
+  &:hover {
+    color: var(--primary-800);
+  }
+}
