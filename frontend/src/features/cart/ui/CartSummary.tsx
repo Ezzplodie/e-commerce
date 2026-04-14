@@ -7,9 +7,6 @@ type CartSummaryProps = {
   onCheckout: () => void;
 };
 
-/**
- * Sticky footer action for the cart drawer.
- */
 export function CartSummary({ onCheckout }: CartSummaryProps) {
   return (
     <div className={styles.summary}>

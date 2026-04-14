@@ -1,10 +1,10 @@
 "use client";
 import Image from "next/image";
-import type { StaticImageData } from "next/image";
-import { plusSizeImage } from "@/shared/assets/images";
 import { CloseIcon } from "@/shared/assets/icons";
 import { formatPrice } from "@/shared/lib/formatters";
+import { resolveCartItemImage } from "../lib/resolveCartItemImage";
 import type { CartItemData } from "../model/types";
+import { CartQuantityControl } from "./CartQuantityControl";
 import styles from "./CartItem.module.scss";
 
 type CartItemProps = {
@@ -13,14 +13,6 @@ type CartItemProps = {
   onDecrease: () => void;
   onIncrease: () => void;
 };
-
-function resolveImageSource(image?: string | StaticImageData | null) {
-  if (!image) {
-    return plusSizeImage.src;
-  }
-
-  return typeof image === "string" ? image || plusSizeImage.src : image.src;
-}
 
 export function CartItem({
   item,
@@ -32,7 +24,7 @@ export function CartItem({
     <article className={styles.cartItem}>
       <div className={styles.imageWrapper}>
         <Image
-          src={resolveImageSource(item.image)}
+          src={resolveCartItemImage(item.image)}
           alt={item.title}
           width={80}
           height={100}
@@ -47,25 +39,13 @@ export function CartItem({
         <p className={styles.meta}>Size: {item.size}</p>
         <p className={styles.meta}>Color: {item.color}</p>
 
-        <div className={styles.quantity} aria-label={`${item.title} quantity`}>
-          <button
-            type="button"
-            className={styles.quantityButton}
-            onClick={onDecrease}
-            aria-label={`Decrease quantity for ${item.title}`}
-          >
-            -
-          </button>
-          <span className={styles.quantityValue}>{item.quantity}</span>
-          <button
-            type="button"
-            className={styles.quantityButton}
-            onClick={onIncrease}
-            aria-label={`Increase quantity for ${item.title}`}
-          >
-            +
-          </button>
-        </div>
+        <CartQuantityControl
+          className={styles.quantityControl}
+          itemName={item.title}
+          quantity={item.quantity}
+          onDecrease={onDecrease}
+          onIncrease={onIncrease}
+        />
       </div>
 
       <div className={styles.sideColumn}>

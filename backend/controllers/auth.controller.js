@@ -3,12 +3,12 @@ import * as z from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authRepository } from "../repositories/auth.repository.js";
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 const login = async (req, res, next) => {
   try {
-    const loginSchema = z.object({
-      email: z.string().email(),
-      password: z.string().min(6),
-    });
     const result = loginSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: result.error.errors });

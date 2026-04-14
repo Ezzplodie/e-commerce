@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { CartDrawer } from "@/features/cart";
 import styles from "./Header.module.scss";
@@ -12,6 +13,7 @@ import { getMenusByKeys } from "@/entities/navigation/selectors";
 import { useCartStore } from "@/features/cart/model/cartStore";
 
 const Header = () => {
+  const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const collectionMenus = getMenusByKeys(["category", "featured", "more"]);
@@ -27,8 +29,12 @@ const Header = () => {
   );
 
   const handleCloseCart = () => {
-    console.log("close cart");
     closeCart();
+  };
+
+  const handleCheckout = () => {
+    closeCart();
+    router.push("/cart");
   };
 
   return (
@@ -71,7 +77,7 @@ const Header = () => {
         onClose={handleCloseCart}
         onRemoveItem={(item) => removeItem(item.id)}
         onQuantityChange={(item, quantity) => updateQuantity(item.id, quantity)}
-        onCheckout={() => console.log("checkout")}
+        onCheckout={handleCheckout}
       />
     </>
   );

@@ -8,7 +8,6 @@ import {
 
 const wishListRouter = express.Router();
 wishListRouter.use(authMiddleware);
-
 wishListRouter.post("/", createWishList);
 wishListRouter.get("/", getWishListByUserId);
 wishListRouter.delete("/:variantId", deleteWishList);
