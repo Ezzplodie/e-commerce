@@ -7,6 +7,7 @@ import {
   updateProductRepository,
 } from "../repositories/product.repository.js";
 import { mapProductImagesToResponse } from "../services/variantImageStorage.service.js";
+
 const productSchema = z.object({
   category_id: z.number().min(1),
   name: z.string().min(1),

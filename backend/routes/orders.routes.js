@@ -5,17 +5,17 @@ import authMiddleware, {
 import {
   createOrder,
   getAllUserOrders,
-  getOrderById,
-  getOrderWithItems,
-  updateOrderStatus,
+  // getOrderById,
+  // getOrderWithItems,
+  // updateOrderStatus,
 } from "../controllers/orders.controller.js";
 
 const orderRouter = express.Router();
 orderRouter.use(authMiddleware);
 orderRouter.post("/", createOrder);
 orderRouter.get("/", getAllUserOrders);
-orderRouter.get("/:id", getOrderById);
-orderRouter.get("/:id/items", getOrderWithItems);
-orderRouter.patch("/:id/status", adminMiddleware, updateOrderStatus);
+// orderRouter.get("/:id", getOrderById);
+// orderRouter.get("/:id/items", getOrderWithItems);
+// orderRouter.patch("/:id/status", adminMiddleware, updateOrderStatus);
 
 export default orderRouter;

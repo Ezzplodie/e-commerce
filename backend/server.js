@@ -1,6 +1,5 @@
 import express from "express";
 import "dotenv/config";
-import path from "node:path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -27,7 +26,6 @@ app.use(
     credentials: true,
   }),
 );
-app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });

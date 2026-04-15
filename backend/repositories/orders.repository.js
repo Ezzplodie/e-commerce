@@ -12,92 +12,138 @@ const ATTRIBUTES_TABLE = "ecommerce.attributes";
 
 const DEFAULT_ORDER_CURRENCY = "USD";
 
-const toNumber = (value) => {
+// Shared helpers for converting database rows into API responses.
+function toNumber(value) {
   if (value === null || value === undefined) {
     return null;
   }
 
   const parsedValue = Number(value);
   return Number.isFinite(parsedValue) ? parsedValue : null;
-};
+}
 
-const roundCurrency = (value) =>
-  Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+function roundMoney(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
 
-const createHttpError = (message, status) => {
+function createHttpError(message, status) {
   const error = new Error(message);
   error.status = status;
   return error;
-};
+}
 
-const buildVariantNameSnapshot = ({ color, size, sku }) =>
-  [color, size].filter(Boolean).join(" / ") || sku;
-
-const resolveImageUrlSnapshot = ({
-  image_link,
-  storage_bucket,
-  storage_path,
-}) => {
-  if (storage_path) {
-    return generatePublicUrl(storage_path, storage_bucket || undefined);
-  }
-
-  return image_link ?? null;
-};
-
-const mapOrderSummaryRow = (row) => ({
-  id: row.id,
-  status: row.status,
-  total_price: toNumber(row.total_price),
-  shipping_cost: toNumber(row.shipping_cost),
-  item_count: Number(row.item_count ?? 0),
-  created_at: row.created_at,
-  shipping: {
+function buildShippingInfo(row) {
+  return {
     name: row.shipping_name,
     email: row.shipping_email,
     phone: row.shipping_phone,
     city: row.shipping_city,
     address: row.shipping_address,
     zip: row.shipping_zip,
-  },
-});
+  };
+}
 
-const mapOrderItems = (rows) =>
-  rows
-    .filter((row) => row.item_id !== null)
-    .map((row) => ({
-      id: row.item_id,
-      variant_id: row.variant_id,
-      product_id: row.product_id,
-      sku_snapshot: row.sku_snapshot,
-      product_name_snapshot: row.product_name_snapshot,
-      variant_name_snapshot: row.variant_name_snapshot,
-      color_snapshot: row.color_snapshot,
-      size_snapshot: row.size_snapshot,
-      image_url_snapshot: row.image_url_snapshot,
-      currency: row.currency,
-      price: toNumber(row.item_price),
-      quantity: row.item_quantity,
-      line_total: toNumber(row.line_total),
-    }));
+function mapOrderSummary(row) {
+  return {
+    id: row.id,
+    status: row.status,
+    total_price: toNumber(row.total_price),
+    shipping_cost: toNumber(row.shipping_cost),
+    item_count: Number(row.item_count ?? 0),
+    created_at: row.created_at,
+    shipping: buildShippingInfo(row),
+  };
+}
 
-const buildOrderWithItemsResponse = (rows) => {
-  if (!rows.length) {
+function mapOrderItem(row) {
+  return {
+    id: row.item_id,
+    variant_id: row.variant_id,
+    product_id: row.product_id,
+    sku_snapshot: row.sku_snapshot,
+    product_name_snapshot: row.product_name_snapshot,
+    variant_name_snapshot: row.variant_name_snapshot,
+    color_snapshot: row.color_snapshot,
+    size_snapshot: row.size_snapshot,
+    image_url_snapshot: row.image_url_snapshot,
+    currency: row.currency,
+    price: toNumber(row.item_price),
+    quantity: row.item_quantity,
+    line_total: toNumber(row.line_total),
+  };
+}
+
+function buildOrderWithItemsResponse(orderRow, items) {
+  return {
+    ...mapOrderSummary({
+      ...orderRow,
+      item_count: items.length,
+    }),
+    items,
+  };
+}
+
+function mapOrderWithItems(rows) {
+  if (rows.length === 0) {
     return null;
   }
 
-  const [firstRow] = rows;
+  const items = [];
 
-  return {
-    ...mapOrderSummaryRow({
-      ...firstRow,
-      item_count: rows.filter((row) => row.item_id !== null).length,
-    }),
-    items: mapOrderItems(rows),
-  };
-};
+  for (const row of rows) {
+    if (row.item_id === null) {
+      continue;
+    }
 
-const fetchVariantSnapshots = async (client, variantIds) => {
+    items.push(mapOrderItem(row));
+  }
+
+  return buildOrderWithItemsResponse(rows[0], items);
+}
+
+// Helpers used while creating a new order from the current catalog data.
+function buildVariantName(snapshot) {
+  const parts = [];
+
+  if (snapshot.color) {
+    parts.push(snapshot.color);
+  }
+
+  if (snapshot.size) {
+    parts.push(snapshot.size);
+  }
+
+  if (parts.length > 0) {
+    return parts.join(" / ");
+  }
+
+  return snapshot.sku;
+}
+
+function resolveImageUrl(snapshot) {
+  if (snapshot.storage_path) {
+    return generatePublicUrl(
+      snapshot.storage_path,
+      snapshot.storage_bucket || undefined,
+    );
+  }
+
+  return snapshot.image_link ?? null;
+}
+
+function getUniqueVariantIds(items) {
+  const variantIds = [];
+
+  for (const item of items) {
+    if (!variantIds.includes(item.variant_id)) {
+      variantIds.push(item.variant_id);
+    }
+  }
+
+  return variantIds;
+}
+
+async function getVariantSnapshots(client, variantIds) {
   const { rows } = await client.query(
     `
       SELECT
@@ -141,66 +187,181 @@ const fetchVariantSnapshots = async (client, variantIds) => {
   );
 
   return rows;
-};
+}
 
-const buildOrderItemsPayload = async (client, items, currency) => {
-  const variantIds = [...new Set(items.map((item) => item.variant_id))];
-  const snapshotRows = await fetchVariantSnapshots(client, variantIds);
+function findMissingVariantId(variantIds, snapshotRows) {
+  const existingVariantIds = new Set();
+
+  for (const row of snapshotRows) {
+    existingVariantIds.add(Number(row.variant_id));
+  }
+
+  return variantIds.find(
+    (variantId) => !existingVariantIds.has(variantId),
+  );
+}
+
+function buildSnapshotByVariantId(snapshotRows) {
+  const snapshotsByVariantId = {};
+
+  for (const row of snapshotRows) {
+    snapshotsByVariantId[Number(row.variant_id)] = row;
+  }
+
+  return snapshotsByVariantId;
+}
+
+function buildOrderItem(item, snapshot, currency) {
+  const availableStock = Number(snapshot.stock);
+
+  if (!Number.isInteger(availableStock) || availableStock < item.quantity) {
+    throw createHttpError(
+      `Insufficient stock for variant ${item.variant_id}`,
+      400,
+    );
+  }
+
+  const price = toNumber(snapshot.unit_price);
+
+  if (price === null || price < 0) {
+    throw createHttpError(
+      `Variant ${item.variant_id} has an invalid price`,
+      400,
+    );
+  }
+
+  return {
+    variant_id: item.variant_id,
+    product_id: snapshot.product_id,
+    sku_snapshot: snapshot.sku,
+    product_name_snapshot: snapshot.product_name,
+    variant_name_snapshot: buildVariantName(snapshot),
+    color_snapshot: snapshot.color ?? null,
+    size_snapshot: snapshot.size ?? null,
+    image_url_snapshot: resolveImageUrl(snapshot),
+    currency,
+    price,
+    quantity: item.quantity,
+    line_total: roundMoney(price * item.quantity),
+  };
+}
+
+async function buildOrderItems(client, items, currency) {
+  const variantIds = getUniqueVariantIds(items);
+  const snapshotRows = await getVariantSnapshots(client, variantIds);
 
   if (snapshotRows.length !== variantIds.length) {
-    const existingVariantIds = new Set(
-      snapshotRows.map((row) => Number(row.variant_id)),
-    );
-    const missingVariantId = variantIds.find(
-      (variantId) => !existingVariantIds.has(variantId),
-    );
-
+    const missingVariantId = findMissingVariantId(variantIds, snapshotRows);
     throw createHttpError(`Variant ${missingVariantId} not found`, 404);
   }
 
-  const snapshotByVariantId = new Map(
-    snapshotRows.map((row) => [Number(row.variant_id), row]),
+  const snapshotsByVariantId = buildSnapshotByVariantId(snapshotRows);
+  const orderItems = [];
+
+  for (const item of items) {
+    const snapshot = snapshotsByVariantId[item.variant_id];
+    orderItems.push(buildOrderItem(item, snapshot, currency));
+  }
+
+  return orderItems;
+}
+
+function calculateItemsSubtotal(orderItems) {
+  let subtotal = 0;
+
+  for (const item of orderItems) {
+    subtotal += item.line_total;
+  }
+
+  return roundMoney(subtotal);
+}
+
+async function insertOrder(client, orderData) {
+  const { rows } = await client.query(
+    `
+      INSERT INTO ${ORDERS_TABLE} (
+        user_id,
+        total_price,
+        shipping_cost,
+        shipping_name,
+        shipping_email,
+        shipping_phone,
+        shipping_city,
+        shipping_address,
+        shipping_zip,
+        status
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING *
+    `,
+    [
+      orderData.user_id,
+      orderData.total_price,
+      orderData.shipping_cost,
+      orderData.shipping_name,
+      orderData.shipping_email,
+      orderData.shipping_phone,
+      orderData.shipping_city,
+      orderData.shipping_address,
+      orderData.shipping_zip,
+      orderData.status,
+    ],
   );
 
-  return items.map((item) => {
-    const snapshot = snapshotByVariantId.get(item.variant_id);
-    const availableStock = Number(snapshot.stock);
+  return rows[0];
+}
 
-    if (!Number.isInteger(availableStock) || availableStock < item.quantity) {
-      throw createHttpError(
-        `Insufficient stock for variant ${item.variant_id}`,
-        400,
-      );
-    }
+async function insertOrderItems(client, orderId, orderItems) {
+  const createdOrderItems = [];
 
-    const price = toNumber(snapshot.unit_price);
+  for (const item of orderItems) {
+    const { rows } = await client.query(
+      `
+        INSERT INTO ${ORDER_ITEMS_TABLE} (
+          order_id,
+          variant_id,
+          product_id,
+          sku_snapshot,
+          product_name_snapshot,
+          variant_name_snapshot,
+          color_snapshot,
+          size_snapshot,
+          image_url_snapshot,
+          currency,
+          price,
+          quantity,
+          line_total
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        RETURNING id
+      `,
+      [
+        orderId,
+        item.variant_id,
+        item.product_id,
+        item.sku_snapshot,
+        item.product_name_snapshot,
+        item.variant_name_snapshot,
+        item.color_snapshot,
+        item.size_snapshot,
+        item.image_url_snapshot,
+        item.currency,
+        item.price,
+        item.quantity,
+        item.line_total,
+      ],
+    );
 
-    if (price === null || price < 0) {
-      throw createHttpError(
-        `Variant ${item.variant_id} has an invalid price`,
-        400,
-      );
-    }
+    createdOrderItems.push({
+      id: rows[0].id,
+      ...item,
+    });
+  }
 
-    const lineTotal = roundCurrency(price * item.quantity);
+  return createdOrderItems;
+}
 
-    return {
-      variant_id: item.variant_id,
-      product_id: snapshot.product_id,
-      sku_snapshot: snapshot.sku,
-      product_name_snapshot: snapshot.product_name,
-      variant_name_snapshot: buildVariantNameSnapshot(snapshot),
-      color_snapshot: snapshot.color ?? null,
-      size_snapshot: snapshot.size ?? null,
-      image_url_snapshot: resolveImageUrlSnapshot(snapshot),
-      currency,
-      price,
-      quantity: item.quantity,
-      line_total: lineTotal,
-    };
-  });
-};
-
+// Repository methods.
 export const createOrderRepository = async ({
   user_id,
   total_price,
@@ -220,14 +381,11 @@ export const createOrderRepository = async ({
   try {
     await client.query("BEGIN");
 
-    const orderItems = await buildOrderItemsPayload(client, items, currency);
-    const itemsSubtotal = roundCurrency(
-      orderItems.reduce((sum, item) => sum + item.line_total, 0),
-    );
-    const normalizedShippingCost = roundCurrency(shipping_cost);
-    const normalizedTotalPrice = roundCurrency(total_price);
-    const minimumExpectedTotal = roundCurrency(
-      itemsSubtotal + normalizedShippingCost,
+    const orderItems = await buildOrderItems(client, items, currency);
+    const normalizedShippingCost = roundMoney(shipping_cost ?? 0);
+    const normalizedTotalPrice = roundMoney(total_price);
+    const minimumExpectedTotal = roundMoney(
+      calculateItemsSubtotal(orderItems) + normalizedShippingCost,
     );
 
     if (normalizedTotalPrice < minimumExpectedTotal) {
@@ -237,91 +395,28 @@ export const createOrderRepository = async ({
       );
     }
 
-    const orderInsertResult = await client.query(
-      `
-        INSERT INTO ${ORDERS_TABLE} (
-          user_id,
-          total_price,
-          shipping_cost,
-          shipping_name,
-          shipping_email,
-          shipping_phone,
-          shipping_city,
-          shipping_address,
-          shipping_zip,
-          status
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        RETURNING *
-      `,
-      [
-        user_id,
-        normalizedTotalPrice,
-        normalizedShippingCost,
-        shipping_name,
-        shipping_email,
-        shipping_phone,
-        shipping_city,
-        shipping_address,
-        shipping_zip,
-        status,
-      ],
+    const order = await insertOrder(client, {
+      user_id,
+      total_price: normalizedTotalPrice,
+      shipping_cost: normalizedShippingCost,
+      shipping_name,
+      shipping_email,
+      shipping_phone,
+      shipping_city,
+      shipping_address,
+      shipping_zip,
+      status,
+    });
+
+    const createdOrderItems = await insertOrderItems(
+      client,
+      order.id,
+      orderItems,
     );
-
-    const order = orderInsertResult.rows[0];
-
-    const createdOrderItems = [];
-
-    for (const item of orderItems) {
-      const insertItemResult = await client.query(
-        `
-          INSERT INTO ${ORDER_ITEMS_TABLE} (
-            order_id,
-            variant_id,
-            product_id,
-            sku_snapshot,
-            product_name_snapshot,
-            variant_name_snapshot,
-            color_snapshot,
-            size_snapshot,
-            image_url_snapshot,
-            currency,
-            price,
-            quantity,
-            line_total
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-          RETURNING id
-        `,
-        [
-          order.id,
-          item.variant_id,
-          item.product_id,
-          item.sku_snapshot,
-          item.product_name_snapshot,
-          item.variant_name_snapshot,
-          item.color_snapshot,
-          item.size_snapshot,
-          item.image_url_snapshot,
-          item.currency,
-          item.price,
-          item.quantity,
-          item.line_total,
-        ],
-      );
-
-      createdOrderItems.push({
-        id: insertItemResult.rows[0].id,
-        ...item,
-      });
-    }
 
     await client.query("COMMIT");
 
-    return {
-      ...mapOrderSummaryRow({ ...order, item_count: createdOrderItems.length }),
-      items: createdOrderItems,
-    };
+    return buildOrderWithItemsResponse(order, createdOrderItems);
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -345,7 +440,7 @@ export const getAllUserOrdersRepository = async (user_id) => {
     [user_id],
   );
 
-  return rows.map(mapOrderSummaryRow);
+  return rows.map(mapOrderSummary);
 };
 
 export const getOrderByIdRepository = async (order_id, user_id) => {
@@ -364,7 +459,7 @@ export const getOrderByIdRepository = async (order_id, user_id) => {
     [order_id, user_id],
   );
 
-  return rows[0] ? mapOrderSummaryRow(rows[0]) : null;
+  return rows[0] ? mapOrderSummary(rows[0]) : null;
 };
 
 export const getOrderWithItemsRepository = async (order_id, user_id) => {
@@ -404,7 +499,7 @@ export const getOrderWithItemsRepository = async (order_id, user_id) => {
     [order_id, user_id],
   );
 
-  return buildOrderWithItemsResponse(rows);
+  return mapOrderWithItems(rows);
 };
 
 export const updateOrderStatusRepository = async (status, order_id) => {
@@ -426,5 +521,5 @@ export const updateOrderStatusRepository = async (status, order_id) => {
     [status, order_id],
   );
 
-  return rows[0] ? mapOrderSummaryRow(rows[0]) : null;
+  return rows[0] ? mapOrderSummary(rows[0]) : null;
 };

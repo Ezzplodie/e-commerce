@@ -1,10 +1,7 @@
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 import { getVariantImageStorageContextRepository } from "../repositories/variantImages.repository.js";
 
-const LEGACY_UPLOAD_PREFIX = "/uploads/variants/";
-const LEGACY_UPLOAD_ROOT = path.resolve(process.cwd(), "uploads", "variants");
 const REQUIRED_BUCKET = "product-images";
 const SUPPORTED_IMAGE_TYPES = new Set([
   "image/jpeg",
@@ -58,6 +55,21 @@ const getSupabaseConfig = () => {
     url,
     serviceRoleKey,
     bucket,
+  };
+};
+
+const getStoredImageTarget = (imageRecord) => {
+  if (!imageRecord?.storage_path) {
+    const error = new Error(
+      "Image does not have a storage_path; bucket-only storage is required",
+    );
+    error.status = 409;
+    throw error;
+  }
+
+  return {
+    bucket: imageRecord.storage_bucket || REQUIRED_BUCKET,
+    storagePath: imageRecord.storage_path,
   };
 };
 
@@ -168,74 +180,6 @@ export const assertVariantImageUploadIsAllowed = (file) => {
   }
 };
 
-export const convertLegacyUploadsImageLinkToStoragePath = (imageLink) => {
-  if (!imageLink?.startsWith(LEGACY_UPLOAD_PREFIX)) {
-    return null;
-  }
-
-  return imageLink.slice(LEGACY_UPLOAD_PREFIX.length);
-};
-
-const extractStoragePathFromPublicUrl = (imageLink) => {
-  if (!imageLink) {
-    return null;
-  }
-
-  const { url, bucket } = getSupabaseConfig();
-
-  try {
-    const imageUrl = new URL(imageLink);
-    const supabaseUrl = new URL(url);
-    const expectedPrefix = `/storage/v1/object/public/${bucket}/`;
-
-    if (
-      imageUrl.origin !== supabaseUrl.origin ||
-      !imageUrl.pathname.startsWith(expectedPrefix)
-    ) {
-      return null;
-    }
-
-    return decodeURIComponent(imageUrl.pathname.slice(expectedPrefix.length));
-  } catch {
-    return null;
-  }
-};
-
-const resolveStoredImageTarget = (imageRecord) => {
-  const legacyImageLink = imageRecord?.legacy_image_link ?? imageRecord?.image_link;
-
-  if (imageRecord?.storage_path) {
-    return {
-      type: "supabase",
-      bucket: imageRecord.storage_bucket || REQUIRED_BUCKET,
-      storagePath: imageRecord.storage_path,
-    };
-  }
-
-  const legacyStoragePath = convertLegacyUploadsImageLinkToStoragePath(
-    legacyImageLink,
-  );
-
-  if (legacyStoragePath) {
-    return {
-      type: "legacy-local",
-      storagePath: legacyStoragePath,
-    };
-  }
-
-  const publicStoragePath = extractStoragePathFromPublicUrl(legacyImageLink);
-
-  if (publicStoragePath) {
-    return {
-      type: "supabase",
-      bucket: imageRecord.storage_bucket || REQUIRED_BUCKET,
-      storagePath: publicStoragePath,
-    };
-  }
-
-  return null;
-};
-
 const deleteObjectFromSupabaseStorage = async ({ bucket, storagePath }) => {
   const { url, serviceRoleKey } = getSupabaseConfig();
 
@@ -254,26 +198,6 @@ const deleteObjectFromSupabaseStorage = async ({ bucket, storagePath }) => {
     const errorText = await response.text();
     const error = new Error(errorText || "Supabase storage delete failed");
     error.status = response.status >= 400 ? response.status : 502;
-    throw error;
-  }
-};
-
-const deleteLegacyLocalFile = async (storagePath) => {
-  const filePath = path.resolve(LEGACY_UPLOAD_ROOT, storagePath);
-
-  if (!filePath.startsWith(LEGACY_UPLOAD_ROOT)) {
-    const error = new Error("Legacy image path is outside the uploads directory");
-    error.status = 500;
-    throw error;
-  }
-
-  try {
-    await fs.unlink(filePath);
-  } catch (error) {
-    if (error?.code === "ENOENT") {
-      return;
-    }
-
     throw error;
   }
 };
@@ -318,35 +242,21 @@ export const uploadVariantImageFile = async (variantId, file) => {
 };
 
 export const deleteStoredVariantImage = async (imageRecord) => {
-  const target = resolveStoredImageTarget(imageRecord);
-
-  if (!target) {
-    const error = new Error(
-      "Cannot resolve storage target for this image; manual cleanup is required",
-    );
-    error.status = 409;
-    throw error;
-  }
-
-  if (target.type === "legacy-local") {
-    await deleteLegacyLocalFile(target.storagePath);
-    return;
-  }
-
+  const target = getStoredImageTarget(imageRecord);
   await deleteObjectFromSupabaseStorage(target);
 };
 
 export const mapVariantImageRecordToResponse = (imageRecord) => {
-  const target = resolveStoredImageTarget(imageRecord);
-  const legacyImageLink = imageRecord?.legacy_image_link ?? imageRecord?.image_link;
-  const derivedImageLink =
-    target?.type === "supabase"
-      ? generatePublicUrl(target.storagePath, target.bucket)
-      : legacyImageLink || "";
+  const imageLink = imageRecord?.storage_path
+    ? generatePublicUrl(
+        imageRecord.storage_path,
+        imageRecord.storage_bucket || REQUIRED_BUCKET,
+      )
+    : (imageRecord?.image_link ?? "");
 
   return {
     id: imageRecord.id,
-    image_link: derivedImageLink,
+    image_link: imageLink,
     image_order: imageRecord.image_order,
     storage_bucket: imageRecord.storage_bucket ?? null,
     storage_path: imageRecord.storage_path ?? null,
@@ -364,15 +274,3 @@ export const mapProductImagesToResponse = (product) => ({
     ),
   })),
 });
-
-export const buildStoragePathFromLegacyUploadsLink = (imageLink) => {
-  const storagePath = convertLegacyUploadsImageLinkToStoragePath(imageLink);
-
-  if (!storagePath) {
-    const error = new Error("Legacy image link does not point to /uploads");
-    error.status = 400;
-    throw error;
-  }
-
-  return storagePath;
-};

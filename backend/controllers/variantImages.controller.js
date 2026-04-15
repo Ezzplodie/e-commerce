@@ -3,7 +3,7 @@ import {
   createVariantImageRepository,
   deleteVariantImageRepository,
   getVariantImageRepository,
-  updateVariantImageRepository,
+  updateVariantImageOrderRepository,
 } from "../repositories/variantImages.repository.js";
 import {
   deleteStoredVariantImage,
@@ -27,7 +27,7 @@ export const updateVariantImage = async (req, res, next) => {
       return res.status(400).json({ error: result.error.errors });
     }
 
-    const updatedImage = await updateVariantImageRepository(
+    const updatedImage = await updateVariantImageOrderRepository(
       imageId,
       result.data.image_order,
     );
