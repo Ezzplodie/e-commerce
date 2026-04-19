@@ -6,3 +6,4 @@ export { default as productVariantRouter } from "./productVariants.routes.js";
 export { default as variantImageRouter } from "./variantImages.routes.js";
 export { default as wishListRouter } from "./wishLists.routes.js";
 export { default as orderRouter } from "./orders.routes.js";
+export { default as webhookRouter } from "./webHook.routes.js";

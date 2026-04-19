@@ -9,10 +9,8 @@ const VARIANT_IMAGES_TABLE = "ecommerce.variant_images";
 const VARIANT_ATTRIBUTE_VALUES_TABLE = "ecommerce.variant_attribute_values";
 const ATTRIBUTE_VALUES_TABLE = "ecommerce.attribute_values";
 const ATTRIBUTES_TABLE = "ecommerce.attributes";
-
 const DEFAULT_ORDER_CURRENCY = "USD";
 
-// Shared helpers for converting database rows into API responses.
 function toNumber(value) {
   if (value === null || value === undefined) {
     return null;
@@ -73,20 +71,15 @@ function mapOrderItem(row) {
   };
 }
 
-function buildOrderWithItemsResponse(orderRow, items) {
-  return {
-    ...mapOrderSummary({
-      ...orderRow,
-      item_count: items.length,
-    }),
-    items,
-  };
-}
-
 function mapOrderWithItems(rows) {
   if (rows.length === 0) {
     return null;
   }
+
+  const order = mapOrderSummary({
+    ...rows[0],
+    item_count: 0,
+  });
 
   const items = [];
 
@@ -98,10 +91,13 @@ function mapOrderWithItems(rows) {
     items.push(mapOrderItem(row));
   }
 
-  return buildOrderWithItemsResponse(rows[0], items);
+  return {
+    ...order,
+    item_count: items.length,
+    items,
+  };
 }
 
-// Helpers used while creating a new order from the current catalog data.
 function buildVariantName(snapshot) {
   const parts = [];
 
@@ -196,9 +192,7 @@ function findMissingVariantId(variantIds, snapshotRows) {
     existingVariantIds.add(Number(row.variant_id));
   }
 
-  return variantIds.find(
-    (variantId) => !existingVariantIds.has(variantId),
-  );
+  return variantIds.find((variantId) => !existingVariantIds.has(variantId));
 }
 
 function buildSnapshotByVariantId(snapshotRows) {
@@ -361,7 +355,6 @@ async function insertOrderItems(client, orderId, orderItems) {
   return createdOrderItems;
 }
 
-// Repository methods.
 export const createOrderRepository = async ({
   user_id,
   total_price,
@@ -416,7 +409,13 @@ export const createOrderRepository = async ({
 
     await client.query("COMMIT");
 
-    return buildOrderWithItemsResponse(order, createdOrderItems);
+    return {
+      ...mapOrderSummary({
+        ...order,
+        item_count: createdOrderItems.length,
+      }),
+      items: createdOrderItems,
+    };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -443,7 +442,7 @@ export const getAllUserOrdersRepository = async (user_id) => {
   return rows.map(mapOrderSummary);
 };
 
-export const getOrderByIdRepository = async (order_id, user_id) => {
+export const getOrderByIdRepository = async (order_id, user_id, ide) => {
   const { rows } = await pool.query(
     `
       SELECT
@@ -522,4 +521,18 @@ export const updateOrderStatusRepository = async (status, order_id) => {
   );
 
   return rows[0] ? mapOrderSummary(rows[0]) : null;
+};
+
+export const updateOrderStripeIdRepository = async (order_id, intent_id) => {
+  const { rows } = await pool.query(
+    `
+      UPDATE ${ORDERS_TABLE}
+      SET stripe_payment_intent_id = $1
+      WHERE id = $2
+      RETURNING *
+    `,
+    [intent_id, order_id],
+  );
+
+  return rows[0];
 };

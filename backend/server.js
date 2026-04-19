@@ -13,11 +13,14 @@ import {
   variantImageRouter,
   wishListRouter,
   orderRouter,
+  webhookRouter,
 } from "./routes/index.js";
 import { assertSupabaseStorageConfigured } from "./services/variantImageStorage.service.js";
 
 const app = express();
 assertSupabaseStorageConfigured();
+app.use(webhookRouter);
+app.use("/stripe", webhookRouter);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
