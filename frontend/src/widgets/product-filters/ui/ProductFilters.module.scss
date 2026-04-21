@@ -160,30 +160,10 @@
   color: var(--gray-900);
 }
 
-.checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
-  border: 2px solid var(--primary-200);
-  background: var(--white);
-  margin: 0;
-}
-
-.checkbox:checked {
-  background: var(--button-primary);
-  border-color: var(--button-primary);
-}
-
-.checkbox:focus-visible {
-  outline: 2px solid var(--primary-600);
-  outline-offset: 2px;
-}
-
 .colorDot {
   width: 18px;
   height: 18px;
+  margin-right: 12px;
   border-radius: 999px;
   box-shadow: 0 0 0 2px rgba(84, 110, 94, 0.35);
 }
@@ -229,6 +209,10 @@
 
 .compactItem:first-child {
   border-top: 0;
+}
+
+.compactItem .icon {
+  color: var(--white);
 }
 
 @media (max-width: 520px) {

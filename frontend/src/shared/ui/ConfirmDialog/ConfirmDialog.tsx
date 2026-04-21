@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/shared/ui/Button";
 import styles from "./ConfirmDialog.module.scss";
 
@@ -24,16 +25,21 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [open]);
+
   if (!open) {
     return null;
   }
 
   return (
-    <div
-      className={styles.overlay}
-      role="presentation"
-      data-lock-scroll="true"
-    >
+    <div className={styles.overlay} role="presentation" data-lock-scroll="true">
       <div
         className={styles.dialog}
         role="dialog"

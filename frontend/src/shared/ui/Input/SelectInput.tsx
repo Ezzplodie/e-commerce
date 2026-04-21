@@ -4,11 +4,12 @@ import { SelectInputProps } from "./SelectInput.types";
 
 export function SelectInput({
   className,
+  name = "",
   children,
   ...props
 }: SelectInputProps) {
   return (
-    <select className={clsx(styles.select, className)} {...props}>
+    <select className={clsx(styles.select, className)} {...props} name={name}>
       {children}
     </select>
   );

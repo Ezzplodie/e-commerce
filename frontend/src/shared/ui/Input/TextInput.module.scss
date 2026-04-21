@@ -1,8 +1,8 @@
 @use "@/shared/styles/typography" as typo;
+@use "./Input.module" as input;
 
 .input {
-  box-sizing: border-box;
-  height: 40px;
+  @include input.control-box;
   padding: 0 16px;
   border: 1px solid var(--gray-650);
   font-family: var(--font-montserrat), system-ui, sans-serif;
@@ -12,4 +12,49 @@
   &::placeholder {
     color: var(--gray-650);
   }
+}
+
+.wrapper {
+  @include input.control-box;
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  border: 1px solid var(--gray-650);
+  background: var(--white);
+  color: var(--gray-650);
+
+  &:focus-within {
+    outline: 2px solid var(--primary-600);
+    outline-offset: 2px;
+  }
+}
+
+.inputWithIcon {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  border: 0;
+  background: transparent;
+  outline: 0;
+}
+
+.icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  pointer-events: none;
+}
+
+.leftIcon {
+  margin-left: 16px;
+
+  + .input {
+    padding-left: 4px;
+  }
+}
+
+.rightIcon {
+  margin-right: 16px;
 }

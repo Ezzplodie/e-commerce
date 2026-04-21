@@ -31,3 +31,21 @@ export type CartStore = {
   openCart: () => void;
   closeCart: () => void;
 };
+
+export type ShippingAddress = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  city: string;
+  postal_code: string;
+  country: string;
+  company?: string;
+  address: string;
+  apartment?: string;
+};
+
+export type Address = ShippingAddress & {
+  id: number;
+  user_id: number;
+};

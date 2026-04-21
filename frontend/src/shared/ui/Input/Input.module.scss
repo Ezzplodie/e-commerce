@@ -1,0 +1,13 @@
+$control-height: 40px;
+$select-arrow-y: calc((#{$control-height} - 6px) / 2);
+
+@mixin control-height {
+  height: $control-height;
+  min-height: $control-height;
+  max-height: $control-height;
+}
+
+@mixin control-box {
+  @include control-height;
+  box-sizing: border-box;
+}

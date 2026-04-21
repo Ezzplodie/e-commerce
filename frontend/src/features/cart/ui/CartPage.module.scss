@@ -112,9 +112,27 @@
 }
 
 .nextButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 176px;
+  height: 40px;
   margin-top: 16px;
   margin-left: auto;
+  padding: 0 25px;
+  border: 1px solid var(--button-primary);
+  background-color: var(--button-primary);
+  color: var(--white);
+  text-decoration: none;
+  transition:
+    background-color var(--transition),
+    border-color var(--transition);
+  @include typo.button-sm;
+
+  &:hover {
+    background-color: var(--button-primary-hover);
+    border-color: var(--button-primary-hover);
+  }
 }
 
 .emptyState {

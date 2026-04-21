@@ -1,0 +1,50 @@
+@use "@/shared/styles/typography" as typo;
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-900);
+  cursor: pointer;
+}
+
+.md {
+  gap: 12px;
+}
+
+.sm {
+  gap: 4px;
+}
+
+.input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin: 0;
+  appearance: none;
+  border: 2px solid var(--primary-200);
+  background: var(--white);
+  cursor: pointer;
+}
+
+.sm .input {
+  border-width: 1px;
+}
+
+.input:checked {
+  border-color: var(--button-primary);
+  background: var(--button-primary);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+.label {
+  color: var(--black);
+  @include typo.body-md;
+}
+
+.sm .label {
+  @include typo.body-sm;
+}

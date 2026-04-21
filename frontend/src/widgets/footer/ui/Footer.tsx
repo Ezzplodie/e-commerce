@@ -7,6 +7,7 @@ import {
   SocialMedia3Icon,
   SocialMediaIcon,
 } from "@/shared/assets/icons";
+import { Checkbox } from "@/shared/ui/Checkbox";
 import { TextInput } from "@/shared/ui/Input";
 import styles from "./Footer.module.scss";
 
@@ -58,13 +59,10 @@ const Footer = () => {
               </button>
             </div>
 
-            <label className={styles.checkboxRow}>
-              <input type="checkbox" />
-              <span>
-                By Submitting your email, you agree to receive advertising emails
-                from Modimal.
-              </span>
-            </label>
+            <Checkbox className={styles.checkboxRow} size="sm">
+              By Submitting your email, you agree to receive advertising emails
+              from Modimal.
+            </Checkbox>
           </form>
 
           <div className={styles.socialRow}>

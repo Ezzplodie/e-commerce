@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { formatPrice } from "@/shared/lib/formatters";
-import { Button } from "@/shared/ui/Button";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
+import { CheckoutHeader } from "@/widgets/checkout-header";
 import { useCartStore } from "../model/cartStore";
 import { getCartPricing } from "../model/cartPricing";
 import { useCartDrawerState } from "../model/useCartDrawerState";
 import { CartCheckoutItemRow } from "./CartCheckoutItemRow";
 import styles from "./CartPage.module.scss";
-import Header from "@/widgets/header";
 import { clsx } from "clsx";
 
 const cartPriceFormat = {
@@ -42,7 +41,7 @@ export function CartPage() {
 
   return (
     <>
-      <Header />
+      <CheckoutHeader />
       <main className={styles.page}>
         <section className={clsx(styles.panel, "container")}>
           <div className={styles.heroRow}>
@@ -120,7 +119,9 @@ export function CartPage() {
                   duties & taxes. We guarantee no additional charges on delivery
                 </p>
 
-                <Button className={styles.nextButton}>Next</Button>
+                <Link href="/cart/information" className={styles.nextButton}>
+                  Next
+                </Link>
               </aside>
             </>
           ) : (

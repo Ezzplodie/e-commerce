@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { MinusStrokeIcon, PlusStrokeIcon } from "@/shared/assets/icons";
 import styles from "./CartQuantityControl.module.scss";
 
 type CartQuantityControlProps = {
@@ -27,15 +28,7 @@ export function CartQuantityControl({
         onClick={onDecrease}
         aria-label={`Decrease quantity for ${itemName}`}
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6 11H18V13H6V11Z" fill="#404E3E" />
-        </svg>
+        <MinusStrokeIcon width={24} height={24} aria-hidden="true" />
       </button>
       <span className={styles.value}>{quantity}</span>
       <button
@@ -44,15 +37,7 @@ export function CartQuantityControl({
         onClick={onIncrease}
         aria-label={`Increase quantity for ${itemName}`}
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="#404E3E" />
-        </svg>
+        <PlusStrokeIcon width={24} height={24} aria-hidden="true" />
       </button>
     </div>
   );

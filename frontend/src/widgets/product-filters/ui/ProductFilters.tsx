@@ -1,3 +1,5 @@
+import { MinusStrokeIcon, PlusStrokeIcon } from "@/shared/assets/icons";
+import { Checkbox } from "@/shared/ui/Checkbox";
 import styles from "./ProductFilters.module.scss";
 
 type AppliedFilter = {
@@ -67,36 +69,6 @@ const fabric: CheckboxOption[] = [
   { id: "cashmere", label: "Cashmere" },
 ];
 
-function PlusIcon() {
-  return (
-    <svg
-      className={styles.icon}
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path d="M9 1v16M1 9h16" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  );
-}
-
-function MinusIcon() {
-  return (
-    <svg
-      className={styles.icon}
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path d="M1 9h16" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  );
-}
-
 function Section({
   id,
   title,
@@ -113,7 +85,7 @@ function Section({
       <summary className={styles.sectionHeader} aria-controls={`${id}-content`}>
         <span className={styles.sectionTitle}>{title}</span>
         <span className={styles.sectionIcon} aria-hidden="true">
-          <MinusIcon />
+          <MinusStrokeIcon width={18} height={18} className={styles.icon} />
         </span>
       </summary>
       <div id={`${id}-content`} className={styles.sectionBody}>
@@ -165,14 +137,13 @@ export function ProductFilters() {
           <ul className={styles.options} aria-label="Sort By options">
             {sortBy.map((o) => (
               <li key={o.id}>
-                <label className={styles.option}>
-                  <input
-                    className={styles.checkbox}
-                    type="checkbox"
-                    defaultChecked={o.checked}
-                  />
-                  <span className={styles.optionLabel}>{o.label}</span>
-                </label>
+                <Checkbox
+                  className={styles.option}
+                  defaultChecked={o.checked}
+                  labelClassName={styles.optionLabel}
+                >
+                  {o.label}
+                </Checkbox>
               </li>
             ))}
           </ul>
@@ -182,14 +153,13 @@ export function ProductFilters() {
           <ul className={styles.options} aria-label="Size options">
             {size.map((o) => (
               <li key={o.id}>
-                <label className={styles.option}>
-                  <input
-                    className={styles.checkbox}
-                    type="checkbox"
-                    defaultChecked={o.checked}
-                  />
-                  <span className={styles.optionLabel}>{o.label}</span>
-                </label>
+                <Checkbox
+                  className={styles.option}
+                  defaultChecked={o.checked}
+                  labelClassName={styles.optionLabel}
+                >
+                  {o.label}
+                </Checkbox>
               </li>
             ))}
           </ul>
@@ -199,12 +169,7 @@ export function ProductFilters() {
           <ul className={styles.options} aria-label="Color options">
             {colors.map((c) => (
               <li key={c.id}>
-                <label className={styles.option}>
-                  <input
-                    className={styles.checkbox}
-                    type="checkbox"
-                    defaultChecked={c.checked}
-                  />
+                <Checkbox className={styles.option} defaultChecked={c.checked}>
                   <span
                     className={styles.colorDot}
                     style={{ backgroundColor: c.hex }}
@@ -212,7 +177,7 @@ export function ProductFilters() {
                     data-is-white={c.id === "white" ? "true" : "false"}
                   />
                   <span className={styles.optionLabel}>{c.label}</span>
-                </label>
+                </Checkbox>
               </li>
             ))}
           </ul>
@@ -222,14 +187,13 @@ export function ProductFilters() {
           <ul className={styles.options} aria-label="Collection options">
             {collection.map((o) => (
               <li key={o.id}>
-                <label className={styles.option}>
-                  <input
-                    className={styles.checkbox}
-                    type="checkbox"
-                    defaultChecked={o.checked}
-                  />
-                  <span className={styles.optionLabel}>{o.label}</span>
-                </label>
+                <Checkbox
+                  className={styles.option}
+                  defaultChecked={o.checked}
+                  labelClassName={styles.optionLabel}
+                >
+                  {o.label}
+                </Checkbox>
               </li>
             ))}
           </ul>
@@ -239,14 +203,13 @@ export function ProductFilters() {
           <ul className={styles.options} aria-label="Fabric options">
             {fabric.map((o) => (
               <li key={o.id}>
-                <label className={styles.option}>
-                  <input
-                    className={styles.checkbox}
-                    type="checkbox"
-                    defaultChecked={o.checked}
-                  />
-                  <span className={styles.optionLabel}>{o.label}</span>
-                </label>
+                <Checkbox
+                  className={styles.option}
+                  defaultChecked={o.checked}
+                  labelClassName={styles.optionLabel}
+                >
+                  {o.label}
+                </Checkbox>
               </li>
             ))}
           </ul>
@@ -255,23 +218,23 @@ export function ProductFilters() {
         <div className={styles.compactList} aria-label="Collapsed view (visual only)">
           <div className={styles.compactItem}>
             <span>Sort By</span>
-            <PlusIcon />
+            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
           </div>
           <div className={styles.compactItem}>
             <span>Size</span>
-            <PlusIcon />
+            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
           </div>
           <div className={styles.compactItem}>
             <span>Color</span>
-            <PlusIcon />
+            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
           </div>
           <div className={styles.compactItem}>
             <span>Collection</span>
-            <PlusIcon />
+            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
           </div>
           <div className={styles.compactItem}>
             <span>Fabric</span>
-            <PlusIcon />
+            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
           </div>
         </div>
       </fieldset>

@@ -30,14 +30,27 @@ function createHttpError(message, status) {
   return error;
 }
 
+function calcTotalPrice(items, shippingCost) {
+  let total = shippingCost;
+
+  for (const item of items) {
+    total += item.line_total;
+  }
+
+  return roundMoney(total);
+}
 function buildShippingInfo(row) {
   return {
-    name: row.shipping_name,
+    firstName: row.shipping_first_name,
+    lastName: row.shipping_last_name,
     email: row.shipping_email,
+    shipping_country: row.shipping_country,
+    shipping_company: row.shipping_company,
     phone: row.shipping_phone,
     city: row.shipping_city,
+    shipping_apartmentment: row.shipping_apartment,
     address: row.shipping_address,
-    zip: row.shipping_zip,
+    postal_code: row.shipping_postal_code,
   };
 }
 
@@ -275,29 +288,37 @@ async function insertOrder(client, orderData) {
     `
       INSERT INTO ${ORDERS_TABLE} (
         user_id,
+        shipping_first_name,
+        shipping_last_name,
         total_price,
         shipping_cost,
-        shipping_name,
         shipping_email,
         shipping_phone,
         shipping_city,
         shipping_address,
-        shipping_zip,
+        shipping_postal_code,
+        shipping_country,
+        shipping_company,
+        shipping_apartment,
         status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *
     `,
     [
       orderData.user_id,
+      orderData.shipping_first_name,
+      orderData.shipping_last_name,
       orderData.total_price,
       orderData.shipping_cost,
-      orderData.shipping_name,
       orderData.shipping_email,
       orderData.shipping_phone,
       orderData.shipping_city,
       orderData.shipping_address,
-      orderData.shipping_zip,
+      orderData.shipping_postal_code,
+      orderData.shipping_country,
+      orderData.shipping_company,
+      orderData.shipping_apartment,
       orderData.status,
     ],
   );
@@ -357,14 +378,17 @@ async function insertOrderItems(client, orderId, orderItems) {
 
 export const createOrderRepository = async ({
   user_id,
-  total_price,
   shipping_cost,
-  shipping_name,
+  shipping_first_name,
+  shipping_last_name,
   shipping_email,
   shipping_phone,
   shipping_city,
   shipping_address,
-  shipping_zip,
+  shipping_postal_code,
+  shipping_country,
+  shipping_company,
+  shipping_apartment,
   items,
   status = "pending",
   currency = DEFAULT_ORDER_CURRENCY,
@@ -376,28 +400,25 @@ export const createOrderRepository = async ({
 
     const orderItems = await buildOrderItems(client, items, currency);
     const normalizedShippingCost = roundMoney(shipping_cost ?? 0);
-    const normalizedTotalPrice = roundMoney(total_price);
-    const minimumExpectedTotal = roundMoney(
-      calculateItemsSubtotal(orderItems) + normalizedShippingCost,
+    const normalizedTotalPrice = calcTotalPrice(
+      orderItems,
+      normalizedShippingCost,
     );
-
-    if (normalizedTotalPrice < minimumExpectedTotal) {
-      throw createHttpError(
-        "Order total is lower than the current catalog pricing",
-        400,
-      );
-    }
 
     const order = await insertOrder(client, {
       user_id,
       total_price: normalizedTotalPrice,
       shipping_cost: normalizedShippingCost,
-      shipping_name,
+      shipping_first_name,
+      shipping_last_name,
       shipping_email,
       shipping_phone,
       shipping_city,
       shipping_address,
-      shipping_zip,
+      shipping_postal_code,
+      shipping_country,
+      shipping_company,
+      shipping_apartment,
       status,
     });
 
@@ -469,12 +490,13 @@ export const getOrderWithItemsRepository = async (order_id, user_id) => {
         o.status,
         o.total_price,
         o.shipping_cost,
-        o.shipping_name,
+        o.shipping_first_name,
+        o.shipping_last_name,
         o.shipping_email,
         o.shipping_phone,
         o.shipping_city,
         o.shipping_address,
-        o.shipping_zip,
+        o.shipping_postal_code,
         o.created_at,
         oi.id AS item_id,
         oi.variant_id,

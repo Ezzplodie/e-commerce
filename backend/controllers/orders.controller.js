@@ -18,14 +18,17 @@ const orderItemSchema = z.object({
 });
 
 const orderSchema = z.object({
-  total_price: z.number().nonnegative(),
+  shipping_first_name: z.string().min(1),
+  shipping_last_name: z.string().min(1),
   shipping_cost: z.number().nonnegative(),
-  shipping_name: z.string().min(1),
   shipping_email: z.string().email(),
   shipping_phone: z.string().min(1),
   shipping_city: z.string().min(1),
   shipping_address: z.string().min(1),
-  shipping_zip: z.string().min(1),
+  shipping_postal_code: z.string().min(1),
+  shipping_country: z.string().min(1),
+  shipping_company: z.string().min(1).optional(),
+  shipping_apartment: z.string().min(1).optional(),
   items: z.array(orderItemSchema).min(1),
 });
 

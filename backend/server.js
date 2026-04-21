@@ -14,6 +14,7 @@ import {
   wishListRouter,
   orderRouter,
   webhookRouter,
+  addressRouter,
 } from "./routes/index.js";
 import { assertSupabaseStorageConfigured } from "./services/variantImageStorage.service.js";
 
@@ -41,6 +42,7 @@ app.use("/categories", categoryRouter);
 app.use("/attribute-values", attributeValuesRouter);
 app.use("/wish-lists", wishListRouter);
 app.use("/orders", orderRouter);
+app.use("/addresses", addressRouter);
 
 app.use(errorHandler);
 app.listen(process.env.PORT || 4000, () => {

@@ -1,0 +1,495 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--black);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 600px) minmax(480px, 628px);
+  gap: clamp(40px, 6.4vw, 92px);
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0 var(--side-paddings) 96px;
+  margin-top: 24px;
+}
+
+.checkoutPane {
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  margin-top: 23px;
+  color: var(--primary-500);
+  @include typo.body-lg;
+  line-height: 1.8;
+}
+
+.breadcrumb,
+.breadcrumbActive {
+  display: inline-flex;
+  align-items: center;
+  text-transform: capitalize;
+}
+
+.breadcrumbActive {
+  color: var(--black);
+}
+
+.breadcrumbSlash {
+  display: inline-flex;
+  width: 40px;
+  justify-content: center;
+  color: var(--gray-650);
+}
+
+.form {
+  display: flex;
+  width: 600px;
+  flex-direction: column;
+  margin-top: 24px;
+}
+
+.contactHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+
+  h1 {
+    margin: 0;
+    color: var(--black);
+    @include typo.body-lg;
+    line-height: 1.8;
+  }
+
+  p {
+    margin: 0;
+    color: var(--black);
+    @include typo.body-sm;
+    line-height: 1.8;
+  }
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+  }
+}
+
+.selectLabel {
+  display: block;
+  width: 100%;
+}
+
+.selectField {
+  color: var(--gray-650);
+  line-height: 1.8;
+  text-transform: capitalize;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 0 16px;
+  color: var(--black);
+  line-height: 1.8;
+  text-transform: capitalize;
+
+  &::placeholder {
+    color: var(--gray-650);
+    opacity: 1;
+  }
+}
+
+.field {
+  color: var(--gray-650);
+}
+
+.fieldIcon {
+  color: var(--gray-650);
+}
+
+.checkboxLine {
+  width: fit-content;
+  margin-top: 8px;
+  text-transform: capitalize;
+}
+
+.sectionTitle {
+  margin: 25px 0 8px;
+  color: var(--black);
+  text-transform: capitalize;
+  @include typo.body-lg;
+  line-height: 1.8;
+}
+
+.addressFields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 72px;
+}
+
+.returnLink,
+.continueButton {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  text-decoration: none;
+  text-transform: capitalize;
+  @include typo.button-sm;
+  line-height: 24px;
+}
+
+.returnLink {
+  color: var(--button-primary);
+}
+
+.continueButton {
+  width: 184px;
+  background: var(--button-primary);
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color var(--transition);
+
+  &:hover:not(:disabled) {
+    background: var(--button-primary-hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.cartPane {
+  min-height: calc(100vh - 102px);
+  padding: 32px 24px 80px;
+  border-left: 1px solid var(--primary-25);
+  background: var(--primary-25);
+}
+
+.cartContent {
+  width: min(496px, 100%);
+  margin: 0 auto;
+}
+
+.cartTitle {
+  margin: 0;
+  color: #272f25;
+  text-align: center;
+  text-transform: capitalize;
+  @include typo.h5;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summaryItem {
+  position: relative;
+  display: grid;
+  min-height: 163px;
+  grid-template-columns: 142px minmax(0, 1fr) 32px;
+  column-gap: 8px;
+}
+
+.summaryImageWrap {
+  position: relative;
+  width: 142px;
+  height: 163px;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.summaryImage {
+  object-fit: cover;
+}
+
+.quantityBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  width: 40px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  color: var(--black);
+  text-align: center;
+  @include typo.body-sm;
+  line-height: 1.8;
+}
+
+.itemDetails {
+  min-width: 0;
+  padding-left: 8px;
+}
+
+.itemTitle {
+  margin: 8px 0 12px;
+  color: var(--black);
+  text-transform: capitalize;
+  @include typo.h6;
+  line-height: 1.4;
+}
+
+.itemMeta {
+  margin: 0 0 4px;
+  color: var(--neutral-gray);
+  text-transform: capitalize;
+  @include typo.body-md;
+  line-height: 1.8;
+}
+
+.checkoutQuantity {
+  width: 80px;
+  min-width: 80px;
+  height: 32px;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 0;
+  background: #d1d9cf;
+
+  button {
+    width: 24px;
+    height: 24px;
+  }
+
+  span {
+    min-width: 8px;
+    color: #404e3e;
+    line-height: 1;
+  }
+}
+
+.removeItemButton {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  margin-top: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--black);
+  cursor: pointer;
+}
+
+.itemPrice {
+  position: absolute;
+  right: 0;
+  bottom: 11px;
+  min-width: 89px;
+  padding: 8px;
+  color: var(--black);
+  text-align: left;
+  white-space: nowrap;
+  @include typo.h6;
+  line-height: 1.4;
+}
+
+.emptySummary {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    color: var(--black);
+    @include typo.h6;
+  }
+
+  p {
+    max-width: 320px;
+    color: var(--neutral-gray);
+    @include typo.body-sm;
+  }
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+    @include typo.button-sm;
+  }
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 35px 0 0;
+  color: var(--black);
+  text-transform: capitalize;
+
+  div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    @include typo.body-lg;
+    line-height: 1.8;
+  }
+
+  dd {
+    min-width: 79px;
+    text-align: left;
+    white-space: nowrap;
+  }
+}
+
+.totalRow {
+  padding-top: 16px;
+}
+
+.totalNote {
+  width: 496px;
+  max-width: 100%;
+  margin: 6px 0 0;
+  color: var(--gray-900);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  letter-spacing: 0.8px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+@include tablet {
+  .content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-bottom: 64px;
+  }
+
+  .cartPane {
+    min-height: auto;
+  }
+
+  .form {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .cartPane {
+    padding: 32px var(--side-paddings) 56px;
+    border-left: 0;
+  }
+
+  .cartContent {
+    width: min(600px, 100%);
+    margin: 0;
+  }
+
+  .actions {
+    margin-top: 48px;
+  }
+}
+
+@include mobile {
+  .breadcrumbs {
+    flex-wrap: wrap;
+    margin-top: 20px;
+    @include typo.body-md;
+  }
+
+  .breadcrumbSlash {
+    width: 28px;
+  }
+
+  .contactHeader,
+  .actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .twoColumn {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .returnLink,
+  .continueButton {
+    width: 100%;
+  }
+
+  .summaryItem {
+    grid-template-columns: 120px minmax(0, 1fr) 28px;
+  }
+
+  .summaryImageWrap {
+    width: 120px;
+    height: 148px;
+  }
+
+  .itemTitle {
+    margin-top: 2px;
+  }
+
+  .itemMeta {
+    @include typo.body-sm;
+  }
+
+  .itemPrice {
+    position: static;
+    grid-column: 2 / -1;
+    justify-self: start;
+    min-width: 0;
+    padding: 8px 0 0 8px;
+  }
+
+  .totals dd {
+    text-align: right;
+  }
+}

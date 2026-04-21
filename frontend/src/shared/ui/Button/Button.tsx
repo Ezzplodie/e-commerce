@@ -7,6 +7,7 @@ export function Button({
   type = "button",
   variant = "primary",
   children,
+
   ...props
 }: ButtonProps) {
   return (
