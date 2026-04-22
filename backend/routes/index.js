@@ -8,3 +8,4 @@ export { default as wishListRouter } from "./wishLists.routes.js";
 export { default as orderRouter } from "./orders.routes.js";
 export { default as webhookRouter } from "./webHook.routes.js";
 export { default as addressRouter } from "./addresses.routes.js";
+export { default as shippingMethodRouter } from "./shippingMethods.routes.js";

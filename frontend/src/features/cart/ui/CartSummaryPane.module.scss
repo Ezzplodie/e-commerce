@@ -1,0 +1,118 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.cartPane {
+  min-height: calc(100vh - 102px);
+  padding: 32px 24px 80px;
+  border-left: 1px solid var(--primary-25);
+  background: var(--primary-25);
+}
+
+.cartContent {
+  width: min(496px, 100%);
+  margin: 0 auto;
+}
+
+.cartTitle {
+  margin: 0;
+  color: #272f25;
+  text-align: center;
+  text-transform: capitalize;
+  @include typo.h5;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summaryItem {
+  position: relative;
+  display: grid;
+  min-height: 163px;
+  grid-template-columns: 142px minmax(0, 1fr) 32px;
+  column-gap: 8px;
+}
+
+.emptySummary {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    color: var(--black);
+    @include typo.h6;
+  }
+
+  p {
+    max-width: 320px;
+    color: var(--neutral-gray);
+    @include typo.body-sm;
+  }
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+    @include typo.button-sm;
+  }
+}
+
+.totalsContainer {
+  margin-top: 35px;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  color: var(--black);
+  text-transform: capitalize;
+
+  > div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    @include typo.body-lg;
+    line-height: 1.8;
+  }
+
+  dd {
+    min-width: 79px;
+    text-align: left;
+    white-space: nowrap;
+  }
+}
+
+.totalRow {
+  padding-top: 16px;
+}
+
+.totalNote {
+  width: 496px;
+  max-width: 100%;
+  margin: 6px 0 0;
+  color: var(--gray-900);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.8px;
+}

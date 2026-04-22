@@ -100,11 +100,11 @@
   padding: 0 16px;
   color: var(--black);
   line-height: 1.8;
-  text-transform: capitalize;
 
   &::placeholder {
     color: var(--gray-650);
     opacity: 1;
+    text-transform: capitalize;
   }
 }
 

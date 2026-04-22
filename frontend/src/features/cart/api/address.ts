@@ -33,6 +33,6 @@ export const findUserAddress = async (): Promise<Address> => {
     },
     credentials: "include",
   });
-
+  console.log(response, "Response");
   return parseResponse(response);
 };

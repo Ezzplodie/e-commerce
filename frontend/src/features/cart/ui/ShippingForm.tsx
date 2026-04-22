@@ -56,7 +56,12 @@ export const ShippingForm = ({
   handleChange,
   handleSubmit,
   form,
-}: ShippingFormProps) => {
+  isSaveShippingInfo,
+  setIsSaveShippingInfo,
+}: ShippingFormProps & {
+  isSaveShippingInfo: boolean;
+  setIsSaveShippingInfo: (value: boolean) => void;
+}) => {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.sectionTitle}>Shipping Address</h2>
@@ -162,7 +167,12 @@ export const ShippingForm = ({
         />
       </div>
 
-      <Checkbox className={styles.checkboxLine} size="sm">
+      <Checkbox
+        className={styles.checkboxLine}
+        size="sm"
+        checked={isSaveShippingInfo}
+        onChange={(event) => setIsSaveShippingInfo(event.target.checked)}
+      >
         Save This Information For Next Time
       </Checkbox>
 

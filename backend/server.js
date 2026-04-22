@@ -15,6 +15,7 @@ import {
   orderRouter,
   webhookRouter,
   addressRouter,
+  shippingMethodRouter,
 } from "./routes/index.js";
 import { assertSupabaseStorageConfigured } from "./services/variantImageStorage.service.js";
 
@@ -43,7 +44,7 @@ app.use("/attribute-values", attributeValuesRouter);
 app.use("/wish-lists", wishListRouter);
 app.use("/orders", orderRouter);
 app.use("/addresses", addressRouter);
-
+app.use("/shipping-methods", shippingMethodRouter);
 app.use(errorHandler);
 app.listen(process.env.PORT || 4000, () => {
   console.log(`Server running on http://localhost:${process.env.PORT || 4000}`);

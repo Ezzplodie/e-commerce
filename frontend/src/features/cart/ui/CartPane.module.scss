@@ -1,0 +1,216 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.cartPane {
+  min-height: calc(100vh - 102px);
+  padding: 32px 24px 80px;
+  border-left: 1px solid var(--primary-25);
+  background: var(--primary-25);
+}
+
+.cartContent {
+  width: min(496px, 100%);
+  margin: 0 auto;
+}
+
+.cartTitle {
+  margin: 0;
+  color: #272f25;
+  text-align: center;
+  text-transform: capitalize;
+  @include typo.h5;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summaryItem {
+  position: relative;
+  display: grid;
+  min-height: 163px;
+  grid-template-columns: 142px minmax(0, 1fr) 32px;
+  column-gap: 8px;
+}
+
+.summaryImageWrap {
+  position: relative;
+  width: 142px;
+  height: 163px;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.summaryImage {
+  object-fit: cover;
+}
+
+.quantityBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  width: 40px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  color: var(--black);
+  text-align: center;
+  @include typo.body-sm;
+  line-height: 1.8;
+}
+
+.itemDetails {
+  min-width: 0;
+  padding-left: 8px;
+}
+
+.itemTitle {
+  margin: 8px 0 12px;
+  color: var(--black);
+  text-transform: capitalize;
+  @include typo.h6;
+  line-height: 1.4;
+}
+
+.itemMeta {
+  margin: 0 0 4px;
+  color: var(--neutral-gray);
+  text-transform: capitalize;
+  @include typo.body-md;
+  line-height: 1.8;
+}
+
+// .checkoutQuantity {
+//   width: 80px;
+//   min-width: 80px;
+//   height: 32px;
+//   gap: 8px;
+//   margin-top: 4px;
+//   padding: 0;
+//   background: #d1d9cf;
+
+//   button {
+//     width: 24px;
+//     height: 24px;
+//   }
+
+//   span {
+//     min-width: 8px;
+//     color: #404e3e;
+//     line-height: 1;
+//   }
+// }
+
+.removeItemButton {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  margin-top: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--black);
+  cursor: pointer;
+}
+
+.itemPrice {
+  position: absolute;
+  right: 0;
+  bottom: 11px;
+  min-width: 89px;
+  padding: 8px;
+  color: var(--black);
+  text-align: left;
+  white-space: nowrap;
+  @include typo.h6;
+  line-height: 1.4;
+}
+
+.emptySummary {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    color: var(--black);
+    @include typo.h6;
+  }
+
+  p {
+    max-width: 320px;
+    color: var(--neutral-gray);
+    @include typo.body-sm;
+  }
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+    @include typo.button-sm;
+  }
+}
+
+.totalsContainer {
+  margin: 35px 0 0;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  color: var(--black);
+  text-transform: capitalize;
+
+  div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    @include typo.body-lg;
+    line-height: 1.8;
+  }
+
+  dd {
+    min-width: 79px;
+    text-align: left;
+    white-space: nowrap;
+  }
+}
+
+.totalRow {
+  padding-top: 16px;
+}
+
+.totalNote {
+  width: 496px;
+  max-width: 100%;
+  margin: 6px 0 0;
+  color: var(--gray-900);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.8px;
+}
