@@ -1,7 +1,7 @@
 import Header from "@/widgets/header";
 import Footer from "@/widgets/footer";
 import styles from "./page.module.scss";
-import { LoginForm } from "@/features/login/ui/LoginForm";
+import { LoginForm } from "@/features/login";
 
 export default function LoginPage() {
   return (

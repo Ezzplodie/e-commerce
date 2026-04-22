@@ -1,4 +1,4 @@
-import { CheckoutShippingPage } from "@/features/cart/ui/Checkout/CheckoutShippingPage";
+import { CheckoutShippingPage } from "@/features/cart";
 export default function CartShippingRoutePage() {
   return <CheckoutShippingPage />;
 }

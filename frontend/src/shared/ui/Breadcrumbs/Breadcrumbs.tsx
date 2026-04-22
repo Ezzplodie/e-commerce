@@ -1,8 +1,12 @@
 import { BreadcrumbsProps } from "./Breadcrumbs.types";
 import styles from "./Breadcrumbs.module.scss";
-export function Breadcrumbs({ className, items }: BreadcrumbsProps) {
+export function Breadcrumbs({
+  className,
+  items,
+  ariaLabel = "Breadcrumbs",
+}: BreadcrumbsProps) {
   return (
-    <nav className={className} aria-label="Breadcrumbs">
+    <nav className={className} aria-label={ariaLabel}>
       <ul className={styles.breadcrumbs_list}>
         {items.map((item, index) => (
           <li key={index} className={styles.breadcrumbs_item}>

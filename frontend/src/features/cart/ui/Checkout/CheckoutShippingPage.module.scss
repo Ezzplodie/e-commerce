@@ -23,30 +23,7 @@
 }
 
 .breadcrumbs {
-  display: flex;
-  align-items: center;
   margin-top: 23px;
-  color: var(--primary-500);
-  @include typo.body-lg;
-  line-height: 1.8;
-}
-
-.breadcrumb,
-.breadcrumbActive {
-  display: inline-flex;
-  align-items: center;
-  text-transform: capitalize;
-}
-
-.breadcrumbActive {
-  color: var(--black);
-}
-
-.breadcrumbSlash {
-  display: inline-flex;
-  width: 40px;
-  justify-content: center;
-  color: var(--gray-650);
 }
 
 .sectionTitle {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useAdminCategories } from "@/features/category-management/model/useAdminCategories";
-import { CategoryManager } from "@/features/category-management/ui/CategoryManager";
-import { ProductList } from "@/features/product-management/ui/ProductList";
+import { CategoryManager } from "@/features/category-management";
+import { ProductList } from "@/features/product-management";
 
 export default function AdminCatalog() {
   const {

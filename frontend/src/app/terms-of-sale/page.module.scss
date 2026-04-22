@@ -1,0 +1,53 @@
+@use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.page {
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--black);
+}
+
+.main {
+  padding: 48px var(--side-paddings) 96px;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 12px;
+  @include typo.h4;
+}
+
+.subtitle {
+  margin: 0 0 28px;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.section + .section {
+  margin-top: 28px;
+}
+
+.sectionTitle {
+  margin: 0 0 10px;
+  @include typo.body-lg;
+}
+
+.text {
+  margin: 0;
+  color: var(--gray-900);
+  @include typo.body-sm;
+  line-height: 1.8;
+}
+
+.list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--gray-900);
+  @include typo.body-sm;
+  line-height: 1.8;
+}
+

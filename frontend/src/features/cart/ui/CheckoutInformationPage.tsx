@@ -1,17 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
 import { CheckoutHeader } from "@/widgets/checkout-header";
 import { getCartPricing } from "../model/cartPricing";
 import { useCartStore } from "../model/cartStore";
 import { useCartDrawerState } from "../model/useCartDrawerState";
 import styles from "./CheckoutInformationPage.module.scss";
+import { Breadcrumbs } from "@/shared/ui/Breadcrumbs";
+import type { BreadcrumbItem } from "@/shared/ui/Breadcrumbs";
 import { ShippingForm } from "./ShippingForm";
 import { CartPane } from "./CartPane";
 import { createAddress, findUserAddress } from "../api/address";
 
-const breadcrumbs = ["Cart", "Info", "Shipping", "Payment"];
+const checkoutSteps: BreadcrumbItem[] = [
+  { label: "Cart", href: "/cart" },
+  { label: "Info" },
+  { label: "Shipping" },
+  { label: "Payment" },
+];
 
 export function CheckoutInformationPage() {
   const items = useCartStore((state) => state.items);
@@ -36,13 +44,11 @@ export function CheckoutInformationPage() {
   });
 
   const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLSelectElement>,
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Submitting form with data:", form);
     const data = {
@@ -100,23 +106,11 @@ export function CheckoutInformationPage() {
             className={styles.checkoutPane}
             aria-label="Checkout information"
           >
-            <nav className={styles.breadcrumbs} aria-label="Checkout progress">
-              {breadcrumbs.map((crumb, index) => (
-                <span
-                  key={crumb}
-                  className={
-                    index === 1 ? styles.breadcrumbActive : styles.breadcrumb
-                  }
-                >
-                  {crumb}
-                  {index < breadcrumbs.length - 1 ? (
-                    <span className={styles.breadcrumbSlash} aria-hidden="true">
-                      /
-                    </span>
-                  ) : null}
-                </span>
-              ))}
-            </nav>
+            <Breadcrumbs
+              items={checkoutSteps}
+              ariaLabel="Checkout progress"
+              className={styles.breadcrumbs}
+            />
             <ShippingForm
               hasItems={hasItems}
               handleChange={handleChange}

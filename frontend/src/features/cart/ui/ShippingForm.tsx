@@ -10,6 +10,7 @@ import { SelectInput, TextInput } from "@/shared/ui/Input";
 import styles from "./CheckoutInformationPage.module.scss";
 import { Button } from "@/shared/ui/Button";
 import { ShippingAddress } from "../model/types";
+import { CheckoutReturnLink } from "./CheckoutReturnLink";
 
 type ShippingFormProps = {
   hasItems: boolean;
@@ -177,10 +178,10 @@ export const ShippingForm = ({
       </Checkbox>
 
       <div className={styles.actions}>
-        <Link href="/cart" className={styles.returnLink}>
+        <CheckoutReturnLink href="/cart" className={styles.returnLink}>
           <ChevronLeftIcon width={24} height={24} aria-hidden="true" />
           <span>Return To Cart</span>
-        </Link>
+        </CheckoutReturnLink>
 
         <Button
           type="submit"

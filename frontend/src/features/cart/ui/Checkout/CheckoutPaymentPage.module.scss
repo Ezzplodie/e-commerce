@@ -1,0 +1,160 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--black);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 600px) minmax(480px, 628px);
+  gap: clamp(40px, 6.4vw, 92px);
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0 var(--side-paddings) 96px;
+  margin-top: 24px;
+}
+
+.checkoutPane {
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs {
+  margin-top: 23px;
+}
+
+.sectionTitle {
+  margin: 25px 0 16px;
+  color: var(--black);
+  text-transform: capitalize;
+  @include typo.body-lg;
+  line-height: 1.8;
+}
+
+.paymentsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 22px;
+  color: var(--gray-650);
+  @include typo.body-sm;
+}
+
+.brandChip {
+  display: inline-flex;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--gray-900);
+  @include typo.caption-md;
+  letter-spacing: 0.6px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.label {
+  color: var(--gray-900);
+  @include typo.body-sm;
+  line-height: 1.8;
+}
+
+.expiryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.securityHelp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--gray-650);
+  @include typo.body-xs;
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.payButton {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.finePrint {
+  margin: 16px 0 0;
+  color: var(--gray-650);
+  @include typo.body-xs;
+  line-height: 1.7;
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.returnLink {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  text-decoration: none;
+  text-transform: capitalize;
+  color: var(--button-primary);
+  @include typo.button-sm;
+  line-height: 24px;
+}
+
+@include tablet {
+  .content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-bottom: 64px;
+  }
+}
+
+@include mobile {
+  .fieldRow {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

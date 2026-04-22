@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { CheckoutHeader } from "@/widgets/checkout-header";
 import { getCartPricing } from "../../model/cartPricing";
 import type { ShippingMethod } from "../../model/types";
@@ -11,9 +10,17 @@ import { formatPrice } from "@/shared/lib/formatters";
 import styles from "./CheckoutShippingPage.module.scss";
 import { useCartDrawerState } from "../../model/useCartDrawerState";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
+import { Breadcrumbs } from "@/shared/ui/Breadcrumbs";
+import type { BreadcrumbItem } from "@/shared/ui/Breadcrumbs";
 import { CartPane } from "../CartPane";
+import { CheckoutReturnLink } from "../CheckoutReturnLink";
 
-const breadcrumbs = ["Cart", "Info", "Shipping", "Payment"];
+const checkoutSteps: BreadcrumbItem[] = [
+  { label: "Cart", href: "/cart" },
+  { label: "Info", href: "/cart/information" },
+  { label: "Shipping" },
+  { label: "Payment" },
+];
 
 const moneyWithCents = {
   maximumFractionDigits: 2,
@@ -88,23 +95,11 @@ export function CheckoutShippingPage() {
             className={styles.checkoutPane}
             aria-label="Shipping method selection"
           >
-            <nav className={styles.breadcrumbs} aria-label="Checkout progress">
-              {breadcrumbs.map((crumb, index) => (
-                <span
-                  key={crumb}
-                  className={
-                    index === 2 ? styles.breadcrumbActive : styles.breadcrumb
-                  }
-                >
-                  {crumb}
-                  {index < breadcrumbs.length - 1 ? (
-                    <span className={styles.breadcrumbSlash} aria-hidden="true">
-                      /
-                    </span>
-                  ) : null}
-                </span>
-              ))}
-            </nav>
+            <Breadcrumbs
+              items={checkoutSteps}
+              ariaLabel="Checkout progress"
+              className={styles.breadcrumbs}
+            />
 
             <h2 className={styles.sectionTitle}>Shipping Method</h2>
 
@@ -154,9 +149,12 @@ export function CheckoutShippingPage() {
             )}
 
             <div className={styles.actions}>
-              <Link href="/cart/information" className={styles.returnLink}>
+              <CheckoutReturnLink
+                href="/cart/information"
+                className={styles.returnLink}
+              >
                 ← Back
-              </Link>
+              </CheckoutReturnLink>
               <button
                 className={styles.continueButton}
                 disabled={!selectedMethod || !hasItems}

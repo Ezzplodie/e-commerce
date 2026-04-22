@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import {
   CloseIcon,
   BagIcon,
@@ -13,9 +14,9 @@ import styles from "./Header.module.scss";
 
 interface HeaderActionsProps {
   isSearchOpen: boolean;
-  setIsSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsSearchOpen: Dispatch<SetStateAction<boolean>>;
   isMenuOpen: boolean;
-  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsMenuOpen: Dispatch<SetStateAction<boolean>>;
   onCartClick: () => void;
   cartItemCount: number;
 }

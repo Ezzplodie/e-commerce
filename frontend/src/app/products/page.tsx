@@ -1,4 +1,4 @@
-import Footer from "@/widgets/footer/ui/Footer";
+import Footer from "@/widgets/footer";
 import Header from "@/widgets/header";
 import { ProductFilters } from "@/widgets/product-filters";
 

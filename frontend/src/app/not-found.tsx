@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Header from "@/widgets/header";
-import Footer from "@/widgets/footer/ui/Footer";
+import Footer from "@/widgets/footer";
 import { Button } from "@/shared/ui/Button";
 import styles from "./not-found.module.scss";
 

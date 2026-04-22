@@ -1,12 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
-import { CloseStrokeIcon } from "@/shared/assets/icons";
 import { formatPrice } from "@/shared/lib/formatters";
-import { resolveCartItemImage } from "../lib/resolveCartItemImage";
 import type { CartItemData } from "../model/types";
-import { CartQuantityControl } from "./CartQuantityControl";
 import styles from "./CartPane.module.scss";
-import { useCartStore } from "../model/cartStore";
+import { CartPaneItem } from "./CartPaneItem";
 
 const moneyWithCents = {
   maximumFractionDigits: 2,
@@ -15,63 +11,6 @@ const moneyWithCents = {
 
 function formatItemPrice(value: number) {
   return Number.isInteger(value) ? `$ ${value}` : `$ ${value.toFixed(2)}`;
-}
-
-function CartSummaryItem({
-  item,
-  onDecrease,
-  onIncrease,
-  onRemove,
-}: {
-  item: CartItemData;
-  onDecrease: () => void;
-  onIncrease: () => void;
-  onRemove: () => void;
-}) {
-  const linePrice = item.price * item.quantity;
-  console.log(item);
-  return (
-    <li className={styles.summaryItem}>
-      <div className={styles.summaryImageWrap}>
-        <Image
-          src={resolveCartItemImage(item.image)}
-          alt=""
-          aria-hidden="true"
-          fill
-          quality={70}
-          sizes="142px"
-          className={styles.summaryImage}
-        />
-        <span className={styles.quantityBadge}>
-          {item.badgeLabel ?? item.quantity}
-        </span>
-      </div>
-
-      <div className={styles.itemDetails}>
-        <h3 className={styles.itemTitle}>{item.title}</h3>
-        <p className={styles.itemMeta}>Size: {item.size}</p>
-        <p className={styles.itemMeta}>Color: {item.color}</p>
-        <CartQuantityControl
-          itemName={item.title}
-          quantity={item.quantity}
-          onDecrease={onDecrease}
-          onIncrease={onIncrease}
-          className={styles.checkoutQuantity}
-        />
-      </div>
-
-      <button
-        type="button"
-        className={styles.removeItemButton}
-        onClick={onRemove}
-        aria-label={`Remove ${item.title} from cart`}
-      >
-        <CloseStrokeIcon width={24} height={24} aria-hidden="true" />
-      </button>
-
-      <strong className={styles.itemPrice}>{formatItemPrice(linePrice)}</strong>
-    </li>
-  );
 }
 
 interface CartPaneProps {
@@ -114,7 +53,7 @@ export function CartPane({
         {hasItems ? (
           <ul className={styles.summaryList}>
             {items.map((item) => (
-              <CartSummaryItem
+              <CartPaneItem
                 key={item.id}
                 item={item}
                 onDecrease={() => onDecrease(item)}

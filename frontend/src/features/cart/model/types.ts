@@ -49,3 +49,11 @@ export type Address = ShippingAddress & {
   id: number;
   user_id: number;
 };
+
+export type ShippingMethod = {
+  id: number;
+  name: string;
+  price: number;
+  estimated_days: number;
+};
+

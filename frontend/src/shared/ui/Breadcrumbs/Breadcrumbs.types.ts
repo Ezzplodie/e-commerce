@@ -6,4 +6,5 @@ export type BreadcrumbItem = {
 export type BreadcrumbsProps = {
   items: BreadcrumbItem[];
   className?: string;
+  ariaLabel?: string;
 };
