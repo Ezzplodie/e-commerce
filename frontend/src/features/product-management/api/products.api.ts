@@ -13,17 +13,9 @@ import {
   UpdateVariantDto,
   VariantDto,
 } from "../types";
+import { parseResponse } from "@/shared/api/parseResponse";
 
 const API_BASE = "http://localhost:4000";
-
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Request failed");
-  }
-
-  return response.json() as Promise<T>;
-}
 
 export const getProducts = async (
   limit: number,
@@ -39,7 +31,21 @@ export const getProducts = async (
     },
   );
 
-  return parseResponse<ProductsResponse>(response);
+  const data = await parseResponse<ProductsResponse>(response);
+
+  return {
+    ...data,
+    products: (data.products || []).map((product) => ({
+      ...product,
+      variants: (product.variants || []).map((variant) => ({
+        ...variant,
+        variant_images: (variant.variant_images || []).map((image) => ({
+          ...image,
+          image_link: toAbsoluteImageUrl(image.image_link),
+        })),
+      })),
+    })),
+  };
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product> => {
@@ -214,5 +220,6 @@ export const toAbsoluteImageUrl = (imageLink: string) => {
     return imageLink;
   }
 
-  return `${API_BASE}${imageLink}`;
+  const normalized = imageLink.startsWith("/") ? imageLink : `/${imageLink}`;
+  return `${API_BASE}${normalized}`;
 };

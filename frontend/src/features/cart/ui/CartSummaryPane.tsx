@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CartItemData } from "../model/types";
 import { formatPrice } from "@/shared/lib/formatters";
-import { CartItem } from "./CartItem";
+import { CartItem } from "./drawer/CartItem";
 import styles from "./CartSummaryPane.module.scss";
 
 const moneyWithCents = {

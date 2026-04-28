@@ -152,14 +152,21 @@ export const createPaymentIntent = async (req, res, next) => {
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
+    if (order.status === ORDER_STATUS.PAID) {
+      return res.json({ clientSecret: null, alreadyPaid: true });
+    }
     const actualAmount = Math.round(order.total_price * 100);
     let intent;
-    const idempotencyKey = `order-${order.id}-payment-intent`;
+    const idempotencyKey = `order-${order.id}-payment-intent-create-${actualAmount}`;
 
     if (order.stripe_payment_intent_id) {
       intent = await stripe.paymentIntents.retrieve(
         order.stripe_payment_intent_id,
       );
+
+      if (intent.status === "succeeded") {
+        return res.json({ clientSecret: null, alreadyPaid: true });
+      }
 
       if (intent.amount !== actualAmount) {
         intent = await stripe.paymentIntents.update(
@@ -175,7 +182,8 @@ export const createPaymentIntent = async (req, res, next) => {
         {
           amount: actualAmount,
           currency: "usd",
-          receipt_email: order.shipping.email,
+          receipt_email: order.shipping_email ?? order.shipping?.email,
+          automatic_payment_methods: { enabled: true },
           metadata: {
             orderId: order.id.toString(),
           },

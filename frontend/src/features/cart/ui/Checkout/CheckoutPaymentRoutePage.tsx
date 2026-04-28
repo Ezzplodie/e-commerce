@@ -1,54 +1,50 @@
 "use client";
 
-import { useEffect } from "react";
-import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getCartPricing } from "../../model/cartPricing";
 import { useCartStore } from "../../model/cartStore";
-import { useCartDrawerState } from "../../model/useCartDrawerState";
 import { CheckoutPaymentPage } from "./CheckoutPaymentPage";
-
+import { useCheckoutShipping } from "../../model/useCheckoutShipping";
+import { createPaymentIntent } from "../../api/payment";
 export function CheckoutPaymentRoutePage() {
+  const router = useRouter();
   const items = useCartStore((state) => state.items);
-  const updateQuantity = useCartStore((state) => state.updateQuantity);
-  const removeItem = useCartStore((state) => state.removeItem);
+  const currentOrderId = useCartStore((state) => state.currentOrderId);
   const closeCart = useCartStore((state) => state.closeCart);
-
+  const { selectedMethod, status: shippingStatus } = useCheckoutShipping();
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const pricing = getCartPricing(items);
   const hasItems = items.length > 0;
-
-  const {
-    increaseHandler,
-    decreaseHandler,
-    deleteHandler,
-    confirmationDialog,
-  } = useCartDrawerState({
-    onRemoveItem: (item) => removeItem(item.id),
-    onQuantityChange: (item, quantity) => updateQuantity(item.id, quantity),
-  });
-
   useEffect(() => {
     closeCart();
   }, [closeCart]);
-
+  useEffect(() => {
+    if (currentOrderId) {
+      const fetchPaymentIntent = async () => {
+        try {
+          const paymentIntent = await createPaymentIntent(currentOrderId);
+          if (paymentIntent.alreadyPaid) {
+            router.replace("/cart/payment/success");
+            return;
+          }
+          setClientSecret(paymentIntent.clientSecret);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      fetchPaymentIntent();
+    }
+  }, [currentOrderId, router]);
   return (
     <>
       <CheckoutPaymentPage
-        items={items}
+        clientSecret={clientSecret}
         hasItems={hasItems}
         pricing={pricing}
-        onIncrease={increaseHandler}
-        onDecrease={decreaseHandler}
-        onRemove={deleteHandler}
-      />
-
-      <ConfirmDialog
-        open={confirmationDialog.open}
-        title={confirmationDialog.title}
-        message={confirmationDialog.message}
-        confirmLabel="Remove Item"
-        cancelLabel="Keep Item"
-        onCancel={confirmationDialog.onCancel}
-        onConfirm={confirmationDialog.onConfirm}
+        shippingPrice={
+          shippingStatus === "ready" ? selectedMethod?.price : undefined
+        }
       />
     </>
   );

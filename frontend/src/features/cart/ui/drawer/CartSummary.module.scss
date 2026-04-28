@@ -1,0 +1,31 @@
+@use "@/shared/styles/mixins" as *;
+
+.summary {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: auto;
+  padding: 20px 24px 16px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.94) 24%,
+      var(--white) 54%
+    );
+}
+
+.checkoutButton {
+  width: 100%;
+  max-width: 392px;
+  margin: 0 auto;
+  padding: 0 16px;
+  line-height: 24px;
+}
+
+@include mobile {
+  .summary {
+    padding: 16px 12px 12px;
+  }
+}
+

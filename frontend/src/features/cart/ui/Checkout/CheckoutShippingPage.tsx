@@ -1,19 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { CheckoutHeader } from "@/widgets/checkout-header";
 import { getCartPricing } from "../../model/cartPricing";
-import type { ShippingMethod } from "../../model/types";
 import { useCartStore } from "../../model/cartStore";
-import { getAllShippingMethods } from "../../api/shippingMethods";
 import { formatPrice } from "@/shared/lib/formatters";
 import styles from "./CheckoutShippingPage.module.scss";
 import { useCartDrawerState } from "../../model/useCartDrawerState";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
 import { Breadcrumbs } from "@/shared/ui/Breadcrumbs";
 import type { BreadcrumbItem } from "@/shared/ui/Breadcrumbs";
-import { CartPane } from "../CartPane";
-import { CheckoutReturnLink } from "../CheckoutReturnLink";
+import { CartPane } from "./CartPane";
+import { CheckoutReturnLink } from "./CheckoutReturnLink";
+import { useCheckoutShipping } from "../../model/useCheckoutShipping";
+import { findUserAddress } from "../../api/address";
+import { createOrder } from "../../api/orders";
 
 const checkoutSteps: BreadcrumbItem[] = [
   { label: "Cart", href: "/cart" },
@@ -28,20 +30,32 @@ const moneyWithCents = {
 };
 
 export function CheckoutShippingPage() {
+  const router = useRouter();
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
   const closeCart = useCartStore((state) => state.closeCart);
+  const setCurrentOrderId = useCartStore((state) => state.setCurrentOrderId);
+
+  const {
+    shippingMethods,
+    selectedMethod,
+    selectedShippingMethodId,
+    setSelectedShippingMethodId,
+    status: shippingStatus,
+    error,
+  } = useCheckoutShipping();
 
   const pricing = getCartPricing(items);
   const hasItems = items.length > 0;
 
-  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
-  const [selectedShippingMethodId, setSelectedShippingMethodId] = useState<
-    number | null
-  >(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [createOrderError, setCreateOrderError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsLoading(shippingStatus === "loading");
+  }, [shippingStatus]);
 
   const {
     increaseHandler,
@@ -54,38 +68,43 @@ export function CheckoutShippingPage() {
   });
 
   useEffect(() => {
-    const loadShippingMethods = async () => {
-      try {
-        setIsLoading(true);
-        const methods = await getAllShippingMethods();
-        setShippingMethods(methods);
-        console.log("Loaded shipping methods:", methods);
-        if (methods.length > 0) {
-          setSelectedShippingMethodId(methods[0].id);
-        }
-      } catch (err) {
-        console.error("Failed to load shipping methods:", err);
-        setError("Failed to load shipping methods. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadShippingMethods();
-  }, []);
-
-  useEffect(() => {
     closeCart();
   }, [closeCart]);
-
-  const selectedMethod = shippingMethods.find(
-    (method) => method.id === selectedShippingMethodId,
-  );
 
   const handleShippingMethodChange = (methodId: number) => {
     setSelectedShippingMethodId(methodId);
   };
-  console.log(pricing, "pricing");
+
+  const handleContinue = async () => {
+    if (!selectedMethod || !hasItems) return;
+
+    try {
+      setIsCreatingOrder(true);
+      setCreateOrderError(null);
+      const address = await findUserAddress();
+      if (!address) {
+        setCreateOrderError(
+          "Please fill in your shipping address on the Info step before continuing.",
+        );
+        router.push("/cart/information");
+        return;
+      }
+      const order = await createOrder({
+        shipping: address,
+        shippingCost: selectedMethod.price,
+        items,
+      });
+
+      setCurrentOrderId(order.id);
+      router.push("/cart/payment");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to create order";
+      setCreateOrderError(message);
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
   return (
     <>
       <CheckoutHeader />
@@ -157,12 +176,17 @@ export function CheckoutShippingPage() {
               </CheckoutReturnLink>
               <button
                 className={styles.continueButton}
-                disabled={!selectedMethod || !hasItems}
+                disabled={!selectedMethod || !hasItems || isCreatingOrder}
                 aria-label="Continue to payment"
+                type="button"
+                onClick={handleContinue}
               >
-                Continue
+                {isCreatingOrder ? "Creating order..." : "Continue"}
               </button>
             </div>
+            {createOrderError && (
+              <div className={styles.errorMessage}>{createOrderError}</div>
+            )}
           </section>
 
           <CartPane
@@ -173,6 +197,15 @@ export function CheckoutShippingPage() {
             onDecrease={decreaseHandler}
             onRemove={deleteHandler}
             shippingPrice={selectedMethod?.price}
+            shippingState={
+              isLoading
+                ? "calculating"
+                : error
+                  ? "error"
+                  : selectedMethod
+                    ? "selected"
+                    : "not_selected"
+            }
           />
         </div>
       </main>

@@ -1,89 +1,112 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/Button";
-import { SelectInput, TextInput } from "@/shared/ui/Input";
-import { CheckoutReturnLink } from "../CheckoutReturnLink";
+import { CheckoutReturnLink } from "./CheckoutReturnLink";
 import styles from "./CheckoutPaymentPage.module.scss";
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 
 interface PaymentFormProps {
+  clientSecret: string;
   hasItems: boolean;
   returnHref: string;
 }
 
-export function PaymentForm({ hasItems, returnHref }: PaymentFormProps) {
+export function PaymentForm({
+  clientSecret,
+  hasItems,
+  returnHref,
+}: PaymentFormProps) {
+  const router = useRouter();
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const canPay = Boolean(hasItems && stripe && elements && clientSecret);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!stripe || !elements) return;
+
+    const card = elements.getElement(CardElement);
+    if (!card) return;
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card },
+      });
+
+      if (result.error) {
+        const message = result.error.message ?? "Payment failed";
+        setError(message);
+        router.push("/cart/payment/error");
+        return;
+      }
+
+      router.push("/cart/payment/success");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Payment failed";
+      setError(message);
+      router.push("/cart/payment/error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <form className={styles.form} aria-label="Payment form">
+    <form
+      className={styles.form}
+      aria-label="Payment form"
+      onSubmit={handleSubmit}
+    >
       <div className={styles.fieldRow}>
-        <label className={styles.label} htmlFor="card-number">
-          Card Number*
-        </label>
-        <TextInput
-          id="card-number"
-          placeholder="Card number"
-          inputMode="numeric"
-          autoComplete="cc-number"
-        />
-      </div>
+        <label className={styles.label}>Card Details*</label>
+        <div
+          data-invalid={error ? "true" : "false"}
+          className={styles.cardElementWrapper}
+        >
+          <CardElement
+            options={{
+              hidePostalCode: true,
+              iconStyle: "solid",
+              style: {
+                base: {
+                  fontFamily:
+                    "Montserrat, system-ui, -apple-system, Segoe UI, sans-serif",
+                  fontSize: "18px",
+                  fontWeight: "400",
+                  color: "#0c0c0c",
+                  fontSmoothing: "antialiased",
+                  lineHeight: "24px",
+                  iconColor: "#5a6d57",
 
-      <div className={styles.fieldRow}>
-        <span className={styles.label}>Expiry Date*</span>
-        <div className={styles.expiryGrid}>
-          <SelectInput aria-label="Expiry month" defaultValue="">
-            <option value="" disabled>
-              Month
-            </option>
-            <option value="01">01</option>
-            <option value="02">02</option>
-            <option value="03">03</option>
-            <option value="04">04</option>
-            <option value="05">05</option>
-            <option value="06">06</option>
-            <option value="07">07</option>
-            <option value="08">08</option>
-            <option value="09">09</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-          </SelectInput>
-          <SelectInput aria-label="Expiry year" defaultValue="">
-            <option value="" disabled>
-              Year
-            </option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-            <option value="2029">2029</option>
-            <option value="2030">2030</option>
-            <option value="2031">2031</option>
-            <option value="2032">2032</option>
-            <option value="2033">2033</option>
-            <option value="2034">2034</option>
-            <option value="2035">2035</option>
-            <option value="2036">2036</option>
-          </SelectInput>
-        </div>
-      </div>
-
-      <div className={styles.fieldRow}>
-        <label className={styles.label} htmlFor="security-code">
-          Security Code*
-        </label>
-        <div>
-          <TextInput
-            id="security-code"
-            placeholder="CVV"
-            inputMode="numeric"
-            autoComplete="cc-csc"
+                  "::placeholder": {
+                    color: "#606060",
+                  },
+                },
+                invalid: {
+                  color: "#c30000",
+                  iconColor: "#c30000",
+                },
+              },
+            }}
           />
-          <div className={styles.securityHelp}>
-            <span aria-hidden="true">i</span>
-            <a href="#security-code-help">What Is This?</a>
-          </div>
         </div>
       </div>
 
-      <Button type="button" className={styles.payButton} disabled={!hasItems}>
-        Pay And Place Order
+      {error && <div className={styles.errorMessage}>{error}</div>}
+
+      <Button
+        type="submit"
+        className={styles.payButton}
+        disabled={!canPay || isSubmitting}
+      >
+        {isSubmitting ? "Processing..." : "Pay And Place Order"}
       </Button>
 
       <p className={styles.finePrint}>
@@ -100,4 +123,3 @@ export function PaymentForm({ hasItems, returnHref }: PaymentFormProps) {
     </form>
   );
 }
-

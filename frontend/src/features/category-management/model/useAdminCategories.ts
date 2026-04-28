@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Category } from "@/entities/category/types";
+import { Category } from "@/entities/category";
 import {
   createCategory,
   deleteCategory,

@@ -1,7 +1,9 @@
 "use client";
 
-import { useAdminCategories } from "@/features/category-management/model/useAdminCategories";
-import { CategoryManager } from "@/features/category-management";
+import {
+  CategoryManager,
+  useAdminCategories,
+} from "@/features/category-management";
 import { ProductList } from "@/features/product-management";
 
 export default function AdminCatalog() {
@@ -17,7 +19,7 @@ export default function AdminCatalog() {
   } = useAdminCategories();
 
   return (
-    <>
+    <div className="container">
       <CategoryManager
         categories={categories}
         loading={loading}
@@ -29,6 +31,6 @@ export default function AdminCatalog() {
         onDeleteCategory={removeCategory}
       />
       <ProductList categories={categories} />
-    </>
+    </div>
   );
 }

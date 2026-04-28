@@ -8,7 +8,7 @@ import { SelectInput } from "@/shared/ui/Input";
 import { useProductList } from "../model/useProductList";
 import { ProductFormPanel } from "./components/ProductFormPanel";
 import { ProductTable } from "./components/ProductTable";
-import { VariantManager } from "./components/variant-manager/VariantManager";
+import { VariantManager } from "./variant-manager/VariantManager";
 import styles from "./ProductList.module.scss";
 
 type ProductListProps = {

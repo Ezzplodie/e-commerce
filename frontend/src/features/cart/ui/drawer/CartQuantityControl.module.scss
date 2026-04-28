@@ -1,0 +1,33 @@
+@use "@/shared/styles/typography" as typo;
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 78px;
+  width: fit-content;
+  padding: 8px 11px;
+  background-color: var(--primary-50);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4a5947;
+  cursor: pointer;
+  @include typo.body-xl;
+  line-height: 1;
+}
+
+.value {
+  min-width: 10px;
+  color: #4a5947;
+  text-align: center;
+  @include typo.body-xl;
+  line-height: 1;
+}
+

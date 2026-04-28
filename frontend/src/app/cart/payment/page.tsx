@@ -1,6 +1,5 @@
-import { CheckoutPaymentRoutePage } from "@/features/cart/ui/Checkout/CheckoutPaymentRoutePage";
+import { CheckoutPaymentRoutePage } from "@/features/cart";
 
 export default function CartPaymentRoutePage() {
   return <CheckoutPaymentRoutePage />;
 }
-

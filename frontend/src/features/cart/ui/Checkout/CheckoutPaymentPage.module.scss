@@ -8,11 +8,9 @@
 }
 
 .content {
-  display: grid;
-  grid-template-columns: minmax(0, 600px) minmax(480px, 628px);
-  gap: clamp(40px, 6.4vw, 92px);
+  gap: 32px;
   align-items: stretch;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0 var(--side-paddings) 96px;
   margin-top: 24px;
 }
@@ -20,6 +18,24 @@
 .checkoutPane {
   display: flex;
   flex-direction: column;
+}
+
+.checkoutColumns {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 12px;
+}
+
+.leftColumn {
+  flex: 0 0 60%;
+  min-width: 0;
+}
+
+.rightColumn {
+  flex: 0 0 40%;
+  min-width: 0;
 }
 
 .breadcrumbs {
@@ -39,23 +55,64 @@
   flex-wrap: wrap;
   gap: 18px;
   align-items: center;
-  margin-bottom: 22px;
+  margin-bottom: 8px;
   color: var(--gray-650);
   @include typo.body-sm;
 }
 
-.brandChip {
-  display: inline-flex;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 10px;
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
   border: 1px solid var(--gray-200);
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--white);
-  color: var(--gray-900);
-  @include typo.caption-md;
-  letter-spacing: 0.6px;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--gray-650);
+  @include typo.body-md;
+  line-height: 1.6;
+}
+
+.summaryLabel {
+  color: var(--gray-650);
+}
+
+.summaryValue {
+  color: var(--black);
+}
+
+.summaryDivider {
+  height: 1px;
+  background: var(--gray-200);
+  margin: 4px 0;
+}
+
+.summaryTotalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.summaryTotalLabel {
+  color: var(--black);
+  font-weight: 600;
+  @include typo.body-lg;
+  line-height: 1.4;
+}
+
+.summaryTotalValue {
+  color: var(--black);
+  font-weight: 700;
+  @include typo.body-lg;
+  line-height: 1.4;
 }
 
 .form {
@@ -65,16 +122,56 @@
 }
 
 .fieldRow {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 18px;
-  align-items: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .label {
   color: var(--gray-900);
   @include typo.body-sm;
   line-height: 1.8;
+}
+
+.fieldInput {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--black);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background-color var(--transition);
+}
+
+.fieldInput:hover {
+  border-color: var(--gray-300);
+}
+
+.fieldInput:focus-within {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary-600) 18%, transparent);
+}
+
+.fieldInput[data-invalid="true"] {
+  border-color: color-mix(in oklab, var(--favorite) 45%, var(--gray-200));
+}
+
+.fieldInput[data-invalid="true"]:focus-within {
+  border-color: var(--favorite);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--favorite) 18%, transparent);
+}
+
+.errorMessage {
+  margin-top: 6px;
+  color: var(--favorite);
+  @include typo.body-xs;
+  line-height: 1.6;
 }
 
 .expiryGrid {
@@ -100,7 +197,33 @@
     text-decoration: underline;
   }
 }
+.cardElementWrapper {
+  border: 1px solid var(--gray-650);
 
+  padding: 10px 16px;
+  background: var(--white);
+  color: var(--black);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background-color var(--transition);
+  &:hover {
+    border-color: var(--gray-300);
+  }
+  &:focus-within {
+    border-color: var(--primary-600);
+    box-shadow: 0 0 0 2px
+      color-mix(in oklab, var(--primary-600) 18%, transparent);
+  }
+  &[data-invalid="true"] {
+    border-color: var(--favorite);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--favorite) 18%, transparent);
+  }
+  &[data-invalid="true"]:focus-within {
+    border-color: var(--favorite);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--favorite) 18%, transparent);
+  }
+}
 .payButton {
   width: 100%;
   margin-top: 18px;
@@ -146,9 +269,16 @@
 
 @include tablet {
   .content {
-    grid-template-columns: 1fr;
     gap: 40px;
     padding-bottom: 64px;
+  }
+
+  .checkoutColumns {
+    flex-direction: column;
+  }
+
+  .rightColumn {
+    flex-basis: auto;
   }
 }
 

@@ -9,8 +9,9 @@ import { LogoIcon } from "@/shared/assets/icons";
 import MenuItem from "./MenuItem";
 import { HeaderActions } from "./HeaderActions";
 import MobileMenu from "./MobileMenu";
-import { getMenusByKeys } from "@/entities/navigation/selectors";
-import { useCartStore } from "@/features/cart/model/cartStore";
+import { getMenusByKeys } from "@/entities/navigation";
+import { useCartStore } from "@/features/cart";
+import Link from "next/link";
 
 const Header = () => {
   const router = useRouter();
@@ -42,9 +43,9 @@ const Header = () => {
       <div className={styles.info}>Enjoy Free Shipping On All Orders</div>
       <header className={styles.header}>
         <div className={clsx(styles.headerInner, "container")}>
-          <div className={styles.headerLogo}>
+          <Link href="/" className={styles.headerLogo}>
             <LogoIcon width={184} height={46} className={styles.logo} />
-          </div>
+          </Link>
 
           <nav className={styles.nav}>
             <MenuItem label="Collection" href="/test">

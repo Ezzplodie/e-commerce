@@ -1,6 +1,9 @@
 import Stripe from "stripe";
 import { ORDER_STATUS } from "../constants/orderStatus.js";
-import { updateOrderStatusRepository } from "../repositories/orders.repository.js";
+import {
+  payOrderAndDecrementStockRepository,
+  updateOrderStatusRepository,
+} from "../repositories/orders.repository.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -28,10 +31,7 @@ export const handleStripeWebhook = async (req, res, next) => {
           return res.json({ received: true });
         }
 
-        const updatedOrder = await updateOrderStatusRepository(
-          ORDER_STATUS.PAID,
-          orderId,
-        );
+        const updatedOrder = await payOrderAndDecrementStockRepository(orderId);
 
         if (!updatedOrder) {
           return res.json({ received: true });
@@ -50,6 +50,11 @@ export const handleStripeWebhook = async (req, res, next) => {
           ORDER_STATUS.FAILED,
           orderId,
         );
+
+        if (!updatedOrder) {
+          return res.json({ received: true });
+        }
+
         return res.json({ received: true });
       }
 

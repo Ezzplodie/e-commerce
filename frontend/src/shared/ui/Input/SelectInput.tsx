@@ -8,8 +8,15 @@ export function SelectInput({
   children,
   ...props
 }: SelectInputProps) {
+  const { value, defaultValue, ...restProps } = props;
+
   return (
-    <select className={clsx(styles.select, className)} {...props} name={name}>
+    <select
+      className={clsx(styles.select, className)}
+      {...restProps}
+      name={name}
+      {...(value !== undefined ? { value } : { defaultValue })}
+    >
       {children}
     </select>
   );

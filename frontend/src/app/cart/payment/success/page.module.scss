@@ -1,0 +1,103 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--black);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px var(--side-paddings) 120px;
+  text-align: center;
+}
+
+.icon {
+  width: 65px;
+  height: 65px;
+  margin: 86px 0 28px;
+}
+
+.title {
+  margin: 0;
+  color: #00966d;
+  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1.4;
+  text-transform: capitalize;
+}
+
+.lead {
+  margin: 22px 0 0;
+  max-width: 1016px;
+  color: #0c0c0c;
+  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.8;
+  text-transform: capitalize;
+}
+
+.leadNarrow {
+  margin: 0;
+  max-width: 600px;
+  color: #0c0c0c;
+  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.8;
+  text-transform: capitalize;
+}
+
+.contactHint {
+  margin: 42px 0 6px;
+  color: #404040;
+  @include typo.body-lg;
+  line-height: 1.8;
+  text-transform: capitalize;
+}
+
+.contactLine {
+  margin: 0;
+  color: #404040;
+  @include typo.button-sm;
+  line-height: 24px;
+  text-transform: capitalize;
+}
+
+.or {
+  margin: 8px 0;
+  color: #0c0c0c;
+  @include typo.button-sm;
+  line-height: 24px;
+  text-transform: uppercase;
+}
+
+@include tablet {
+  .content {
+    padding-top: 48px;
+  }
+
+  .lead {
+    max-width: 720px;
+  }
+}
+
+@include mobile {
+  .icon {
+    margin-top: 56px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .lead,
+  .leadNarrow {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,306 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 0;
+  background: var(--primary-25);
+}
+
+.heroMedia {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(13, 16, 12, 0.72) 0%,
+      rgba(13, 16, 12, 0.25) 55%,
+      rgba(13, 16, 12, 0) 78%
+    ),
+    url("https://images.pexels.com/photos/972995/pexels-photo-972995.jpeg?auto=compress&cs=tinysrgb&w=2400");
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.02);
+  transform: scale(1.01);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--side-paddings);
+}
+
+.heroCopy {
+  max-width: 620px;
+  color: var(--white);
+}
+
+.heroKicker {
+  @include typo.overline-sm;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.heroTitle {
+  @include typo.display-1;
+  margin: 0 0 16px;
+}
+
+.heroSubtitle {
+  @include typo.body-lg;
+  margin: 0 0 24px;
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 520px;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.heroPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 25px;
+  border: 1px solid var(--white);
+  background: var(--white);
+  color: var(--black);
+  text-decoration: none;
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+  @include typo.button-sm;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.92);
+  }
+}
+
+.heroLink {
+  @include typo.button-sm;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding-bottom: 3px;
+
+  &:hover {
+    color: var(--white);
+    border-bottom-color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.sectionInner {
+  padding: 0 var(--side-paddings);
+}
+
+.sectionInnerNarrow {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sectionTitle {
+  @include typo.h3;
+  margin: 0;
+  color: var(--black);
+}
+
+.sectionSubtitle {
+  @include typo.body-sm;
+  margin: 0;
+  color: var(--gray-700);
+  max-width: 520px;
+}
+
+.benefits {
+  padding: 56px 0;
+  background: var(--white);
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.benefitCard {
+  border: 1px solid var(--gray-200);
+  background: var(--gray-100);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.benefitTitle {
+  @include typo.h6;
+  margin: 0 0 8px;
+  color: var(--black);
+}
+
+.benefitBody {
+  @include typo.body-sm;
+  color: var(--gray-700);
+}
+
+.faq {
+  padding: 56px 0 72px;
+  background: var(--primary-25);
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faqItem {
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.faqSummary {
+  @include typo.h6;
+  cursor: pointer;
+  list-style: none;
+  color: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.faqSummary::-webkit-details-marker {
+  display: none;
+}
+
+.faqIcon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  opacity: 0.8;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 2px;
+    background: var(--gray-700);
+    transform: translate(-50%, -50%);
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* vertical bar to form "+" */
+  &::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+}
+
+.faqContent {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    max-height 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: max-height, opacity, transform;
+}
+
+.faqContentInner {
+  overflow: hidden;
+}
+
+.faqBody {
+  @include typo.body-sm;
+  color: var(--gray-700);
+  padding-top: 10px;
+}
+
+.faqItem[data-open="true"] {
+  .faqIcon::after {
+    /* hide vertical bar → turns "+" into "-" */
+    transform: translate(-50%, -50%) rotate(90deg) scaleX(0);
+  }
+
+  .faqContent {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faqIcon::before,
+  .faqIcon::after,
+  .faqContent {
+    transition: none;
+  }
+}
+
+@include tablet {
+  .heroTitle {
+    @include typo.display-2;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include mobile {
+  .hero {
+    padding: 44px 0;
+  }
+
+  .heroMedia {
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(13, 16, 12, 0.72) 0%,
+        rgba(13, 16, 12, 0.38) 55%,
+        rgba(13, 16, 12, 0.18) 100%
+      ),
+      url("https://images.pexels.com/photos/972995/pexels-photo-972995.jpeg?auto=compress&cs=tinysrgb&w=1600");
+  }
+
+  .heroTitle {
+    @include typo.h1;
+  }
+
+  .heroSubtitle {
+    @include typo.body-md;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
 import { generatePublicUrl } from "../services/variantImageStorage.service.js";
+import { TAX_RATE } from "../constants/tax.js";
 
 const ORDERS_TABLE = "ecommerce.orders";
 const ORDER_ITEMS_TABLE = "ecommerce.order_items";
@@ -31,11 +32,14 @@ function createHttpError(message, status) {
 }
 
 function calcTotalPrice(items, shippingCost) {
-  let total = shippingCost;
+  let subtotal = 0;
 
   for (const item of items) {
-    total += item.line_total;
+    subtotal += item.line_total;
   }
+
+  const tax = roundMoney(subtotal * TAX_RATE);
+  const total = subtotal + tax + (shippingCost ?? 0);
 
   return roundMoney(total);
 }
@@ -534,15 +538,95 @@ export const updateOrderStatusRepository = async (status, order_id) => {
       )
       SELECT
         uo.*,
-        COUNT(oi.id)::int AS item_count
+        (
+          SELECT COUNT(*)::int
+          FROM ${ORDER_ITEMS_TABLE} oi
+          WHERE oi.order_id = uo.id
+        ) AS item_count
       FROM updated_order uo
-      LEFT JOIN ${ORDER_ITEMS_TABLE} oi ON oi.order_id = uo.id
-      GROUP BY uo.id
     `,
     [status, order_id],
   );
 
   return rows[0] ? mapOrderSummary(rows[0]) : null;
+};
+
+export const payOrderAndDecrementStockRepository = async (order_id) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const { rows: orderRows } = await client.query(
+      `
+        SELECT *
+        FROM ${ORDERS_TABLE}
+        WHERE id = $1
+        FOR UPDATE
+      `,
+      [order_id],
+    );
+
+    const order = orderRows[0];
+    if (!order) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    const { rows: itemCountRows } = await client.query(
+      `
+        SELECT COUNT(*)::int AS item_count
+        FROM ${ORDER_ITEMS_TABLE}
+        WHERE order_id = $1
+      `,
+      [order_id],
+    );
+
+    const item_count = Number(itemCountRows[0]?.item_count ?? 0);
+
+    // Idempotency: do not decrement stock twice if webhook repeats.
+    if (order.status === "paid") {
+      await client.query("COMMIT");
+      return mapOrderSummary({ ...order, item_count });
+    }
+
+    const { rows: updatedVariants } = await client.query(
+      `
+        UPDATE ${PRODUCT_VARIANTS_TABLE} pv
+        SET stock = pv.stock - oi.quantity
+        FROM ${ORDER_ITEMS_TABLE} oi
+        WHERE oi.order_id = $1
+          AND oi.variant_id = pv.id
+          AND pv.stock >= oi.quantity
+        RETURNING pv.id
+      `,
+      [order_id],
+    );
+
+    if (updatedVariants.length !== item_count) {
+      await client.query("ROLLBACK");
+      throw createHttpError("Insufficient stock for one or more items", 409);
+    }
+
+    const { rows: updatedOrderRows } = await client.query(
+      `
+        UPDATE ${ORDERS_TABLE}
+        SET status = 'paid'
+        WHERE id = $1
+        RETURNING *
+      `,
+      [order_id],
+    );
+
+    await client.query("COMMIT");
+
+    return mapOrderSummary({ ...updatedOrderRows[0], item_count });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 export const updateOrderStripeIdRepository = async (order_id, intent_id) => {

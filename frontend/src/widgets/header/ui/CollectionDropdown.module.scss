@@ -1,4 +1,61 @@
 @use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.menusBlock {
+  @include flex(row, flex-start, flex-start, 54px);
+  width: 50%;
+}
+
+.title {
+  margin-bottom: 24px;
+  @include typo.body-lg;
+  color: var(--black);
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link {
+  text-decoration: none;
+  color: var(--neutral-gray);
+  @include typo.body-lg;
+  transition: var(--transition);
+  &:hover {
+    color: var(--primary-300);
+  }
+}
+
+.imagesBlock {
+  width: 50%;
+  @include flex(row, flex-start, flex-start, 24px);
+}
+
+.imageBox {
+  width: 50%;
+  gap: 12px;
+  text-decoration: none;
+  @include typo.body-md;
+  color: var(--black);
+  transition: var(--transition);
+  &:hover {
+    color: var(--primary-300);
+  }
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+}
 
 .customImagesBlock {
   width: 50%;

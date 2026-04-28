@@ -2,9 +2,8 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import dropdownStyles from "@/shared/ui/Dropdown/Dropdown.module.scss";
 import styles from "./CollectionDropdown.module.scss";
-import { MenuItem } from "@/entities/navigation/types";
+import type { MenuItem } from "@/entities/navigation";
 import { blousesImage, plusSizeImage } from "@/shared/assets/images";
 import DropdownContent from "./DropdownContent";
 
@@ -16,14 +15,14 @@ type Props = {
 const CollectionDropdown = ({ content, className }: Props) => {
   return (
     <DropdownContent className={className}>
-      <div className={clsx(dropdownStyles.column, dropdownStyles.menusBlock)}>
+      <div className={clsx(styles.column, styles.menusBlock)}>
         {content.map((menu) => (
-          <div key={menu.key} className={clsx(dropdownStyles.column)}>
-            <h3 className={dropdownStyles.title}>{menu.label}</h3>
-            <ul className={dropdownStyles.list}>
+          <div key={menu.key} className={clsx(styles.column)}>
+            <h3 className={styles.title}>{menu.label}</h3>
+            <ul className={styles.list}>
               {menu.items.map((link) => (
                 <li key={link.id}>
-                  <a href={link.href} className={dropdownStyles.link}>
+                  <a href={link.href} className={styles.link}>
                     {link.label}
                   </a>
                 </li>
@@ -35,8 +34,8 @@ const CollectionDropdown = ({ content, className }: Props) => {
 
       <div
         className={clsx(
-          dropdownStyles.column,
-          dropdownStyles.imagesBlock,
+          styles.column,
+          styles.imagesBlock,
           styles.customImagesBlock,
         )}
       >
@@ -48,7 +47,7 @@ const CollectionDropdown = ({ content, className }: Props) => {
             key={image.label}
             type="button"
             aria-label={image.label}
-            className={clsx(dropdownStyles.column, dropdownStyles.imageBox)}
+            className={clsx(styles.column, styles.imageBox)}
           >
             <Image src={image.src} alt={image.alt} />
             <span className={styles.imageText}>{image.label}</span>

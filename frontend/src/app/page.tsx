@@ -1,11 +1,5 @@
-import Footer from "@/widgets/footer";
-import Header from "@/widgets/header";
+import { HomePage } from "@/widgets/home";
 
 export default function Page() {
-  return (
-    <>
-      <Header />
-      <Footer />
-    </>
-  );
+  return <HomePage />;
 }

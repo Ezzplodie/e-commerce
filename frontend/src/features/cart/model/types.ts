@@ -24,12 +24,19 @@ export type CartStore = {
   items: CartItemData[];
   cartFeedback: CartFeedback | null;
   isOpen: boolean;
+  shippingMethods: ShippingMethod[];
+  selectedShippingMethodId: number | null;
+  currentOrderId: number | null;
   addItem: (item: CartItemData) => void;
+  clearCart: () => void;
   dismissCartFeedback: () => void;
   removeItem: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
   openCart: () => void;
   closeCart: () => void;
+  setShippingMethods: (methods: ShippingMethod[]) => void;
+  setSelectedShippingMethodId: (id: number | null) => void;
+  setCurrentOrderId: (id: number | null) => void;
 };
 
 export type ShippingAddress = {

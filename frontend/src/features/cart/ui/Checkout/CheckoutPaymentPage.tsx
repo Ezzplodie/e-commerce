@@ -3,12 +3,17 @@
 import { CheckoutHeader } from "@/widgets/checkout-header";
 import { Breadcrumbs } from "@/shared/ui/Breadcrumbs";
 import type { BreadcrumbItem } from "@/shared/ui/Breadcrumbs";
-import { CartPane } from "../CartPane";
 import styles from "./CheckoutPaymentPage.module.scss";
-import type { CartItemData } from "../../model/types";
 import { PaymentForm } from "./PaymentForm";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "@/shared/lib/stripe";
+import { formatPrice } from "@/shared/lib/formatters";
+import {
+  AmericanExpressIcon,
+  MastercardIcon,
+  PaypalIcon,
+  VisaIcon,
+} from "@/shared/assets/icons";
 
 const checkoutSteps: BreadcrumbItem[] = [
   { label: "Cart", href: "/cart" },
@@ -18,7 +23,7 @@ const checkoutSteps: BreadcrumbItem[] = [
 ];
 
 type CheckoutPaymentPageProps = {
-  items: CartItemData[];
+  clientSecret: string | null;
   hasItems: boolean;
   pricing: {
     subtotal: number;
@@ -27,22 +32,18 @@ type CheckoutPaymentPageProps = {
     total: number;
     itemCount: number;
   };
-  onDecrease: (item: CartItemData) => void;
-  onIncrease: (item: CartItemData) => void;
-  onRemove: (item: CartItemData) => void;
   shippingPrice?: number;
 };
 
+const moneyWithCents = {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 2,
+};
+
 export function CheckoutPaymentPage(props: CheckoutPaymentPageProps) {
-  const {
-    items,
-    hasItems,
-    pricing,
-    onDecrease,
-    onIncrease,
-    onRemove,
-    shippingPrice,
-  } = props;
+  const { clientSecret, hasItems, pricing, shippingPrice } = props;
+  const shipping = shippingPrice ?? pricing.shipping;
+  const total = pricing.subtotal + pricing.tax + shipping;
 
   return (
     <>
@@ -64,25 +65,68 @@ export function CheckoutPaymentPage(props: CheckoutPaymentPageProps) {
               className={styles.paymentsRow}
               aria-label="Supported payment methods"
             >
-              <span className={styles.brandChip}>AMEX</span>
-              <span className={styles.brandChip}>VISA</span>
-              <span className={styles.brandChip}>MASTERCARD</span>
-              <span className={styles.brandChip}>PAYPAL</span>
+              <span className={styles.brandChip} aria-label="American Express">
+                <AmericanExpressIcon className={styles.brandIcon} aria-hidden />
+              </span>
+              <span className={styles.brandChip} aria-label="Visa">
+                <VisaIcon className={styles.brandIcon} aria-hidden />
+              </span>
+              <span className={styles.brandChip} aria-label="Mastercard">
+                <MastercardIcon className={styles.brandIcon} aria-hidden />
+              </span>
+              <span className={styles.brandChip} aria-label="PayPal">
+                <PaypalIcon className={styles.brandIcon} aria-hidden />
+              </span>
             </div>
-            <Elements stripe={stripePromise}>
-              <PaymentForm hasItems={hasItems} returnHref="/cart/shipping" />
-            </Elements>
-          </section>
 
-          <CartPane
-            items={items}
-            hasItems={hasItems}
-            pricing={pricing}
-            onIncrease={onIncrease}
-            onDecrease={onDecrease}
-            onRemove={onRemove}
-            shippingPrice={shippingPrice}
-          />
+            <div className={styles.checkoutColumns}>
+              <div className={styles.leftColumn}>
+                {clientSecret ? (
+                  <Elements stripe={stripePromise} options={{ clientSecret }}>
+                    <PaymentForm
+                      clientSecret={clientSecret}
+                      hasItems={hasItems}
+                      returnHref="/cart/shipping"
+                    />
+                  </Elements>
+                ) : (
+                  <div>Loading payment details...</div>
+                )}
+              </div>
+
+              <aside className={styles.rightColumn} aria-label="Order total">
+                <section className={styles.summaryCard}>
+                  <div className={styles.summaryRow}>
+                    <span className={styles.summaryLabel}>Subtotal</span>
+                    <span className={styles.summaryValue}>
+                      {formatPrice(pricing.subtotal, moneyWithCents)}
+                    </span>
+                  </div>
+                  <div className={styles.summaryRow}>
+                    <span className={styles.summaryLabel}>Shipping</span>
+                    <span className={styles.summaryValue}>
+                      {formatPrice(shipping, moneyWithCents)}
+                    </span>
+                  </div>
+                  <div className={styles.summaryRow}>
+                    <span className={styles.summaryLabel}>Tax</span>
+                    <span className={styles.summaryValue}>
+                      {formatPrice(pricing.tax, moneyWithCents)}
+                    </span>
+                  </div>
+
+                  <div className={styles.summaryDivider} />
+
+                  <div className={styles.summaryTotalRow}>
+                    <span className={styles.summaryTotalLabel}>Total</span>
+                    <span className={styles.summaryTotalValue}>
+                      {formatPrice(total, moneyWithCents)}
+                    </span>
+                  </div>
+                </section>
+              </aside>
+            </div>
+          </section>
         </div>
       </main>
     </>

@@ -1,15 +1,7 @@
 import { Address, ShippingAddress } from "../model/types";
+import { parseResponse } from "@/shared/api/parseResponse";
 
 const API_BASE = "http://localhost:4000";
-
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Request failed");
-  }
-
-  return response.json() as Promise<T>;
-}
 
 export const createAddress = async (
   data: ShippingAddress,
@@ -25,7 +17,7 @@ export const createAddress = async (
   return parseResponse(response);
 };
 
-export const findUserAddress = async (): Promise<Address> => {
+export const findUserAddress = async (): Promise<Address | null> => {
   const response = await fetch(`${API_BASE}/addresses/`, {
     method: "GET",
     headers: {
@@ -33,6 +25,8 @@ export const findUserAddress = async (): Promise<Address> => {
     },
     credentials: "include",
   });
-  console.log(response, "Response");
-  return parseResponse(response);
+
+  // If user has no saved address yet, backend returns `null` (200).
+  // Callers should handle `null` as "no address saved".
+  return parseResponse<Address | null>(response);
 };

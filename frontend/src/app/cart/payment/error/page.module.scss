@@ -1,0 +1,89 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--black);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px var(--side-paddings) 120px;
+  text-align: center;
+}
+
+.icon {
+  width: 65px;
+  height: 65px;
+  margin: 86px 0 28px;
+}
+
+.title {
+  margin: 0;
+  color: #c30000;
+  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1.4;
+  text-transform: capitalize;
+}
+
+.message {
+  margin: 22px 0 0;
+  max-width: 1224px;
+  color: #0c0c0c;
+  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.8;
+  text-transform: capitalize;
+}
+
+.actions {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.payNow {
+  width: min(392px, 100%);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  color: var(--button-primary);
+  text-decoration: none;
+  @include typo.button-sm;
+  line-height: 24px;
+  text-transform: capitalize;
+}
+
+.backIcon {
+  width: 24px;
+  height: 24px;
+}
+
+@include mobile {
+  .icon {
+    margin-top: 56px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .message {
+    font-size: 18px;
+  }
+}
+

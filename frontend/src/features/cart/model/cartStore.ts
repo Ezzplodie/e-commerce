@@ -8,6 +8,9 @@ export const useCartStore = create<CartStore>()(
       items: [],
       cartFeedback: null,
       isOpen: false,
+      shippingMethods: [],
+      selectedShippingMethodId: null,
+      currentOrderId: null,
       addItem: (item: CartItemData) =>
         set((state) => {
           const existingItem = state.items.find((i) => i.id === item.id);
@@ -35,6 +38,15 @@ export const useCartStore = create<CartStore>()(
               timestamp: Date.now(),
             },
           };
+        }),
+
+      clearCart: () =>
+        set({
+          items: [],
+          cartFeedback: null,
+          selectedShippingMethodId: null,
+          currentOrderId: null,
+          isOpen: false,
         }),
 
       dismissCartFeedback: () =>
@@ -66,11 +78,25 @@ export const useCartStore = create<CartStore>()(
           isOpen: false,
         });
       },
+      setShippingMethods: (methods) =>
+        set({
+          shippingMethods: methods,
+        }),
+      setSelectedShippingMethodId: (id) =>
+        set({
+          selectedShippingMethodId: id,
+        }),
+      setCurrentOrderId: (id) =>
+        set({
+          currentOrderId: id,
+        }),
     }),
     {
       name: "cart-storage",
       partialize: (state) => ({
         items: state.items,
+        selectedShippingMethodId: state.selectedShippingMethodId,
+        currentOrderId: state.currentOrderId,
       }),
     },
   ),

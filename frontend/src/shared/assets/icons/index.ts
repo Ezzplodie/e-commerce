@@ -22,3 +22,8 @@ export { default as SocialMediaIcon } from "./social media.svg";
 export { default as SocialMedia1Icon } from "./Social media1.svg";
 export { default as SocialMedia2Icon } from "./Social media2.svg";
 export { default as SocialMedia3Icon } from "./Social media3.svg";
+
+export { default as AmericanExpressIcon } from "./payment/american_express.svg";
+export { default as VisaIcon } from "./payment/visa.svg";
+export { default as MastercardIcon } from "./payment/mastercard.svg";
+export { default as PaypalIcon } from "./payment/paypal.svg";

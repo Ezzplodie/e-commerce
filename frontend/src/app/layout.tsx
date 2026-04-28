@@ -1,6 +1,7 @@
 import "@/shared/styles/normalize.css";
 // import "@/shared/styles/variables.scss";
 import "@/shared/styles/globals.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import { Montserrat } from "next/font/google";
 
 const montserrat = Montserrat({
