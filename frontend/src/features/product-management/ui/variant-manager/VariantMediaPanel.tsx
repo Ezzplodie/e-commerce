@@ -48,16 +48,24 @@ export const VariantMediaPanel = ({
 
       {images.length > 0 ? (
         <div className={styles.imageList}>
-          {images.map((image, imageIndex) => (
+          {images.map((image, imageIndex) => {
+            const src = toAbsoluteImageUrl(image.image_link);
+            return (
             <div key={image.id} className={styles.imageCard}>
               <div className={styles.imageFrame}>
+                {src ? (
                 <Image
-                  src={toAbsoluteImageUrl(image.image_link)}
+                  src={src}
                   alt={`${variantLabel} photo ${imageIndex + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, 320px"
                   className={styles.variantImage}
                 />
+                ) : (
+                  <span className={styles.variantImageMissing}>
+                    No image URL (check storage or legacy link)
+                  </span>
+                )}
               </div>
               <div className={styles.imageCardFooter}>
                 <div className={styles.imageCardTopRow}>
@@ -95,7 +103,8 @@ export const VariantMediaPanel = ({
                 </Button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className={styles.photoEmptyState}>

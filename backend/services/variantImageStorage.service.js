@@ -242,17 +242,23 @@ export const uploadVariantImageFile = async (variantId, file) => {
 };
 
 export const deleteStoredVariantImage = async (imageRecord) => {
+  const path = imageRecord?.storage_path?.trim();
+  if (!path) {
+    return;
+  }
   const target = getStoredImageTarget(imageRecord);
   await deleteObjectFromSupabaseStorage(target);
 };
 
 export const mapVariantImageRecordToResponse = (imageRecord) => {
+  const legacyLink =
+    imageRecord?.legacy_image_link ?? imageRecord?.image_link ?? null;
   const imageLink = imageRecord?.storage_path
     ? generatePublicUrl(
         imageRecord.storage_path,
         imageRecord.storage_bucket || REQUIRED_BUCKET,
       )
-    : (imageRecord?.image_link ?? "");
+    : (legacyLink ?? "");
 
   return {
     id: imageRecord.id,

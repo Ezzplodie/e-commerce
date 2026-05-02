@@ -7,6 +7,10 @@ export const emptyProductForm: ProductFormState = {
   slug: "",
   base_price: "",
   description: "",
+  fitting: "",
+  product_detail: "",
+  fabric_care: "",
+  material_id: "",
 };
 
 export const emptyVariantForm: VariantFormState = {

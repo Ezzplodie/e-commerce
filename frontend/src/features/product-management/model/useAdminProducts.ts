@@ -10,6 +10,7 @@ import {
   deleteVariant,
   deleteVariantImage,
   getAttributeValues,
+  getMaterials,
   getProductBySlug,
   getProducts,
   toAbsoluteImageUrl,
@@ -21,6 +22,7 @@ import {
 import {
   AttributeValue,
   AttributeValueDto,
+  Material,
   ProductDto,
   UpdateProductDto,
   UpdateVariantDto,
@@ -35,6 +37,7 @@ export const useAdminProducts = () => {
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [attributeValues, setAttributeValues] = useState<AttributeValue[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchProducts = useCallback(
@@ -63,6 +66,15 @@ export const useAdminProducts = () => {
       setAttributeValues(attributeValuesResponse);
     } catch {
       setError("Failed to fetch attribute values");
+    }
+  }, []);
+
+  const fetchMaterials = useCallback(async () => {
+    try {
+      const list = await getMaterials();
+      setMaterials(list);
+    } catch {
+      setError("Failed to fetch materials");
     }
   }, []);
 
@@ -253,6 +265,10 @@ export const useAdminProducts = () => {
     fetchAttributeValues();
   }, [fetchAttributeValues]);
 
+  useEffect(() => {
+    fetchMaterials();
+  }, [fetchMaterials]);
+
   return {
     products,
     loading,
@@ -261,6 +277,7 @@ export const useAdminProducts = () => {
     error,
     total,
     attributeValues,
+    materials,
     actionLoading,
     fetchProducts,
     setPage,

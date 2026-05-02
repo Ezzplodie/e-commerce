@@ -1,6 +1,7 @@
 export { default as attributeValuesRouter } from "./attributeValues.routes.js";
 export { default as authRouter } from "./auth.routes.js";
 export { default as categoryRouter } from "./category.routes.js";
+export { default as materialsRouter } from "./materials.routes.js";
 export { default as productRouter } from "./product.routes.js";
 export { default as productVariantRouter } from "./productVariants.routes.js";
 export { default as variantImageRouter } from "./variantImages.routes.js";

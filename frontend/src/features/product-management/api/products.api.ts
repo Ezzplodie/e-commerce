@@ -1,12 +1,12 @@
 import {
   Product,
   ProductVariant,
-  ProductsResponse,
   VariantImage,
 } from "@/entities/product/types";
 import {
   AttributeValue,
   AttributeValueDto,
+  Material,
   ProductDto,
   UpdateVariantImageDto,
   UpdateProductDto,
@@ -14,47 +14,17 @@ import {
   VariantDto,
 } from "../types";
 import { parseResponse } from "@/shared/api/parseResponse";
+import { getProductBySlug, getProducts, toAbsoluteImageUrl } from "@/entities/product/api";
 
 const API_BASE = "http://localhost:4000";
 
-export const getProducts = async (
-  limit: number,
-  page: number,
-  signal?: AbortSignal,
-): Promise<ProductsResponse> => {
-  const response = await fetch(
-    `${API_BASE}/products?limit=${limit}&page=${page}`,
-    {
-      method: "GET",
-      credentials: "include",
-      signal,
-    },
-  );
-
-  const data = await parseResponse<ProductsResponse>(response);
-
-  return {
-    ...data,
-    products: (data.products || []).map((product) => ({
-      ...product,
-      variants: (product.variants || []).map((variant) => ({
-        ...variant,
-        variant_images: (variant.variant_images || []).map((image) => ({
-          ...image,
-          image_link: toAbsoluteImageUrl(image.image_link),
-        })),
-      })),
-    })),
-  };
-};
-
-export const getProductBySlug = async (slug: string): Promise<Product> => {
-  const response = await fetch(`${API_BASE}/products/${slug}`, {
+export const getMaterials = async (): Promise<Material[]> => {
+  const response = await fetch(`${API_BASE}/materials`, {
     method: "GET",
     credentials: "include",
   });
 
-  return parseResponse<Product>(response);
+  return parseResponse<Material[]>(response);
 };
 
 export const createProduct = async (
@@ -211,15 +181,5 @@ export const createAttributeValue = async (
 
   return parseResponse<AttributeValue>(response);
 };
-export const toAbsoluteImageUrl = (imageLink: string) => {
-  if (!imageLink) {
-    return "";
-  }
 
-  if (imageLink.startsWith("http://") || imageLink.startsWith("https://")) {
-    return imageLink;
-  }
-
-  const normalized = imageLink.startsWith("/") ? imageLink : `/${imageLink}`;
-  return `${API_BASE}${normalized}`;
-};
+export { getProductBySlug, getProducts, toAbsoluteImageUrl };

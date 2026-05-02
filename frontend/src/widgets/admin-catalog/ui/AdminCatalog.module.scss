@@ -1,0 +1,15 @@
+.page {
+  padding: 24px var(--side-paddings);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.backButton {
+  min-width: 140px;
+}
+

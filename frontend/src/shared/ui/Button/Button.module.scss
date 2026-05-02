@@ -25,3 +25,36 @@
     cursor: not-allowed;
   }
 }
+
+.secondary {
+  border-color: var(--gray-200);
+  background-color: var(--white);
+  color: var(--gray-800);
+
+  &:hover {
+    background-color: var(--gray-50);
+    border-color: var(--gray-200);
+  }
+}
+
+.icon {
+  width: auto;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  color: inherit;
+  line-height: 0;
+
+  &:hover {
+    background-color: transparent;
+    border-color: transparent;
+    opacity: 0.85;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}

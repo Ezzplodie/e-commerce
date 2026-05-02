@@ -1,4 +1,4 @@
-import { getProductBySlug } from "@/shared/api/product";
+import { getProductBySlug } from "@/entities/product/api";
 import { ProductDetails } from "@/widgets/product-details";
 import Header from "@/widgets/header";
 import Footer from "@/widgets/footer";

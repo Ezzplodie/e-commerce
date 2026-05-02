@@ -1,5 +1,10 @@
-import { MinusStrokeIcon, PlusStrokeIcon } from "@/shared/assets/icons";
+import {
+  ChipCloseFilledIcon,
+  MinusStrokeIcon,
+  PlusStrokeIcon,
+} from "@/shared/assets/icons";
 import { Checkbox } from "@/shared/ui/Checkbox";
+import { Button } from "@/shared/ui/Button";
 import styles from "./ProductFilters.module.scss";
 
 type AppliedFilter = {
@@ -85,11 +90,14 @@ function Section({
       <summary className={styles.sectionHeader} aria-controls={`${id}-content`}>
         <span className={styles.sectionTitle}>{title}</span>
         <span className={styles.sectionIcon} aria-hidden="true">
-          <MinusStrokeIcon width={18} height={18} className={styles.icon} />
+          <PlusStrokeIcon width={18} height={18} className={styles.iconPlus} />
+          <MinusStrokeIcon width={18} height={18} className={styles.iconMinus} />
         </span>
       </summary>
-      <div id={`${id}-content`} className={styles.sectionBody}>
-        {children}
+      <div className={styles.sectionBodyOuter}>
+        <div id={`${id}-content`} className={styles.sectionBodyInner}>
+          {children}
+        </div>
       </div>
     </details>
   );
@@ -109,24 +117,29 @@ export function ProductFilters() {
           {applied.map((f) => (
             <li key={f.label} className={styles.chip}>
               <span className={styles.chipLabel}>{f.label}</span>
-              <button
+              <Button
                 type="button"
+                variant="icon"
                 className={styles.chipRemove}
                 aria-label={`Remove ${f.label}`}
               >
-                ×
-              </button>
+                <ChipCloseFilledIcon
+                  width={24}
+                  height={24}
+                  className={styles.chipRemoveIcon}
+                />
+              </Button>
             </li>
           ))}
         </ul>
 
         <div className={styles.appliedActions}>
-          <button type="button" className={styles.clearAll}>
+          <Button type="button" variant="secondary" className={styles.clearAll}>
             Clear All Filters
-          </button>
-          <button type="button" className={styles.appliedButton}>
+          </Button>
+          <Button type="button" className={styles.appliedButton}>
             Applied Filters
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -214,29 +227,6 @@ export function ProductFilters() {
             ))}
           </ul>
         </Section>
-
-        <div className={styles.compactList} aria-label="Collapsed view (visual only)">
-          <div className={styles.compactItem}>
-            <span>Sort By</span>
-            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
-          </div>
-          <div className={styles.compactItem}>
-            <span>Size</span>
-            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
-          </div>
-          <div className={styles.compactItem}>
-            <span>Color</span>
-            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
-          </div>
-          <div className={styles.compactItem}>
-            <span>Collection</span>
-            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
-          </div>
-          <div className={styles.compactItem}>
-            <span>Fabric</span>
-            <PlusStrokeIcon width={18} height={18} className={styles.icon} />
-          </div>
-        </div>
       </fieldset>
     </form>
   );

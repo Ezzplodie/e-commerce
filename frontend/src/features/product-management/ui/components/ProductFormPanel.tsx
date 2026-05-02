@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, ReactNode } from "react";
 import { Category } from "@/entities/category/types";
 import { Button } from "@/shared/ui/Button";
 import { SelectInput, TextInput } from "@/shared/ui/Input";
-import { ProductFormState } from "../../types";
+import { Material, ProductFormState } from "../../types";
 import styles from "../ProductList.module.scss";
 
 type ProductFormPanelProps = {
@@ -12,6 +12,7 @@ type ProductFormPanelProps = {
   submitLabel: string;
   form: ProductFormState;
   categories: Category[];
+  materials: Material[];
   actionLoading: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
   onFieldChange: (
@@ -30,6 +31,7 @@ export const ProductFormPanel = ({
   submitLabel,
   form,
   categories,
+  materials,
   actionLoading,
   onSubmit,
   onFieldChange,
@@ -91,6 +93,21 @@ export const ProductFormPanel = ({
             ))}
           </SelectInput>
         </label>
+        <label className={styles.field}>
+          <span>Material</span>
+          <SelectInput
+            value={form.material_id}
+            onChange={onFieldChange("material_id")}
+            className={styles.adminSelect}
+          >
+            <option value="">None</option>
+            {materials.map((material) => (
+              <option key={material.id} value={material.id}>
+                {material.name}
+              </option>
+            ))}
+          </SelectInput>
+        </label>
       </div>
 
       <label className={styles.field}>
@@ -100,6 +117,36 @@ export const ProductFormPanel = ({
           value={form.description}
           onChange={onFieldChange("description")}
           placeholder="Short product description"
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Fitting</span>
+        <textarea
+          className={styles.textArea}
+          value={form.fitting}
+          onChange={onFieldChange("fitting")}
+          placeholder="Fit notes (e.g. relaxed, true to size)"
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Product detail</span>
+        <textarea
+          className={styles.textArea}
+          value={form.product_detail}
+          onChange={onFieldChange("product_detail")}
+          placeholder="Longer product details for PDP"
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Fabric care</span>
+        <textarea
+          className={styles.textArea}
+          value={form.fabric_care}
+          onChange={onFieldChange("fabric_care")}
+          placeholder="Washing and care instructions"
         />
       </label>
 

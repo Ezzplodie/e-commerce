@@ -19,6 +19,7 @@ export const ProductList = ({ categories }: ProductListProps) => {
   const {
     actionLoading,
     catalog,
+    materials,
     createPanel,
     editPanel,
     variants,
@@ -79,6 +80,7 @@ export const ProductList = ({ categories }: ProductListProps) => {
             submitLabel="Create Product"
             form={createPanel.form}
             categories={categories}
+            materials={materials}
             actionLoading={actionLoading}
             onSubmit={createPanel.onSubmit}
             onFieldChange={createPanel.onFieldChange}
@@ -103,6 +105,7 @@ export const ProductList = ({ categories }: ProductListProps) => {
             submitLabel="Save Changes"
             form={editPanel.form}
             categories={categories}
+            materials={materials}
             actionLoading={actionLoading}
             onSubmit={editPanel.onSubmit}
             onFieldChange={editPanel.onFieldChange}

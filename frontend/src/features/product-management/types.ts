@@ -1,9 +1,19 @@
+export type Material = {
+  id: number;
+  name: string;
+  description?: string | null;
+};
+
 export type ProductDto = {
   category_id: number;
   name: string;
   base_price: number;
   slug: string;
   description?: string;
+  fitting?: string;
+  product_detail?: string;
+  fabric_care?: string;
+  material_id?: number;
 };
 
 export type UpdateProductDto = Partial<ProductDto>;
@@ -41,6 +51,10 @@ export type ProductFormState = {
   slug: string;
   base_price: string;
   description: string;
+  fitting: string;
+  product_detail: string;
+  fabric_care: string;
+  material_id: string;
 };
 
 export type VariantFormState = {

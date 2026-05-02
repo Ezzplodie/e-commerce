@@ -13,7 +13,7 @@ import {
   parseVariantPrice,
 } from "../lib/variantAttributes";
 import { getNextVariantImageOrder, moveItem } from "../lib/variantImages";
-import { ProductFormState, VariantFormState } from "../types";
+import { ProductDto, ProductFormState, VariantFormState } from "../types";
 import { useAdminProducts } from "./useAdminProducts";
 
 type ConfirmState = {
@@ -32,6 +32,7 @@ export const useProductList = () => {
     limit,
     total,
     attributeValues,
+    materials,
     actionLoading,
     fetchProducts,
     setPage,
@@ -95,6 +96,31 @@ export const useProductList = () => {
 
   const syncVariantDrafts = (variants: ProductVariant[]) => {
     setVariantDrafts(createVariantDrafts(variants));
+  };
+
+  const optionalDetailFieldsFromForm = (
+    form: ProductFormState,
+  ): Pick<
+    ProductDto,
+    "description" | "fitting" | "product_detail" | "fabric_care" | "material_id"
+  > => {
+    const trimOrUndef = (value: string) => {
+      const trimmed = value.trim();
+      return trimmed === "" ? undefined : trimmed;
+    };
+    const materialRaw = form.material_id.trim();
+    let material_id: number | undefined;
+    if (materialRaw !== "") {
+      const parsed = Number.parseInt(materialRaw, 10);
+      material_id = Number.isFinite(parsed) ? parsed : undefined;
+    }
+    return {
+      description: trimOrUndef(form.description),
+      fitting: trimOrUndef(form.fitting),
+      product_detail: trimOrUndef(form.product_detail),
+      fabric_care: trimOrUndef(form.fabric_care),
+      material_id,
+    };
   };
 
   const resetSelectedProductState = () => {
@@ -180,6 +206,13 @@ export const useProductList = () => {
       slug: productData.slug ?? "",
       base_price: String(productData.base_price ?? ""),
       description: productData.description ?? "",
+      fitting: productData.fitting ?? "",
+      product_detail: productData.product_detail ?? "",
+      fabric_care: productData.fabric_care ?? "",
+      material_id:
+        productData.material_id != null
+          ? String(productData.material_id)
+          : "",
     });
   };
 
@@ -231,7 +264,7 @@ export const useProductList = () => {
       name: createForm.name.trim(),
       slug: createForm.slug.trim(),
       base_price: Number(createForm.base_price),
-      description: createForm.description.trim(),
+      ...optionalDetailFieldsFromForm(createForm),
     });
 
     setCreateForm(emptyProductForm);
@@ -249,7 +282,7 @@ export const useProductList = () => {
       name: editForm.name.trim(),
       slug: editForm.slug.trim(),
       base_price: Number(editForm.base_price),
-      description: editForm.description.trim(),
+      ...optionalDetailFieldsFromForm(editForm),
     });
 
     await refreshSelectedProduct(updated.slug || editForm.slug);
@@ -442,6 +475,7 @@ export const useProductList = () => {
       goToPreviousPage: () => setPage((prev) => prev - 1),
       goToNextPage: () => setPage((prev) => prev + 1),
     },
+    materials,
     createPanel: {
       isOpen: showCreatePanel,
       form: createForm,

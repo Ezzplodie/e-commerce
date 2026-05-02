@@ -8,6 +8,12 @@ export type VariantImage = {
   file_size?: number | null;
 };
 
+export type ProductMaterial = {
+  id: number;
+  name: string;
+  description?: string | null;
+};
+
 export type ProductVariant = {
   id: number;
   sku: string;
@@ -27,6 +33,12 @@ export type Product = {
   category_id?: number;
   category_name?: string;
   category_slug?: string;
+  fitting?: string | null;
+  product_detail?: string | null;
+  fabric_care?: string | null;
+  material_id?: number | null;
+  material?: ProductMaterial | null;
+  material_name?: string | null;
   variants: ProductVariant[];
   variant_count?: number;
   total_stock?: number;
@@ -34,6 +46,22 @@ export type Product = {
 
 export type ProductsResponse = {
   products: Product[];
+  page: number;
+  limit: number;
+  total: number;
+};
+
+// List endpoint often returns "summary" products (no variants, base_price as string).
+export type ProductListItem = Omit<Product, "variants" | "base_price"> & {
+  base_price: number;
+  variants: ProductVariant[];
+  thumbnail_image_link?: string | null;
+  colors?: string[];
+  enabled_colors?: string[];
+};
+
+export type ProductsListResponse = {
+  products: ProductListItem[];
   page: number;
   limit: number;
   total: number;

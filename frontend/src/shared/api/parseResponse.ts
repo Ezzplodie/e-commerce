@@ -23,7 +23,10 @@ function extractErrorMessage(text: string): string {
 
   // Backend sometimes returns `{"error":"Unauthorized"}` as text.
   try {
-    const parsed = JSON.parse(trimmed) as { error?: unknown; message?: unknown };
+    const parsed = JSON.parse(trimmed) as {
+      error?: unknown;
+      message?: unknown;
+    };
     const msg =
       typeof parsed?.error === "string"
         ? parsed.error
@@ -49,4 +52,3 @@ export async function parseResponse<T>(response: Response): Promise<T> {
   const text = await response.text();
   throw new Error(extractErrorMessage(text));
 }
-

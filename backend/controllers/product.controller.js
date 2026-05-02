@@ -6,7 +6,34 @@ import {
   deleteProductRepository,
   updateProductRepository,
 } from "../repositories/product.repository.js";
-import { mapProductImagesToResponse } from "../services/variantImageStorage.service.js";
+import {
+  mapProductImagesToResponse,
+  generatePublicUrl,
+} from "../services/variantImageStorage.service.js";
+
+const normalizeProductListRow = (row) => {
+  const product = { ...row };
+
+  delete product.total_count;
+  delete product.thumbnail_storage_bucket;
+  delete product.thumbnail_storage_path;
+
+  const thumbnailImageLink = row.thumbnail_storage_path
+    ? generatePublicUrl(
+        row.thumbnail_storage_path,
+        row.thumbnail_storage_bucket ?? undefined,
+      )
+    : row.thumbnail_image_link || null;
+
+  return {
+    ...product,
+    thumbnail_image_link: thumbnailImageLink,
+    colors: Array.isArray(row.colors) ? row.colors : (row.colors ?? []),
+    enabled_colors: Array.isArray(row.enabled_colors)
+      ? row.enabled_colors
+      : (row.enabled_colors ?? []),
+  };
+};
 
 const productSchema = z.object({
   category_id: z.number().min(1),
@@ -14,6 +41,10 @@ const productSchema = z.object({
   slug: z.string().min(1),
   description: z.string().optional(),
   base_price: z.number().positive(),
+  fitting: z.string().optional(),
+  product_detail: z.string().optional(),
+  fabric_care: z.string().optional(),
+  material_id: z.union([z.number().int().positive(), z.null()]).optional(),
 });
 export const createProduct = async (req, res, next) => {
   try {
@@ -21,13 +52,27 @@ export const createProduct = async (req, res, next) => {
     if (!result.success) {
       return res.status(400).json({ error: result.error.errors });
     }
-    const { category_id, name, slug, description, base_price } = result.data;
+    const {
+      category_id,
+      name,
+      slug,
+      description,
+      base_price,
+      fitting,
+      product_detail,
+      fabric_care,
+      material_id,
+    } = result.data;
     const product = await createProductRepository(
       category_id,
       name,
       slug,
       description,
       base_price,
+      fitting,
+      product_detail,
+      fabric_care,
+      material_id,
     );
     res.status(201).json(product);
   } catch (err) {
@@ -54,8 +99,12 @@ export const getAllProducts = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const { rows, total_count } = await getAllProductsRepository(limit, offset);
-    const total = total_count;
-    res.json({ products: rows, page, limit, total });
+    res.json({
+      products: rows.map(normalizeProductListRow),
+      page,
+      limit,
+      total: total_count,
+    });
   } catch (err) {
     next(err);
   }
@@ -95,6 +144,10 @@ export const updateProduct = async (req, res, next) => {
       slug: newSlug,
       description,
       base_price,
+      fitting,
+      product_detail,
+      fabric_care,
+      material_id,
     } = result.data;
 
     const updatedProduct = await updateProductRepository(
@@ -104,6 +157,10 @@ export const updateProduct = async (req, res, next) => {
       newSlug,
       description,
       base_price,
+      fitting,
+      product_detail,
+      fabric_care,
+      material_id,
     );
 
     if (!updatedProduct) {

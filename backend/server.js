@@ -8,6 +8,7 @@ import {
   attributeValuesRouter,
   authRouter,
   categoryRouter,
+  materialsRouter,
   productRouter,
   productVariantRouter,
   variantImageRouter,
@@ -40,6 +41,7 @@ app.use("/variants", productVariantRouter);
 app.use("/variant-images", variantImageRouter);
 app.use("/auth", authRouter);
 app.use("/categories", categoryRouter);
+app.use("/materials", materialsRouter);
 app.use("/attribute-values", attributeValuesRouter);
 app.use("/wish-lists", wishListRouter);
 app.use("/orders", orderRouter);

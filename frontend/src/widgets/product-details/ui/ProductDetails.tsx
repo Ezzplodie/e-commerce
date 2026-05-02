@@ -20,6 +20,7 @@ import {
   PRODUCT_DETAIL_COPY,
   SHIPPING_COPY,
 } from "../model/copy";
+import { splitTextToParagraphs } from "../lib/productDetailText";
 import { useProductDetails } from "../model/useProductDetails";
 import { ProductAccordion } from "./components/ProductAccordion";
 import { ProductGallery, type GalleryImage } from "./components/ProductGallery";
@@ -178,6 +179,36 @@ export function ProductDetails({ product }: Props) {
     product.description?.trim() ||
     "Versatile and universally flattering, our wrap blouse can be tied, draped, snapped and wrapped multiple ways.";
 
+  const fittingParagraphs = useMemo(() => {
+    const fromApi = product.fitting?.trim();
+    if (fromApi) {
+      return splitTextToParagraphs(fromApi);
+    }
+    return [FITTING_COPY];
+  }, [product.fitting]);
+
+  const fabricParagraphs = useMemo(() => {
+    const fromApi = product.fabric_care?.trim();
+    if (fromApi) {
+      return splitTextToParagraphs(fromApi);
+    }
+    return [...FABRIC_AND_CARE];
+  }, [product.fabric_care]);
+
+  const productDetailParagraphs = useMemo(() => {
+    const fromApi = product.product_detail?.trim();
+    if (fromApi) {
+      return splitTextToParagraphs(fromApi);
+    }
+    return [PRODUCT_DETAIL_COPY];
+  }, [product.product_detail]);
+
+  const materialEyebrow =
+    product.material?.name?.trim() || "Silk";
+  const materialDescription =
+    product.material?.description?.trim() || MATERIAL_COPY;
+  const showPlaceholderMaterialChips = !product.material;
+
   return (
     <>
       <section className={styles.pageSection}>
@@ -324,21 +355,25 @@ export function ProductDetails({ product }: Props) {
             <div className={styles.accordionStack}>
               <ProductAccordion title="Fitting">
                 <div className={styles.richText}>
-                  <p>{FITTING_COPY}</p>
+                  {fittingParagraphs.map((line, index) => (
+                    <p key={`fitting-${index}`}>{line}</p>
+                  ))}
                 </div>
               </ProductAccordion>
 
               <ProductAccordion title="Fabric & Care" defaultOpen accent>
                 <div className={styles.richText}>
-                  {FABRIC_AND_CARE.map((line) => (
-                    <p key={line}>{line}</p>
+                  {fabricParagraphs.map((line, index) => (
+                    <p key={`fabric-${index}`}>{line}</p>
                   ))}
                 </div>
               </ProductAccordion>
 
               <ProductAccordion title="Product Detail">
                 <div className={styles.richText}>
-                  <p>{PRODUCT_DETAIL_COPY}</p>
+                  {productDetailParagraphs.map((line, index) => (
+                    <p key={`detail-${index}`}>{line}</p>
+                  ))}
                 </div>
               </ProductAccordion>
 
@@ -353,19 +388,21 @@ export function ProductDetails({ product }: Props) {
 
             <aside className={styles.materialCard}>
               <div className={styles.materialHeader}>
-                <span className={styles.materialEyebrow}>Silk</span>
+                <span className={styles.materialEyebrow}>{materialEyebrow}</span>
                 <strong className={styles.materialPrice}>
                   {formatPrice(resolvedPrice)}
                 </strong>
               </div>
 
-              <p className={styles.materialDescription}>{MATERIAL_COPY}</p>
+              <p className={styles.materialDescription}>{materialDescription}</p>
 
-              <div className={styles.chipRow}>
-                {MATERIAL_CHIPS.map((chip) => (
-                  <ProductChip key={chip} label={chip} />
-                ))}
-              </div>
+              {showPlaceholderMaterialChips ? (
+                <div className={styles.chipRow}>
+                  {MATERIAL_CHIPS.map((chip) => (
+                    <ProductChip key={chip} label={chip} />
+                  ))}
+                </div>
+              ) : null}
             </aside>
           </div>
 
