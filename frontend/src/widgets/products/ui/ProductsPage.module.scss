@@ -1,7 +1,4 @@
 @use "@/shared/styles/mixins" as *;
-.page {
-  padding: 32px 0 56px;
-}
 
 .container {
   display: flex;
@@ -14,11 +11,39 @@
 .filters {
   width: 392px;
   flex: 0 0 392px;
+  overflow: visible;
+  min-width: 0;
 }
 
 .content {
   flex: 1;
   min-width: 0;
+}
+
+.mobileFiltersBar {
+  display: none;
+  margin-bottom: 12px;
+}
+
+.mobileFiltersButton {
+  width: 100%;
+}
+
+.filtersModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 60;
+  display: grid;
+  place-items: stretch;
+}
+
+.filtersModal {
+  background: var(--white);
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 16px var(--side-paddings);
 }
 
 .productsListWrap {
@@ -112,6 +137,14 @@
 }
 
 @include mobile {
+  .filters {
+    display: none;
+  }
+
+  .mobileFiltersBar {
+    display: block;
+  }
+
   .productsGrid {
     grid-template-columns: 1fr;
   }

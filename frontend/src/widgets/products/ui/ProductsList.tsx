@@ -1,32 +1,46 @@
 "use client";
 import styles from "./ProductsPage.module.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { ProductsListResponse } from "@/entities/product/types";
-import { getProducts } from "@/entities/product/api";
+import { getProductsByQuery } from "@/entities/product/api";
 import { ProductCard, ProductCardSkeleton } from "@/shared/ui/ProductCard";
 import { getProductCardImage } from "@/entities/product";
 export function ProductsList() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<ProductsListResponse>({
     products: [],
     page: 1,
     limit: 5,
     total: 0,
   });
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const searchString = useMemo(() => searchParams.toString(), [searchParams]);
+
+  const requestKey = useMemo(
+    () => `${searchString}|limit=${products.limit}|page=${products.page}`,
+    [searchString, products.limit, products.page],
+  );
+  const [loadedKey, setLoadedKey] = useState<string>("");
+  const isLoading = loadedKey !== requestKey;
 
   useEffect(() => {
     const controller = new AbortController();
-    getProducts(products.limit, products.page, controller.signal)
+    const qs = new URLSearchParams(searchString);
+    qs.set("limit", String(products.limit));
+    qs.set("page", String(products.page));
+
+    getProductsByQuery(qs.toString(), controller.signal)
       .then((res) => setProducts(res))
       .catch((e) => {
         if (e instanceof Error && e.name === "AbortError") return;
         setError("Failed to load products");
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => setLoadedKey(requestKey));
 
     return () => controller.abort();
-  }, [products.limit, products.page]);
+  }, [products.limit, products.page, searchString, requestKey]);
 
   const totalPages = Math.max(1, Math.ceil(products.total / products.limit));
 
@@ -40,7 +54,6 @@ export function ProductsList() {
   })();
 
   const goToPage = (nextPage: number) => {
-    setIsLoading(true);
     setError(null);
     setProducts((prev) => ({ ...prev, page: nextPage }));
   };

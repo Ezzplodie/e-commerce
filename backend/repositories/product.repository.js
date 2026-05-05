@@ -193,6 +193,137 @@ export const getAllProductsRepository = async (limit, offset) => {
   return { rows: products, total_count };
 };
 
+export const getFilteredProductsRepository = async (filters) => {
+  const { colors, sizes, fabric, collection, sortBy, limit, offset } = filters;
+
+  // Arrays: pass null to disable facet filter.
+  const colorsArr = colors?.length ? colors : null;
+  const sizesArr = sizes?.length ? sizes : null;
+  const fabricArr = fabric?.length ? fabric : null;
+
+  // collection: for now support in_stock/out_stock (single)
+  const inStockOnly = collection === "in_stock" ? true : null;
+  const outStockOnly = collection === "out_stock" ? true : null;
+
+  const { sortByToOrderBy } = await import("../utils/filters.js");
+  const orderBy = sortByToOrderBy(sortBy);
+
+  const { rows } = await pool.query(
+    `
+    WITH filtered_variants AS (
+      SELECT
+        p.id AS product_id,
+        pv.id AS variant_id,
+        pv.price,
+        pv.stock
+      FROM ${PRODUCTS_TABLE} p
+      JOIN ${PRODUCT_VARIANTS_TABLE} pv ON pv.product_id = p.id
+      LEFT JOIN ${MATERIALS_TABLE} mat_filter ON mat_filter.id = p.material_id
+      WHERE
+        ($4::boolean IS NULL OR (pv.stock > 0) = $4)
+        AND ($5::boolean IS NULL OR (pv.stock <= 0) = $5)
+
+        AND (
+          $1::text[] IS NULL OR EXISTS (
+            SELECT 1
+            FROM ${VARIANT_ATTRIBUTE_VALUES_TABLE} vav
+            JOIN ${ATTRIBUTE_VALUES_TABLE} av ON av.id = vav.attribute_value_id
+            JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
+            WHERE vav.variant_id = pv.id
+              AND a.code = 'color'
+              AND lower(trim(av.value)) = ANY($1::text[])
+          )
+        )
+        AND (
+          $2::text[] IS NULL OR EXISTS (
+            SELECT 1
+            FROM ${VARIANT_ATTRIBUTE_VALUES_TABLE} vav
+            JOIN ${ATTRIBUTE_VALUES_TABLE} av ON av.id = vav.attribute_value_id
+            JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
+            WHERE vav.variant_id = pv.id
+              AND a.code = 'size'
+              AND lower(trim(av.value)) = ANY($2::text[])
+          )
+        )
+        AND (
+          $3::text[] IS NULL OR (
+            mat_filter.id IS NOT NULL
+            AND lower(trim(mat_filter.name)) = ANY($3::text[])
+          )
+        )
+    )
+    SELECT
+      p.*,
+      c.name AS category_name,
+      thumb.image_link AS thumbnail_image_link,
+      thumb.storage_bucket AS thumbnail_storage_bucket,
+      thumb.storage_path AS thumbnail_storage_path,
+      COALESCE(colors.colors, '[]'::jsonb) AS colors,
+      COALESCE(enabled_colors.enabled_colors, '[]'::jsonb) AS enabled_colors,
+      mat.name AS material_name,
+      COUNT(DISTINCT fv.variant_id)::int AS variant_count,
+      COALESCE(SUM(fv.stock), 0)::int AS total_stock,
+      COUNT(*) OVER() AS total_count
+    FROM ${PRODUCTS_TABLE} p
+    LEFT JOIN ${CATEGORIES_TABLE} c ON c.id = p.category_id
+    LEFT JOIN ${MATERIALS_TABLE} mat ON mat.id = p.material_id
+    JOIN filtered_variants fv ON fv.product_id = p.id
+    LEFT JOIN LATERAL (
+      SELECT pv_first.id AS variant_id
+      FROM ${PRODUCT_VARIANTS_TABLE} pv_first
+      WHERE pv_first.product_id = p.id
+      ORDER BY pv_first.id ASC
+      LIMIT 1
+    ) first_variant ON true
+    LEFT JOIN LATERAL (
+      SELECT vi.image_link, vi.storage_bucket, vi.storage_path
+      FROM ${PRODUCT_VARIANTS_TABLE} pv2
+      JOIN ${VARIANT_IMAGES_TABLE} vi ON vi.variant_id = pv2.id
+      WHERE pv2.product_id = p.id
+      ORDER BY
+        (vi.image_order = 1) DESC,
+        (pv2.id = first_variant.variant_id) DESC,
+        vi.image_order ASC,
+        vi.id ASC
+      LIMIT 1
+    ) thumb ON true
+    LEFT JOIN LATERAL (
+      SELECT jsonb_agg(DISTINCT av.value) FILTER (WHERE av.value IS NOT NULL) AS colors
+      FROM ${PRODUCT_VARIANTS_TABLE} pv3
+      JOIN ${VARIANT_ATTRIBUTE_VALUES_TABLE} vav ON vav.variant_id = pv3.id
+      JOIN ${ATTRIBUTE_VALUES_TABLE} av ON av.id = vav.attribute_value_id
+      JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
+      WHERE pv3.product_id = p.id AND a.code = 'color'
+    ) colors ON true
+    LEFT JOIN LATERAL (
+      SELECT jsonb_agg(DISTINCT av.value) FILTER (WHERE av.value IS NOT NULL) AS enabled_colors
+      FROM ${PRODUCT_VARIANTS_TABLE} pv4
+      JOIN ${VARIANT_ATTRIBUTE_VALUES_TABLE} vav ON vav.variant_id = pv4.id
+      JOIN ${ATTRIBUTE_VALUES_TABLE} av ON av.id = vav.attribute_value_id
+      JOIN ${ATTRIBUTES_TABLE} a ON a.id = av.attribute_id
+      WHERE pv4.product_id = p.id AND pv4.stock > 0 AND a.code = 'color'
+    ) enabled_colors ON true
+    GROUP BY
+      p.id,
+      c.name,
+      first_variant.variant_id,
+      thumb.image_link,
+      thumb.storage_bucket,
+      thumb.storage_path,
+      colors.colors,
+      enabled_colors.enabled_colors,
+      mat.name
+    ORDER BY ${orderBy}
+    LIMIT $6 OFFSET $7
+    `,
+    [colorsArr, sizesArr, fabricArr, inStockOnly, outStockOnly, limit, offset],
+  );
+
+  const total_count = rows.length > 0 ? parseInt(rows[0].total_count, 10) : 0;
+  const products = rows.map(({ total_count, ...rest }) => rest);
+  return { rows: products, total_count };
+};
+
 export const deleteProductRepository = async (slug) => {
   const { rows } = await pool.query(
     `DELETE FROM ${PRODUCTS_TABLE} WHERE slug = $1 RETURNING *`,

@@ -1,6 +1,6 @@
-import { normalizeColor } from "@/shared/lib/color";
+import { normalizeColor } from "./normalize";
 
-const COLOR_MAP: Record<string, string> = {
+export const COLOR_MAP: Record<string, string> = {
   black: "#111111",
   white: "#ffffff",
   red: "#d92d20",
@@ -15,6 +15,12 @@ const COLOR_MAP: Record<string, string> = {
   brown: "#8b5a2b",
   beige: "#d9c7a3",
   navy: "#243447",
+
+  rust: "#a84838",
+  camel: "#c19a6b",
+  charcoal: "#36454f",
+  cognac: "#8b4d36",
+  slate: "#708090",
 };
 
 export function getMappedColorValue(colorName: string): string {

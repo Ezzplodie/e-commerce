@@ -1,6 +1,25 @@
-import { Product, ProductsListResponse } from "../types";
+import { parseResponse } from "@/shared/api/parseResponse";
+import {
+  AttributeValue,
+  FilterFacetsResponse,
+  Product,
+  ProductsListResponse,
+} from "../types";
 
 const API_BASE = "http://localhost:4000";
+
+export async function getAttributeValues(
+  attributeCode?: string,
+): Promise<AttributeValue[]> {
+  const query = attributeCode
+    ? `?code=${encodeURIComponent(attributeCode)}`
+    : "";
+  const response = await fetch(`${API_BASE}/attribute-values${query}`, {
+    method: "GET",
+  });
+
+  return parseResponse<AttributeValue[]>(response);
+}
 
 export const toAbsoluteImageUrl = (imageLink: string) => {
   if (!imageLink) return "";
@@ -77,13 +96,23 @@ export async function getProducts(
   page = 1,
   signal?: AbortSignal,
 ): Promise<ProductsListResponse> {
-  const response = await fetch(
-    `${API_BASE}/products?limit=${limit}&page=${page}`,
-    {
-      cache: "no-store",
-      signal,
-    },
-  );
+  return getProductsByQuery(`limit=${limit}&page=${page}`, signal);
+}
+
+export async function getProductsByQuery(
+  queryString: string,
+  signal?: AbortSignal,
+): Promise<ProductsListResponse> {
+  const normalizedQuery = queryString?.trim()
+    ? queryString.startsWith("?")
+      ? queryString.slice(1)
+      : queryString
+    : "";
+
+  const response = await fetch(`${API_BASE}/products?${normalizedQuery}`, {
+    cache: "no-store",
+    signal,
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch products");
@@ -94,5 +123,23 @@ export async function getProducts(
     ...productsData,
     products: (productsData.products || []).map(normalizeListProduct),
   };
+}
+
+export async function getFilterFacets(
+  queryString: string,
+  signal?: AbortSignal,
+): Promise<FilterFacetsResponse> {
+  const normalizedQuery = queryString?.trim()
+    ? queryString.startsWith("?")
+      ? queryString.slice(1)
+      : queryString
+    : "";
+
+  const response = await fetch(`${API_BASE}/filters?${normalizedQuery}`, {
+    cache: "no-store",
+    signal,
+  });
+
+  return parseResponse<FilterFacetsResponse>(response);
 }
 

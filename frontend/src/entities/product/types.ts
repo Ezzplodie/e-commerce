@@ -66,3 +66,31 @@ export type ProductsListResponse = {
   limit: number;
   total: number;
 };
+
+export type AttributeValue = {
+  id: number;
+  attribute_id: number;
+  attribute_code: string;
+  attribute_name: string;
+  value: string;
+};
+
+export type FilterFacetItem = {
+  value: string;
+  count: number;
+};
+
+export type FilterFacetsResponse = {
+  facets: {
+    color: FilterFacetItem[];
+    size: FilterFacetItem[];
+    fabric: FilterFacetItem[];
+  };
+  selected: {
+    color: string[];
+    size: string[];
+    fabric: string[];
+    sortby: string | null;
+    collection: string | null;
+  };
+};

@@ -28,13 +28,7 @@ export type VariantDto = {
 
 export type UpdateVariantDto = Partial<VariantDto>;
 
-export type AttributeValue = {
-  id: number;
-  attribute_id: number;
-  attribute_code: string;
-  attribute_name: string;
-  value: string;
-};
+export type { AttributeValue } from "@/entities/product/types";
 
 export type AttributeValueDto = {
   attribute_code: string;

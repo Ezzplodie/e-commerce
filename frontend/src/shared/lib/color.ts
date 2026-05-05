@@ -1,2 +1,5 @@
-export const normalizeColor = (value: string | null | undefined) =>
-  value?.toLowerCase().trim() ?? "";
+export {
+  COLOR_MAP,
+  getMappedColorValue,
+  normalizeColor,
+} from "./color/index";

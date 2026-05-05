@@ -3,6 +3,7 @@ import {
   createProductRepository,
   getProductBySlugRepository,
   getAllProductsRepository,
+  getFilteredProductsRepository,
   deleteProductRepository,
   updateProductRepository,
 } from "../repositories/product.repository.js";
@@ -10,6 +11,7 @@ import {
   mapProductImagesToResponse,
   generatePublicUrl,
 } from "../services/variantImageStorage.service.js";
+import { parseProductFilters } from "../utils/filters.js";
 
 const normalizeProductListRow = (row) => {
   const product = { ...row };
@@ -95,10 +97,21 @@ export const getProductBySlug = async (req, res, next) => {
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-    const { rows, total_count } = await getAllProductsRepository(limit, offset);
+    const filters = parseProductFilters(req.query);
+    const { limit, offset, page } = filters;
+
+    const hasAnyFilters =
+      filters.colors.length ||
+      filters.sizes.length ||
+      filters.fabric.length ||
+      Boolean(filters.collection) ||
+      Boolean(filters.sortBy);
+
+    const repoResult = hasAnyFilters
+      ? await getFilteredProductsRepository(filters)
+      : await getAllProductsRepository(limit, offset);
+
+    const { rows, total_count } = repoResult;
     res.json({
       products: rows.map(normalizeProductListRow),
       page,

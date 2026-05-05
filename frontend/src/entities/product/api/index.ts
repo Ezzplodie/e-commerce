@@ -1,2 +1,9 @@
-export { getProducts, getProductBySlug, toAbsoluteImageUrl } from "./products";
+export {
+  getAttributeValues,
+  getFilterFacets,
+  getProducts,
+  getProductsByQuery,
+  getProductBySlug,
+  toAbsoluteImageUrl,
+} from "./products";
 

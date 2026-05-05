@@ -1,10 +1,10 @@
 import {
+  AttributeValue,
   Product,
   ProductVariant,
   VariantImage,
 } from "@/entities/product/types";
 import {
-  AttributeValue,
   AttributeValueDto,
   Material,
   ProductDto,
@@ -14,7 +14,11 @@ import {
   VariantDto,
 } from "../types";
 import { parseResponse } from "@/shared/api/parseResponse";
-import { getProductBySlug, getProducts, toAbsoluteImageUrl } from "@/entities/product/api";
+import {
+  getProductBySlug,
+  getProducts,
+  toAbsoluteImageUrl,
+} from "@/entities/product/api";
 
 const API_BASE = "http://localhost:4000";
 
@@ -151,20 +155,6 @@ export const deleteVariantImage = async (imageId: number): Promise<void> => {
   });
 
   await parseResponse(response);
-};
-
-export const getAttributeValues = async (
-  attributeCode?: string,
-): Promise<AttributeValue[]> => {
-  const query = attributeCode
-    ? `?code=${encodeURIComponent(attributeCode)}`
-    : "";
-  const response = await fetch(`${API_BASE}/attribute-values${query}`, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  return parseResponse<AttributeValue[]>(response);
 };
 
 export const createAttributeValue = async (

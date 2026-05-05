@@ -1,20 +1,8 @@
 import { Product } from "@/entities/product";
 import { normalizeColor } from "@/shared/lib/color";
+import { compareSizes } from "@/shared/lib/sizeSort";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-
-const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
-
-const getSizeSortRank = (size: string) => {
-  const rank = SIZE_ORDER.indexOf(size);
-  return rank === -1 ? Number.POSITIVE_INFINITY : rank;
-};
-
-const compareSizes = (a: string, b: string) => {
-  const rankDiff = getSizeSortRank(a) - getSizeSortRank(b);
-  if (rankDiff !== 0) return rankDiff;
-  return a.localeCompare(b);
-};
 
 export function useProductDetails(product: Product) {
   const inStockVariants = useMemo(

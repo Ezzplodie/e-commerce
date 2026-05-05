@@ -1,8 +1,10 @@
 import clsx from "clsx";
 import type { CSSProperties } from "react";
-import { normalizeColor } from "@/shared/lib/color";
+import {
+  getMappedColorValue,
+  normalizeColor,
+} from "@/shared/lib/color";
 import { ColorPickerButtonProps } from "./ColorPickerButton.types";
-import { getMappedColorValue } from "./colorMap";
 import styles from "./ColorPickerButton.module.scss";
 
 export function ColorPickerButton({

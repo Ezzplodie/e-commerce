@@ -1,14 +1,8 @@
 import { AttributeValue } from "../types";
-
-const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+import { getSizeSortRank } from "@/shared/lib/sizeSort";
 
 export const normalizeAttributeText = (value: string | null | undefined) =>
   value?.trim().toLowerCase() ?? "";
-
-const getSizeSortRank = (size: string) => {
-  const rank = SIZE_ORDER.indexOf(size.toUpperCase());
-  return rank === -1 ? Number.POSITIVE_INFINITY : rank;
-};
 
 const compareAttributeValues = (
   attributeCode: string,

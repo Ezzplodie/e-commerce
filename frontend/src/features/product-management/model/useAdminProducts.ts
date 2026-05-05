@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getAttributeValues } from "@/entities/product/api";
 import { Product, VariantImage } from "@/entities/product/types";
 import {
   createAttributeValue,
@@ -9,7 +10,6 @@ import {
   deleteProduct,
   deleteVariant,
   deleteVariantImage,
-  getAttributeValues,
   getMaterials,
   getProductBySlug,
   getProducts,
