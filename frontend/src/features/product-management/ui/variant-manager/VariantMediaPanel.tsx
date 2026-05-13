@@ -16,6 +16,7 @@ type VariantMediaPanelProps = {
   variantLabel: string;
   images: VariantImage[];
   selectedFilesCount: number;
+  uploadErrorMessage: string | null;
   actionLoading: boolean;
   toAbsoluteImageUrl: (imageLink: string) => string;
   onVariantFiles: VariantFilesChangeHandler;
@@ -29,6 +30,7 @@ export const VariantMediaPanel = ({
   variantLabel,
   images,
   selectedFilesCount,
+  uploadErrorMessage,
   actionLoading,
   toAbsoluteImageUrl,
   onVariantFiles,
@@ -111,6 +113,12 @@ export const VariantMediaPanel = ({
           No photos uploaded for this variant yet.
         </div>
       )}
+
+      {uploadErrorMessage ? (
+        <p className={styles.variantUploadError} role="alert">
+          {uploadErrorMessage}
+        </p>
+      ) : null}
 
       <div className={styles.uploadPanel}>
         <label className={styles.filePicker}>

@@ -76,6 +76,10 @@ export const useProductList = () => {
     Record<number, VariantFormState>
   >({});
   const [variantFiles, setVariantFiles] = useState<Record<number, File[]>>({});
+  const [variantUploadError, setVariantUploadError] = useState<{
+    variantId: number;
+    message: string;
+  } | null>(null);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -130,6 +134,7 @@ export const useProductList = () => {
     setSelectedVariants([]);
     setVariantDrafts({});
     setVariantFiles({});
+    setVariantUploadError(null);
   };
 
   const setCreateField =
@@ -219,6 +224,7 @@ export const useProductList = () => {
   const loadProductForEdit = async (slug: string) => {
     await refreshSelectedProduct(slug);
     setVariantFiles({});
+    setVariantUploadError(null);
     setShowEditPanel(true);
   };
 
@@ -377,6 +383,9 @@ export const useProductList = () => {
   };
 
   const handleVariantFiles = (variantId: number, files: FileList | null) => {
+    setVariantUploadError((prev) =>
+      prev?.variantId === variantId ? null : prev,
+    );
     if (!files || files.length === 0) {
       setVariantFiles((prev) => ({ ...prev, [variantId]: [] }));
       return;
@@ -397,14 +406,45 @@ export const useProductList = () => {
       return;
     }
 
-    const nextOrderStart = getNextVariantImageOrder(existingImages);
+    setVariantUploadError(null);
 
-    for (let index = 0; index < files.length; index += 1) {
-      await addVariantImage(variantId, files[index], nextOrderStart + index);
+    const draft = variantDrafts[variantId];
+    const variant = selectedVariants.find((item) => item.id === variantId);
+    const savedColor = variant?.attributes?.color?.trim() ?? "";
+    const draftColor = draft?.color?.trim() ?? "";
+
+    if (!savedColor && !draftColor) {
+      setVariantUploadError({
+        variantId,
+        message:
+          "Choose a color for this variant before uploading photos (storage paths require a color).",
+      });
+      return;
     }
 
-    setVariantFiles((prev) => ({ ...prev, [variantId]: [] }));
-    await refreshSelectedProduct();
+    const colorNeedsPersist =
+      Boolean(draftColor) && draftColor !== savedColor;
+
+    try {
+      if (colorNeedsPersist) {
+        await handleSaveVariant(variantId);
+      }
+
+      const nextOrderStart = getNextVariantImageOrder(existingImages);
+
+      for (let index = 0; index < files.length; index += 1) {
+        await addVariantImage(variantId, files[index], nextOrderStart + index);
+      }
+
+      setVariantFiles((prev) => ({ ...prev, [variantId]: [] }));
+      await refreshSelectedProduct();
+    } catch (uploadErr) {
+      const message =
+        uploadErr instanceof Error
+          ? uploadErr.message
+          : "Failed to upload photos";
+      setVariantUploadError({ variantId, message });
+    }
   };
 
   const handleDeleteVariantImage = async (imageId: number) => {
@@ -494,6 +534,7 @@ export const useProductList = () => {
       loadProductForEdit,
     },
     variants: {
+      variantExpansionResetKey: selectedProductSlug ?? "",
       variants: selectedVariants,
       basePrice: Number(editForm.base_price) || 0,
       availableColors: colorOptions,
@@ -503,6 +544,7 @@ export const useProductList = () => {
       newSizeValue,
       variantDrafts,
       variantFiles,
+      variantUploadError,
       actionLoading,
       toAbsoluteImageUrl,
       onNewVariantField: handleNewVariantField,

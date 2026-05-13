@@ -9,8 +9,7 @@ import {
 } from "@/shared/constants/support";
 import { useCartStore } from "@/features/cart/model/cartStore";
 
-const SUCCESS_ICON_URL =
-  "https://www.figma.com/api/mcp/asset/9a8da014-a07d-4e3f-8ae2-8e33017036e1";
+const SUCCESS_ICON_SRC = "/payment-success.svg";
 
 export default function PaymentSuccessPage() {
   const clearCart = useCartStore((state) => state.clearCart);
@@ -26,8 +25,10 @@ export default function PaymentSuccessPage() {
         <div className={`${styles.content} container`}>
           <img
             className={styles.icon}
-            src={SUCCESS_ICON_URL}
+            src={SUCCESS_ICON_SRC}
             alt=""
+            width={65}
+            height={65}
             aria-hidden="true"
           />
 

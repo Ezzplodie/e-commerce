@@ -194,7 +194,8 @@ export const getAllProductsRepository = async (limit, offset) => {
 };
 
 export const getFilteredProductsRepository = async (filters) => {
-  const { colors, sizes, fabric, collection, sortBy, limit, offset } = filters;
+  const { colors, sizes, fabric, category, collection, sortBy, limit, offset } =
+    filters;
 
   // Arrays: pass null to disable facet filter.
   const colorsArr = colors?.length ? colors : null;
@@ -218,10 +219,12 @@ export const getFilteredProductsRepository = async (filters) => {
         pv.stock
       FROM ${PRODUCTS_TABLE} p
       JOIN ${PRODUCT_VARIANTS_TABLE} pv ON pv.product_id = p.id
+      LEFT JOIN ${CATEGORIES_TABLE} c_filter ON c_filter.id = p.category_id
       LEFT JOIN ${MATERIALS_TABLE} mat_filter ON mat_filter.id = p.material_id
       WHERE
         ($4::boolean IS NULL OR (pv.stock > 0) = $4)
         AND ($5::boolean IS NULL OR (pv.stock <= 0) = $5)
+        AND ($8::text IS NULL OR lower(trim(c_filter.slug)) = $8::text)
 
         AND (
           $1::text[] IS NULL OR EXISTS (
@@ -316,7 +319,16 @@ export const getFilteredProductsRepository = async (filters) => {
     ORDER BY ${orderBy}
     LIMIT $6 OFFSET $7
     `,
-    [colorsArr, sizesArr, fabricArr, inStockOnly, outStockOnly, limit, offset],
+    [
+      colorsArr,
+      sizesArr,
+      fabricArr,
+      inStockOnly,
+      outStockOnly,
+      limit,
+      offset,
+      category,
+    ],
   );
 
   const total_count = rows.length > 0 ? parseInt(rows[0].total_count, 10) : 0;

@@ -4,6 +4,7 @@ const ATTRIBUTES_TABLE = "ecommerce.attributes";
 const PRODUCTS_TABLE = "ecommerce.products";
 const PRODUCT_VARIANTS_TABLE = "ecommerce.product_variants";
 const MATERIALS_TABLE = "ecommerce.materials";
+const CATEGORIES_TABLE = "ecommerce.categories";
 
 export const getAllSizesRepository = async () => {
   const { rows } = await pool.query(
@@ -35,10 +36,11 @@ export const getAllFabricRepository = async () => {
   return rows;
 };
 
-export const getFacetsRepository = async ({ colors, sizes, fabric }) => {
+export const getFacetsRepository = async ({ colors, sizes, fabric, category }) => {
   const colorsArr = colors?.length ? colors : null;
   const sizesArr = sizes?.length ? sizes : null;
   const fabricArr = fabric?.length ? fabric : null;
+  const categorySlug = category || null;
 
   const { rows } = await pool.query(
     `
@@ -48,8 +50,10 @@ export const getFacetsRepository = async ({ colors, sizes, fabric }) => {
         pv.product_id AS product_id
       FROM ${PRODUCT_VARIANTS_TABLE} pv
       JOIN ${PRODUCTS_TABLE} p ON p.id = pv.product_id
+      LEFT JOIN ${CATEGORIES_TABLE} c_filter ON c_filter.id = p.category_id
       LEFT JOIN ${MATERIALS_TABLE} mat_filter ON mat_filter.id = p.material_id
       WHERE 1=1
+        AND ($4::text IS NULL OR lower(trim(c_filter.slug)) = $4::text)
         AND (
           $1::text[] IS NULL OR EXISTS (
             SELECT 1
@@ -104,7 +108,7 @@ export const getFacetsRepository = async ({ colors, sizes, fabric }) => {
 
     ORDER BY attribute_code ASC, count DESC, value ASC
     `,
-    [colorsArr, sizesArr, fabricArr],
+    [colorsArr, sizesArr, fabricArr, categorySlug],
   );
 
   return rows;

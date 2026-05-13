@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog";
 import { CheckoutHeader } from "@/widgets/checkout-header";
 import { getCartPricing } from "../../model/cartPricing";
@@ -23,6 +24,7 @@ const checkoutSteps: BreadcrumbItem[] = [
 ];
 
 export function CheckoutInformationPage() {
+  const router = useRouter();
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
 
@@ -43,21 +45,36 @@ export function CheckoutInformationPage() {
     address: "",
     apartment: "",
   });
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Submitting form with data:", form);
+    if (!hasItems) return;
+
     const data = {
       ...form,
       company: form.company || undefined,
       apartment: form.apartment || undefined,
     };
-    createAddress(data);
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      await createAddress(data);
+      router.push("/cart/shipping");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save address";
+      setSubmitError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   const {
     increaseHandler,
@@ -112,8 +129,14 @@ export function CheckoutInformationPage() {
               ariaLabel="Checkout progress"
               className={styles.breadcrumbs}
             />
+            {submitError ? (
+              <div className={styles.submitError} role="alert">
+                {submitError}
+              </div>
+            ) : null}
             <ShippingForm
               hasItems={hasItems}
+              isSubmitting={isSubmitting}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
               form={form}

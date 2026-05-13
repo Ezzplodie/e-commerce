@@ -1,0 +1,57 @@
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+    180deg,
+    var(--primary-25) 0%,
+    var(--white) 40%,
+    var(--gray-100) 100%
+  );
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--page-padding-top) var(--side-paddings) var(--page-padding-bottom);
+}
+
+.card {
+  width: min(100%, 680px);
+  border: 1px solid var(--gray-300);
+  background-color: var(--white);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  @include typo.h4;
+  color: var(--gray-900);
+}
+
+.subtitle {
+  @include typo.body-sm;
+  color: var(--gray-700);
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+

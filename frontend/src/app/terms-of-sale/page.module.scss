@@ -8,7 +8,7 @@
 }
 
 .main {
-  padding: 48px var(--side-paddings) 96px;
+  padding: var(--page-padding-top) var(--side-paddings) var(--page-padding-bottom);
 }
 
 .container {
@@ -40,7 +40,6 @@
   margin: 0;
   color: var(--gray-900);
   @include typo.body-sm;
-  line-height: 1.8;
 }
 
 .list {
@@ -48,6 +47,5 @@
   padding-left: 18px;
   color: var(--gray-900);
   @include typo.body-sm;
-  line-height: 1.8;
 }
 

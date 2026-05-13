@@ -168,7 +168,7 @@ export function ProductDetails({ product }: Props) {
     {
       label: product.category_name ?? "Top + Blouses",
       href: product.category_slug
-        ? `/category/${product.category_slug}`
+        ? `/categories/${product.category_slug}`
         : undefined,
     },
     { label: product.name || "Wrap Top" },

@@ -1,0 +1,66 @@
+@use "@/shared/styles/typography" as typo;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.googleButton {
+  display: flex;
+  justify-content: center;
+}
+
+.divider {
+  height: 1px;
+  background: var(--gray-200);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formError {
+  @include typo.body-sm;
+  color: #d14343;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+
+  span {
+    @include typo.body-xs;
+    color: var(--gray-800);
+  }
+}
+
+.fieldInput {
+  width: 100%;
+  background-color: var(--white);
+}
+
+.fieldInputError {
+  border-color: #d14343;
+}
+
+.errorText {
+  @include typo.body-xs;
+  color: #d14343;
+}
+
+.submit {
+  margin-top: 8px;
+  width: 100%;
+  gap: 10px;
+}
+
+.buttonSpinner {
+  width: auto;
+  padding: 0;
+}
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import styles from "./ProductsPage.module.scss";
 import { ProductFilters } from "@/widgets/product-filters";
@@ -17,7 +17,15 @@ type FacetsState = {
   fabric: FilterFacetItem[];
 };
 
-export function ProductsPageClient() {
+type ProductsPageClientProps = {
+  showHeaderFooter?: boolean;
+  topSlot?: ReactNode;
+};
+
+export function ProductsPageClient({
+  showHeaderFooter = true,
+  topSlot,
+}: ProductsPageClientProps) {
   const searchParams = useSearchParams();
   const searchString = useMemo(() => searchParams.toString(), [searchParams]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -47,60 +55,62 @@ export function ProductsPageClient() {
     return () => controller.abort();
   }, [searchString]);
 
-  return (
-    <>
-      <Header />
-      <main className={styles.page}>
-        <div className={`${styles.container} container`}>
-          <aside className={styles.filters}>
+  const content = (
+    <main className={styles.page}>
+      {topSlot}
+      <div className={`${styles.container} container`}>
+        <aside className={styles.filters}>
+          <ProductFilters
+            colors={facets.color}
+            sizes={facets.size}
+            fabric={facets.fabric}
+            isFacetsLoading={isLoading}
+          />
+        </aside>
+
+        <section className={styles.content} aria-label="Products">
+          <div className={styles.mobileFiltersBar}>
+            <Button
+              type="button"
+              variant="secondary"
+              className={styles.mobileFiltersButton}
+              onClick={() => setIsFiltersOpen(true)}
+            >
+              Filters
+            </Button>
+          </div>
+
+          <ProductsList />
+        </section>
+      </div>
+
+      {isFiltersOpen ? (
+        <div
+          className={styles.filtersModalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filters"
+          onClick={() => setIsFiltersOpen(false)}
+        >
+          <div className={styles.filtersModal} onClick={(e) => e.stopPropagation()}>
             <ProductFilters
               colors={facets.color}
               sizes={facets.size}
               fabric={facets.fabric}
               isFacetsLoading={isLoading}
+              onClose={() => setIsFiltersOpen(false)}
             />
-          </aside>
-
-          <section className={styles.content} aria-label="Products">
-            <div className={styles.mobileFiltersBar}>
-              <Button
-                type="button"
-                variant="secondary"
-                className={styles.mobileFiltersButton}
-                onClick={() => setIsFiltersOpen(true)}
-              >
-                Filters
-              </Button>
-            </div>
-
-            <ProductsList />
-          </section>
-        </div>
-
-        {isFiltersOpen ? (
-          <div
-            className={styles.filtersModalOverlay}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Filters"
-            onClick={() => setIsFiltersOpen(false)}
-          >
-            <div
-              className={styles.filtersModal}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ProductFilters
-                colors={facets.color}
-                sizes={facets.size}
-                fabric={facets.fabric}
-                isFacetsLoading={isLoading}
-                onClose={() => setIsFiltersOpen(false)}
-              />
-            </div>
           </div>
-        ) : null}
-      </main>
-      <Footer />
+        </div>
+      ) : null}
+    </main>
+  );
+
+  return (
+    <>
+      {showHeaderFooter ? <Header /> : null}
+      {content}
+      {showHeaderFooter ? <Footer /> : null}
     </>
   );
 }

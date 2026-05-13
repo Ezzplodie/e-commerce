@@ -11,7 +11,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 64px var(--side-paddings) 120px;
+  padding: var(--page-padding-top) var(--side-paddings)
+    var(--page-padding-bottom);
   text-align: center;
 }
 
@@ -24,22 +25,14 @@
 .title {
   margin: 0;
   color: #c30000;
-  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
-  font-weight: 700;
-  font-size: 40px;
-  line-height: 1.4;
-  text-transform: capitalize;
+  @include typo.h3;
 }
 
 .message {
   margin: 22px 0 0;
   max-width: 1224px;
   color: #0c0c0c;
-  font-family: Montserrat, system-ui, -apple-system, Segoe UI, sans-serif;
-  font-weight: 400;
-  font-size: 20px;
-  line-height: 1.8;
-  text-transform: capitalize;
+  @include typo.body-xl;
 }
 
 .actions {
@@ -64,8 +57,6 @@
   color: var(--button-primary);
   text-decoration: none;
   @include typo.button-sm;
-  line-height: 24px;
-  text-transform: capitalize;
 }
 
 .backIcon {
@@ -79,11 +70,10 @@
   }
 
   .title {
-    font-size: 32px;
+    @include typo.h4;
   }
 
   .message {
-    font-size: 18px;
+    @include typo.body-lg;
   }
 }
-

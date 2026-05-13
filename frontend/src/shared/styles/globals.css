@@ -1,6 +1,8 @@
 :root {
   --transition: 0.3s;
   --side-paddings: 20px;
+  --page-padding-top: 24px;
+  --page-padding-bottom: 48px;
   --font-main: system-ui, sans-serif;
 
   --fw-regular: 400;

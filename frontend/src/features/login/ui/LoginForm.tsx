@@ -2,6 +2,7 @@
 import { Button } from "@/shared/ui/Button";
 import { TextInput } from "@/shared/ui/Input";
 import { Loading } from "@/shared/ui/Loading";
+import { GoogleSignInButton } from "@/shared/ui";
 import styles from "./LoginForm.module.scss";
 import { useState } from "react";
 import z from "zod";
@@ -21,6 +22,7 @@ const loginSchema = z.object({
 type FormErrors = {
   email?: string;
   password?: string;
+  form?: string;
 };
 
 export const LoginForm = () => {
@@ -29,6 +31,27 @@ export const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleGoogleCredential = async (credential: string) => {
+    setIsSubmitting(true);
+    setErrors({});
+    try {
+      const response = await fetch("http://localhost:4000/auth/google", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential }),
+      });
+      if (response.ok) {
+        router.push("/admin");
+        return;
+      }
+      setErrors((prev) => ({ ...prev, form: "Google sign-in failed" }));
+    } catch {
+      setErrors((prev) => ({ ...prev, form: "Google sign-in failed" }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const sendLoginRequest = async () => {
     setIsSubmitting(true);
     try {
@@ -67,7 +90,16 @@ export const LoginForm = () => {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <div className={styles.root}>
+      <GoogleSignInButton
+        className={styles.googleButton}
+        disabled={isSubmitting}
+        onCredential={handleGoogleCredential}
+      />
+      <div className={styles.divider} role="separator" aria-label="or" />
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        {errors.form ? <div className={styles.formError}>{errors.form}</div> : null}
       <label className={styles.field}>
         <span>Email</span>
         <TextInput
@@ -124,6 +156,7 @@ export const LoginForm = () => {
           "Log In"
         )}
       </Button>
-    </form>
+      </form>
+    </div>
   );
 };

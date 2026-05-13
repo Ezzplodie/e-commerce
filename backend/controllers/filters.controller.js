@@ -62,6 +62,7 @@ export const getFacets = async (req, res, next) => {
         color: filters.colors,
         size: filters.sizes,
         fabric: filters.fabric,
+        category: filters.category,
         sortby: filters.sortBy,
         collection: filters.collection,
       },

@@ -1,0 +1,46 @@
+@use "@/shared/styles/typography" as typo;
+
+.title {
+  @include typo.h4;
+  margin-bottom: 12px;
+}
+
+.page {
+  padding: var(--page-padding-top) 0 var(--page-padding-bottom);
+}
+
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.categoryCard {
+  display: block;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  padding: 16px;
+  color: var(--black);
+  text-decoration: none;
+}
+
+.categoryName {
+  @include typo.body-md;
+  font-weight: var(--fw-semibold);
+}
+
+@media (max-width: 1024px) {
+  .categoriesGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .categoriesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

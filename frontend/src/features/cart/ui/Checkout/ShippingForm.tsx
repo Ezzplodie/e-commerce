@@ -12,6 +12,7 @@ import { CheckoutReturnLink } from "./CheckoutReturnLink";
 
 type ShippingFormProps = {
   hasItems: boolean;
+  isSubmitting?: boolean;
   handleChange: (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -52,6 +53,7 @@ function CountrySelectField({
 
 export const ShippingForm = ({
   hasItems,
+  isSubmitting = false,
   handleChange,
   handleSubmit,
   form,
@@ -168,9 +170,9 @@ export const ShippingForm = ({
         <Button
           type="submit"
           className={styles.continueButton}
-          disabled={!hasItems}
+          disabled={!hasItems || isSubmitting}
         >
-          Continue To Shipping
+          {isSubmitting ? "Saving…" : "Continue To Shipping"}
         </Button>
       </div>
     </form>

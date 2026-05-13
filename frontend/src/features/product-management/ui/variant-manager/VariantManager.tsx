@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { emptyVariantForm } from "../../lib/forms";
 import { VariantAttributeLibrary } from "./VariantAttributeLibrary";
 import { NewVariantPanel } from "./NewVariantPanel";
@@ -8,6 +9,7 @@ import { VariantManagerProps } from "./types";
 import styles from "../ProductList.module.scss";
 
 export const VariantManager = ({
+  variantExpansionResetKey,
   variants,
   basePrice,
   availableColors,
@@ -17,6 +19,7 @@ export const VariantManager = ({
   newSizeValue,
   variantDrafts,
   variantFiles,
+  variantUploadError,
   actionLoading,
   toAbsoluteImageUrl,
   onNewVariantField,
@@ -35,6 +38,36 @@ export const VariantManager = ({
   onDeleteVariantImage,
   onMoveVariantImage,
 }: VariantManagerProps) => {
+  const [expandedVariantIds, setExpandedVariantIds] = useState<Set<number>>(
+    () => new Set(),
+  );
+
+  useEffect(() => {
+    setExpandedVariantIds(new Set());
+  }, [variantExpansionResetKey]);
+
+  useEffect(() => {
+    if (variantUploadError?.variantId != null) {
+      setExpandedVariantIds((prev) => {
+        const next = new Set(prev);
+        next.add(variantUploadError.variantId);
+        return next;
+      });
+    }
+  }, [variantUploadError?.variantId, variantUploadError?.message]);
+
+  const toggleVariantExpanded = (variantId: number) => {
+    setExpandedVariantIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(variantId)) {
+        next.delete(variantId);
+      } else {
+        next.add(variantId);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className={styles.variantsBlock}>
       <div className={styles.variantsHeader}>
@@ -42,7 +75,7 @@ export const VariantManager = ({
           <h3 className={styles.variantsTitle}>Product Variants</h3>
           <p className={styles.variantsSubtitle}>
             Manage SKU, optional price override, stock, and photos for every
-            variant.
+            variant. Open a row to edit details or photos.
           </p>
         </div>
         <span className={styles.variantCountChip}>
@@ -90,6 +123,13 @@ export const VariantManager = ({
               availableSizes={availableSizes}
               draft={variantDrafts[variant.id] || emptyVariantForm}
               selectedFilesCount={variantFiles[variant.id]?.length || 0}
+              uploadErrorMessage={
+                variantUploadError?.variantId === variant.id
+                  ? variantUploadError.message
+                  : null
+              }
+              isExpanded={expandedVariantIds.has(variant.id)}
+              onToggleExpand={toggleVariantExpanded}
               actionLoading={actionLoading}
               toAbsoluteImageUrl={toAbsoluteImageUrl}
               onVariantDraftField={onVariantDraftField}

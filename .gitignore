@@ -5,3 +5,7 @@ node_modules
 backend/dist
 .env
 PROJECT_CONTEXT.local.md
+
+# Local / diploma imports and context (not part of the app)
+DIPLOMA_CONTEXT.md
+_imports/

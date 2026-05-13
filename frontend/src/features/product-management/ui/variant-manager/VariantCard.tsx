@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
 import { ProductVariant } from "@/entities/product/types";
 import { emptyVariantForm } from "../../lib/forms";
@@ -24,6 +26,9 @@ type VariantCardProps = {
   availableSizes: string[];
   draft?: VariantFormState;
   selectedFilesCount: number;
+  uploadErrorMessage: string | null;
+  isExpanded: boolean;
+  onToggleExpand: (variantId: number) => void;
   actionLoading: boolean;
   toAbsoluteImageUrl: (imageLink: string) => string;
   onVariantDraftField: VariantDraftFieldChangeHandler;
@@ -43,6 +48,9 @@ export const VariantCard = ({
   availableSizes,
   draft = emptyVariantForm,
   selectedFilesCount,
+  uploadErrorMessage,
+  isExpanded,
+  onToggleExpand,
   actionLoading,
   toAbsoluteImageUrl,
   onVariantDraftField,
@@ -59,13 +67,42 @@ export const VariantCard = ({
   );
   const attributes = Object.entries(variant.attributes || {});
   const variantLabel = draft.sku || variant.sku || `Variant ${variant.id}`;
+  const detailsPanelId = useId();
 
   return (
-    <article className={styles.variantCard}>
+    <article
+      className={`${styles.variantCard} ${
+        isExpanded ? "" : styles.variantCardCollapsed
+      }`}
+    >
       <div className={styles.variantCardHeader}>
-        <div className={styles.variantHeading}>
-          <span className={styles.variantBadge}>Variant #{variant.id}</span>
-          <p className={styles.variantSku}>{variantLabel}</p>
+        <div className={styles.variantCardHeaderMain}>
+          <button
+            type="button"
+            className={styles.variantExpandToggle}
+            onClick={() => onToggleExpand(variant.id)}
+            aria-expanded={isExpanded}
+            aria-controls={detailsPanelId}
+            aria-label={
+              isExpanded
+                ? `Collapse details for ${variantLabel}`
+                : `Expand details for ${variantLabel}`
+            }
+            disabled={actionLoading}
+          >
+            <ChevronDown
+              className={`${styles.expandChevron} ${
+                isExpanded ? styles.expandChevronOpen : ""
+              }`}
+              size={20}
+              strokeWidth={2}
+              aria-hidden
+            />
+          </button>
+          <div className={styles.variantHeading}>
+            <span className={styles.variantBadge}>Variant #{variant.id}</span>
+            <p className={styles.variantSku}>{variantLabel}</p>
+          </div>
         </div>
 
         <div className={styles.variantHeaderActions}>
@@ -93,34 +130,48 @@ export const VariantCard = ({
         </div>
       )}
 
-      <div className={styles.variantBody}>
-        <div className={styles.variantEditorColumn}>
-          <VariantEditorPanel
+      {!isExpanded && selectedFilesCount > 0 ? (
+        <p className={styles.variantCollapsedFilesHint}>
+          {selectedFilesCount} file(s) selected — expand this variant to upload.
+        </p>
+      ) : null}
+
+      {isExpanded ? (
+        <div
+          id={detailsPanelId}
+          className={styles.variantBody}
+          role="region"
+          aria-label={`Editing ${variantLabel}`}
+        >
+          <div className={styles.variantEditorColumn}>
+            <VariantEditorPanel
+              variantId={variant.id}
+              basePrice={basePrice}
+              availableColors={availableColors}
+              availableSizes={availableSizes}
+              draft={draft}
+              actionLoading={actionLoading}
+              onVariantDraftField={onVariantDraftField}
+              onVariantDraftColor={onVariantDraftColor}
+              onSaveVariant={onSaveVariant}
+            />
+          </div>
+
+          <VariantMediaPanel
             variantId={variant.id}
-            basePrice={basePrice}
-            availableColors={availableColors}
-            availableSizes={availableSizes}
-            draft={draft}
+            variantLabel={variantLabel}
+            images={images}
+            selectedFilesCount={selectedFilesCount}
+            uploadErrorMessage={uploadErrorMessage}
             actionLoading={actionLoading}
-            onVariantDraftField={onVariantDraftField}
-            onVariantDraftColor={onVariantDraftColor}
-            onSaveVariant={onSaveVariant}
+            toAbsoluteImageUrl={toAbsoluteImageUrl}
+            onVariantFiles={onVariantFiles}
+            onUploadVariantImages={onUploadVariantImages}
+            onDeleteVariantImage={onDeleteVariantImage}
+            onMoveVariantImage={onMoveVariantImage}
           />
         </div>
-
-        <VariantMediaPanel
-          variantId={variant.id}
-          variantLabel={variantLabel}
-          images={images}
-          selectedFilesCount={selectedFilesCount}
-          actionLoading={actionLoading}
-          toAbsoluteImageUrl={toAbsoluteImageUrl}
-          onVariantFiles={onVariantFiles}
-          onUploadVariantImages={onUploadVariantImages}
-          onDeleteVariantImage={onDeleteVariantImage}
-          onMoveVariantImage={onMoveVariantImage}
-        />
-      </div>
+      ) : null}
     </article>
   );
 };

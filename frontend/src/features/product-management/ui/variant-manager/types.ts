@@ -37,6 +37,8 @@ export type VariantImageMoveHandler = (
 ) => void | Promise<void>;
 
 export type VariantManagerProps = {
+  /** When this changes (e.g. another product opened), collapsed/expanded state resets */
+  variantExpansionResetKey: string;
   variants: ProductVariant[];
   basePrice: number;
   availableColors: string[];
@@ -46,6 +48,7 @@ export type VariantManagerProps = {
   newSizeValue: string;
   variantDrafts: Record<number, VariantFormState>;
   variantFiles: Record<number, File[]>;
+  variantUploadError: { variantId: number; message: string } | null;
   actionLoading: boolean;
   toAbsoluteImageUrl: (imageLink: string) => string;
   onNewVariantField: VariantFieldChangeHandler;

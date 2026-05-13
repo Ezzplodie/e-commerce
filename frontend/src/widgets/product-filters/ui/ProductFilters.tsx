@@ -13,10 +13,6 @@ import { getMappedColorValue } from "@/shared/lib/color";
 import { compareSizes } from "@/shared/lib/sizeSort";
 import type { FilterFacetItem } from "@/entities/product/types";
 
-type AppliedFilter2 = {
-  label: string;
-};
-
 type FilterSectionId = "sortBy" | "size" | "color" | "collection" | "fabric";
 
 type CheckboxOption = {
@@ -25,12 +21,6 @@ type CheckboxOption = {
   checked?: boolean;
 };
 
-const applied: AppliedFilter2[] = [
-  { label: "Best Seller" },
-  { label: "S / US (4-6)" },
-  { label: "White" },
-  { label: "In Stock" },
-];
 type ProductFiltersProps = {
   colors: FilterFacetItem[];
   sizes: FilterFacetItem[];
@@ -38,6 +28,15 @@ type ProductFiltersProps = {
   isFacetsLoading?: boolean;
   onClose?: () => void;
 };
+
+type AppliedChip = {
+  key: string;
+  value?: string;
+  label: string;
+  kind: "single" | "multi";
+};
+
+const DEFAULT_SORTBY = "best_seller";
 
 const sortBy: CheckboxOption[] = [
   { id: "featured", label: "Featured" },
@@ -121,6 +120,12 @@ export function ProductFilters(props: ProductFiltersProps) {
   const pathname = usePathname();
 
   const normalizeParam = (v: string) => v.trim().toLowerCase();
+  const getSingleParamValue = (key: string) => {
+    const raw = searchParams.get(key);
+    if (raw) return raw;
+    if (key === "sortby") return DEFAULT_SORTBY;
+    return null;
+  };
 
   const pushParams = (params: URLSearchParams) => {
     const qs = params.toString();
@@ -132,7 +137,8 @@ export function ProductFilters(props: ProductFiltersProps) {
   };
 
   const isSingleChecked = (key: string, value: string) => {
-    return searchParams.get(key) === normalizeParam(value);
+    const current = getSingleParamValue(key);
+    return current === normalizeParam(value);
   };
 
   const toggleMulti = (key: string, value: string) => {
@@ -156,7 +162,15 @@ export function ProductFilters(props: ProductFiltersProps) {
     const params = new URLSearchParams(searchParams.toString());
     const paramValue = normalizeParam(value);
 
-    if (params.get(key) === paramValue) {
+    const current = getSingleParamValue(key);
+
+    if (current === paramValue) {
+      params.delete(key);
+      pushParams(params);
+      return;
+    }
+
+    if (key === "sortby" && paramValue === DEFAULT_SORTBY) {
       params.delete(key);
       pushParams(params);
       return;
@@ -165,6 +179,96 @@ export function ProductFilters(props: ProductFiltersProps) {
     params.set(key, paramValue);
     pushParams(params);
   };
+
+  const removeMultiValue = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const paramValue = normalizeParam(value);
+    const values = params.getAll(key);
+
+    if (!values.includes(paramValue)) return;
+
+    const nextValues = values.filter((v) => v !== paramValue);
+    params.delete(key);
+    nextValues.forEach((v) => params.append(key, v));
+    pushParams(params);
+  };
+
+  const clearKey = (key: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (key === "sortby") {
+      // Keep URL clean: removing sort means "use default".
+      params.delete(key);
+      pushParams(params);
+      return;
+    }
+
+    params.delete(key);
+    pushParams(params);
+  };
+
+  const clearAll = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    ["size", "color", "fabric", "collection", "sortby"].forEach((k) =>
+      params.delete(k),
+    );
+    pushParams(params);
+  };
+
+  const removeChip = (chip: AppliedChip) => {
+    if (chip.kind === "multi") {
+      if (!chip.value) return;
+      removeMultiValue(chip.key, chip.value);
+      return;
+    }
+
+    // single
+    clearKey(chip.key);
+  };
+
+  const appliedChips = useMemo<AppliedChip[]>(() => {
+    const sortByLabelMap = new Map(sortBy.map((o) => [normalizeParam(o.id), o.label]));
+    const collectionLabelMap = new Map(
+      collection.map((o) => [normalizeParam(o.id), o.label]),
+    );
+
+    const sizeValueMap = new Map(sizes.map((x) => [normalizeParam(x.value), x.value]));
+    const colorValueMap = new Map(colors.map((x) => [normalizeParam(x.value), x.value]));
+    const fabricValueMap = new Map(fabric.map((x) => [normalizeParam(x.value), x.value]));
+
+    const chips: AppliedChip[] = [];
+
+    const sortByValue = searchParams.get("sortby");
+    if (sortByValue) {
+      const label = sortByLabelMap.get(sortByValue) ?? sortByValue;
+      chips.push({ key: "sortby", value: sortByValue, label, kind: "single" });
+    }
+
+    const collectionValue = searchParams.get("collection");
+    if (collectionValue) {
+      const label = collectionLabelMap.get(collectionValue) ?? collectionValue;
+      chips.push({
+        key: "collection",
+        value: collectionValue,
+        label,
+        kind: "single",
+      });
+    }
+
+    const pushMulti = (key: "size" | "color" | "fabric", map: Map<string, string>) => {
+      const values = searchParams.getAll(key);
+      values.forEach((v) => {
+        const label = map.get(v) ?? v;
+        chips.push({ key, value: v, label, kind: "multi" });
+      });
+    };
+
+    pushMulti("size", sizeValueMap);
+    pushMulti("color", colorValueMap);
+    pushMulti("fabric", fabricValueMap);
+
+    return chips;
+  }, [searchParams, sizes, colors, fabric]);
 
   const sizesSorted = useMemo(
     () => [...sizes].sort((a, b) => compareSizes(a.value, b.value)),
@@ -207,14 +311,15 @@ export function ProductFilters(props: ProductFiltersProps) {
         </h3>
 
         <ul className={styles.chips} aria-label="Applied filters list">
-          {applied.map((f) => (
-            <li key={f.label} className={styles.chip}>
+          {appliedChips.map((f) => (
+            <li key={`${f.key}:${f.value ?? ""}`} className={styles.chip}>
               <span className={styles.chipLabel}>{f.label}</span>
               <Button
                 type="button"
                 variant="icon"
                 className={styles.chipRemove}
                 aria-label={`Remove ${f.label}`}
+                onClick={() => removeChip(f)}
               >
                 <ChipCloseFilledIcon
                   width={24}
@@ -227,7 +332,12 @@ export function ProductFilters(props: ProductFiltersProps) {
         </ul>
 
         <div className={styles.appliedActions}>
-          <Button type="button" variant="secondary" className={styles.clearAll}>
+          <Button
+            type="button"
+            variant="secondary"
+            className={styles.clearAll}
+            onClick={clearAll}
+          >
             Clear All Filters
           </Button>
           <Button type="button" className={styles.appliedButton}>

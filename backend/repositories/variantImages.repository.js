@@ -71,7 +71,7 @@ export const getVariantImageStorageContextRepository = async (variantId) => {
     SELECT 
       pv.id as variant_id, 
       pv.product_id, 
-      MAX(CASE WHEN a.name = 'color' THEN av.value END) AS color
+      MAX(CASE WHEN a.code = 'color' THEN av.value END) AS color
     FROM ${PRODUCT_VARIANTS_TABLE} AS pv
     LEFT JOIN ${VARIANT_ATTRIBUTE_VALUES_TABLE} AS vav ON pv.id = vav.variant_id
     LEFT JOIN ${ATTRIBUTE_VALUES_TABLE} AS av ON vav.attribute_value_id = av.id

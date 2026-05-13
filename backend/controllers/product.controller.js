@@ -104,6 +104,7 @@ export const getAllProducts = async (req, res, next) => {
       filters.colors.length ||
       filters.sizes.length ||
       filters.fabric.length ||
+      Boolean(filters.category) ||
       Boolean(filters.collection) ||
       Boolean(filters.sortBy);
 

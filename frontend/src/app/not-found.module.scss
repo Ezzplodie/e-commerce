@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: 80px var(--side-paddings);
+  padding: var(--page-padding-top) var(--side-paddings) var(--page-padding-bottom);
 }
 
 .content {

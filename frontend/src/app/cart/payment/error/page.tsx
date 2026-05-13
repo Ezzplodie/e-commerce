@@ -6,8 +6,7 @@ import { Button } from "@/shared/ui/Button";
 import styles from "./page.module.scss";
 import { ChevronLeftIcon } from "@/shared/assets/icons";
 
-const ERROR_ICON_URL =
-  "https://www.figma.com/api/mcp/asset/35a12e67-5c84-46c6-8893-b351bfc7d43d";
+const ERROR_ICON_SRC = "/payment-error.svg";
 
 export default function PaymentErrorPage() {
   return (
@@ -17,8 +16,10 @@ export default function PaymentErrorPage() {
         <div className={`${styles.content} container`}>
           <img
             className={styles.icon}
-            src={ERROR_ICON_URL}
+            src={ERROR_ICON_SRC}
             alt=""
+            width={65}
+            height={65}
             aria-hidden="true"
           />
 

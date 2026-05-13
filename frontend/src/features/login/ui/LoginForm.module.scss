@@ -1,10 +1,31 @@
 @use "@/shared/styles/typography" as typo;
 @use "@/shared/styles/mixins" as *;
 
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.googleButton {
+  display: flex;
+  justify-content: center;
+}
+
+.divider {
+  height: 1px;
+  background: var(--gray-200);
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.formError {
+  @include typo.body-sm;
+  color: #d14343;
 }
 
 .field {

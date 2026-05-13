@@ -593,6 +593,75 @@
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05);
 }
 
+.variantCardCollapsed {
+  .variantCardHeader {
+    margin-bottom: 0;
+  }
+
+  .attributeList {
+    margin-bottom: 0;
+  }
+}
+
+.variantCardHeaderMain {
+  @include flex(row, center, flex-start, 10px);
+  flex: 1;
+  min-width: 0;
+}
+
+.variantExpandToggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--primary-100);
+  border-radius: 10px;
+  background-color: var(--primary-25);
+  color: var(--primary-800);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-50);
+    border-color: var(--primary-200);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-400);
+    outline-offset: 2px;
+  }
+}
+
+.expandChevron {
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+
+.expandChevronOpen {
+  transform: rotate(0deg);
+}
+
+.variantCollapsedFilesHint {
+  margin: 0 0 0 46px;
+  color: var(--gray-650);
+  @include typo.caption-md;
+  line-height: 1.45;
+
+  @include mobile {
+    margin-left: 0;
+  }
+}
+
 .variantImage {
   object-fit: cover;
   border-radius: 12px;
@@ -857,6 +926,18 @@
   flex-wrap: wrap;
   width: 100%;
   margin-left: auto;
+}
+
+.variantUploadError {
+  margin-top: 10px;
+  margin-bottom: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(170, 61, 61, 0.25);
+  background-color: rgba(170, 61, 61, 0.06);
+  color: #8f3232;
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 .uploadPanel {

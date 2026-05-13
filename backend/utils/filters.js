@@ -10,9 +10,11 @@ export const parseProductFilters = (query) => {
   const sizes = toArray(query.size).map(normalizeParam).filter(Boolean);
   const fabric = toArray(query.fabric).map(normalizeParam).filter(Boolean);
 
+  const categoryRaw = query.category ?? null;
   const sortByRaw = query.sortby ?? query.sortBy ?? null;
   const collectionRaw = query.collection ?? null;
 
+  const category = categoryRaw ? normalizeParam(categoryRaw) : null;
   const sortBy = sortByRaw ? normalizeParam(sortByRaw) : null;
   const collection = collectionRaw ? normalizeParam(collectionRaw) : null;
 
@@ -27,6 +29,7 @@ export const parseProductFilters = (query) => {
     colors,
     sizes,
     fabric,
+    category,
     sortBy,
     collection,
     limit,

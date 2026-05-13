@@ -1,4 +1,4 @@
-import type { Product, ProductListItem, ProductVariant } from "../types";
+import type { ProductVariant } from "../types";
 
 const FALLBACK_IMAGES = [
   "https://images.pexels.com/photos/994523/pexels-photo-994523.jpeg?auto=compress&cs=tinysrgb&w=1200",
