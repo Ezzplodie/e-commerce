@@ -19,6 +19,7 @@ import {
   updateVariant,
   uploadVariantImage,
 } from "../api/products.api";
+import { clampPage, getTotalPages } from "@/shared/lib/pagination";
 import {
   AttributeValue,
   AttributeValueDto,
@@ -260,6 +261,14 @@ export const useAdminProducts = () => {
       controller.abort();
     };
   }, [page, limit, fetchProducts]);
+
+  useEffect(() => {
+    if (loading || total <= 0) return;
+    const totalPages = getTotalPages(total, limit);
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [loading, total, limit, page]);
 
   useEffect(() => {
     fetchAttributeValues();

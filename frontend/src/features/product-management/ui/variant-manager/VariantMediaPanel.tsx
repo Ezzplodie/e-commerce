@@ -60,7 +60,7 @@ export const VariantMediaPanel = ({
                   src={src}
                   alt={`${variantLabel} photo ${imageIndex + 1}`}
                   fill
-                  sizes="(max-width: 768px) 100vw, 320px"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 280px"
                   className={styles.variantImage}
                 />
                 ) : (

@@ -132,6 +132,7 @@ export const getAllProductsRepository = async (limit, offset) => {
       COALESCE(colors.colors, '[]'::jsonb) AS colors,
       COALESCE(enabled_colors.enabled_colors, '[]'::jsonb) AS enabled_colors,
       mat.name AS material_name,
+      first_variant.variant_id AS default_variant_id,
       COUNT(pv.id)::int AS variant_count,
       COALESCE(SUM(pv.stock), 0)::int AS total_stock,
       COUNT(*) OVER() AS total_count
@@ -264,6 +265,7 @@ export const getFilteredProductsRepository = async (filters) => {
       COALESCE(colors.colors, '[]'::jsonb) AS colors,
       COALESCE(enabled_colors.enabled_colors, '[]'::jsonb) AS enabled_colors,
       mat.name AS material_name,
+      first_variant.variant_id AS default_variant_id,
       COUNT(DISTINCT fv.variant_id)::int AS variant_count,
       COALESCE(SUM(fv.stock), 0)::int AS total_stock,
       COUNT(*) OVER() AS total_count

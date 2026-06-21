@@ -37,7 +37,26 @@ export function ProductsPageClient({
   });
   const [loadedKey, setLoadedKey] = useState<string>("");
 
-  const isLoading = loadedKey !== searchString;
+  const isFacetsLoading = loadedKey !== searchString;
+
+  const hasActiveFilters = useMemo(() => {
+    const params = new URLSearchParams(searchString);
+    if (params.getAll("size").length > 0) return true;
+    if (params.getAll("color").length > 0) return true;
+    if (params.getAll("fabric").length > 0) return true;
+    if (params.get("collection")) return true;
+    const sortby = params.get("sortby");
+    return Boolean(sortby && sortby !== "best_seller");
+  }, [searchString]);
+
+  const hasFacetOptions = useMemo(() => {
+    const hasCount = (items: FilterFacetItem[]) => items.some((item) => item.count > 0);
+    return (
+      hasCount(facets.color) || hasCount(facets.size) || hasCount(facets.fabric)
+    );
+  }, [facets]);
+
+  const showFilters = hasFacetOptions || hasActiveFilters;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,33 +77,39 @@ export function ProductsPageClient({
   const content = (
     <main className={styles.page}>
       {topSlot}
-      <div className={`${styles.container} container`}>
-        <aside className={styles.filters}>
-          <ProductFilters
-            colors={facets.color}
-            sizes={facets.size}
-            fabric={facets.fabric}
-            isFacetsLoading={isLoading}
-          />
-        </aside>
+      <div
+        className={`${styles.container} container${showFilters ? "" : ` ${styles.containerNoFilters}`}`}
+      >
+        {showFilters ? (
+          <aside className={styles.filters}>
+            <ProductFilters
+              colors={facets.color}
+              sizes={facets.size}
+              fabric={facets.fabric}
+              isFacetsLoading={isFacetsLoading}
+            />
+          </aside>
+        ) : null}
 
         <section className={styles.content} aria-label="Products">
-          <div className={styles.mobileFiltersBar}>
-            <Button
-              type="button"
-              variant="secondary"
-              className={styles.mobileFiltersButton}
-              onClick={() => setIsFiltersOpen(true)}
-            >
-              Filters
-            </Button>
-          </div>
+          {showFilters ? (
+            <div className={styles.mobileFiltersBar}>
+              <Button
+                type="button"
+                variant="secondary"
+                className={styles.mobileFiltersButton}
+                onClick={() => setIsFiltersOpen(true)}
+              >
+                Filters
+              </Button>
+            </div>
+          ) : null}
 
           <ProductsList />
         </section>
       </div>
 
-      {isFiltersOpen ? (
+      {showFilters && isFiltersOpen ? (
         <div
           className={styles.filtersModalOverlay}
           role="dialog"
@@ -97,7 +122,7 @@ export function ProductsPageClient({
               colors={facets.color}
               sizes={facets.size}
               fabric={facets.fabric}
-              isFacetsLoading={isLoading}
+              isFacetsLoading={isFacetsLoading}
               onClose={() => setIsFiltersOpen(false)}
             />
           </div>

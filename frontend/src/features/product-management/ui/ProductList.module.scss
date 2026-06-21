@@ -415,6 +415,13 @@
   border-radius: 16px;
 }
 
+.editScrollAnchor {
+  scroll-margin-top: 96px;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .productEditorForm {
   padding-bottom: 18px;
   border-bottom: 1px solid var(--gray-200);
@@ -467,7 +474,97 @@
   @include flex(row, center, flex-end, 10px);
 }
 
+.extendedFieldsDetails {
+  margin: 12px 0 16px;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  background: var(--gray-100);
+  padding: 0 14px 14px;
+}
+
+.extendedFieldsSummary {
+  cursor: pointer;
+  font-weight: var(--fw-semibold);
+  color: var(--gray-800);
+  padding: 12px 0;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.extendedFieldsBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.editDock {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  margin: 24px -20px -20px;
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--gray-300);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
+  border-radius: 0 0 15px 15px;
+
+  @include mobile {
+    .editDockRow {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .editDockActions {
+      margin-left: 0;
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}
+
+.editDockHint {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  color: var(--gray-700);
+  line-height: 1.45;
+  max-width: 52rem;
+}
+
+.editDockRow {
+  @include flex(row, center, space-between, 12px);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.editDockLinks {
+  @include flex(row, center, flex-start, 16px);
+  flex-wrap: wrap;
+}
+
+.editDockLink {
+  font-size: 0.875rem;
+  font-weight: var(--fw-semibold);
+  color: var(--primary-700);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.editDockActions {
+  @include flex(row, center, flex-end, 10px);
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
 .variantsBlock {
+  scroll-margin-top: 88px;
   margin-top: 18px;
 }
 
@@ -874,8 +971,11 @@
 }
 
 .imageCard {
-  flex: 1 1 210px;
-  min-width: 190px;
+  box-sizing: border-box;
+  flex: 0 0 calc((100% - 24px) / 3);
+  width: calc((100% - 24px) / 3);
+  max-width: calc((100% - 24px) / 3);
+  min-width: 0;
   border: 1px solid var(--gray-200);
   border-radius: 14px;
   background-color: #fbfcfb;
@@ -885,7 +985,9 @@
   flex-direction: column;
 
   @include mobile {
-    min-width: 100%;
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
   }
 }
 

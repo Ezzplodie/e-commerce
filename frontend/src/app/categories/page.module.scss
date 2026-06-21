@@ -1,8 +1,28 @@
 @use "@/shared/styles/typography" as typo;
+@use "@/shared/styles/mixins" as *;
 
 .title {
   @include typo.h4;
   margin-bottom: 12px;
+}
+
+.emptyState {
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0 0 8px;
+  color: var(--gray-900);
+  @include typo.h5;
+}
+
+.emptyBody {
+  margin: 0;
+  color: var(--gray-650);
+  @include typo.body-md;
 }
 
 .page {
@@ -32,15 +52,19 @@
   font-weight: var(--fw-semibold);
 }
 
-@media (max-width: 1024px) {
+@include tablet {
   .categoriesGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 640px) {
+@include mobile {
   .categoriesGrid {
     grid-template-columns: 1fr;
+  }
+
+  .emptyState {
+    padding: 32px 16px;
   }
 }
 

@@ -21,23 +21,6 @@
   transition: transform var(--transition);
 }
 
-.wishlist {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  padding: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--black);
-  cursor: pointer;
-}
-
 .meta {
   display: flex;
   align-items: flex-end;

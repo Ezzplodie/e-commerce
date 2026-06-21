@@ -9,8 +9,8 @@ import {
   MenuCloseIcon,
 } from "@/shared/assets/icons";
 
-import clsx from "clsx";
 import styles from "./Header.module.scss";
+import { HeaderActionItem } from "./HeaderActionItem";
 
 interface HeaderActionsProps {
   isSearchOpen: boolean;
@@ -49,6 +49,7 @@ export const HeaderActions = (props: HeaderActionsProps) => {
       icon: FavoriteIcon,
       ariaLabel: "Favorites",
       variant: "favorites",
+      link: "/favorites",
     },
     {
       id: "bag",
@@ -70,23 +71,16 @@ export const HeaderActions = (props: HeaderActionsProps) => {
   return (
     <div className={styles.actions}>
       {actions.map(
-        ({ id, icon: Icon, onClick, ariaLabel, variant, badgeCount }) => (
-          <button
+        ({ id, icon: Icon, onClick, ariaLabel, variant, badgeCount, link }) => (
+          <HeaderActionItem
             key={id}
-            type="button"
-            className={clsx(
-              styles.action,
-              styles[variant],
-              variant === "menu" && isMenuOpen && styles.active,
-            )}
-            onClick={onClick}
-            aria-label={ariaLabel}
-          >
-            <Icon width={24} height={24} />
-            {badgeCount !== undefined && (
-              <span className={styles.badge}>{badgeCount}</span>
-            )}
-          </button>
+            icon={Icon}
+            ariaLabel={ariaLabel}
+            variant={variant}
+            badgeCount={badgeCount}
+            isActive={variant === "menu" && isMenuOpen}
+            {...(link ? { href: link } : { onClick: onClick as () => void })}
+          />
         ),
       )}
     </div>

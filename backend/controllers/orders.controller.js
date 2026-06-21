@@ -1,10 +1,13 @@
-import { email, z } from "zod";
+import { z } from "zod";
 import Stripe from "stripe";
 import {
   createOrderRepository,
   getAllUserOrdersRepository,
+  getAllOrdersAdminRepository,
   getOrderByIdRepository,
+  getOrderByIdAdminRepository,
   getOrderWithItemsRepository,
+  getOrderWithItemsAdminRepository,
   updateOrderStatusRepository,
   updateOrderStripeIdRepository,
 } from "../repositories/orders.repository.js";
@@ -34,6 +37,12 @@ const orderSchema = z.object({
 
 const statusSchema = z.object({
   status: z.enum(ORDER_STATUS_VALUES),
+});
+
+const adminOrdersQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  status: z.enum(ORDER_STATUS_VALUES).optional(),
 });
 
 const parseOrderId = (value) => {
@@ -79,6 +88,63 @@ export const getAllUserOrders = async (req, res, next) => {
     res.json(orders);
   } catch (err) {
     next(err);
+  }
+};
+
+export const getAllOrdersAdmin = async (req, res, next) => {
+  try {
+    const parsed = adminOrdersQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: "Validation failed",
+        issues: formatValidationIssues(parsed.error.issues),
+      });
+    }
+
+    const { page, limit, status } = parsed.data;
+    const offset = (page - 1) * limit;
+
+    const { orders, total } = await getAllOrdersAdminRepository({
+      limit,
+      offset,
+      status,
+    });
+
+    res.json({ orders, total, page, limit });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getOrderByIdAdmin = async (req, res, next) => {
+  try {
+    const orderId = parseOrderId(req.params.orderId);
+    if (!orderId) {
+      return res.status(400).json({ error: "Invalid order id" });
+    }
+    const order = await getOrderByIdAdminRepository(orderId);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOrderWithItemsAdmin = async (req, res, next) => {
+  try {
+    const orderId = parseOrderId(req.params.orderId);
+    if (!orderId) {
+      return res.status(400).json({ error: "Invalid order id" });
+    }
+    const order = await getOrderWithItemsAdminRepository(orderId);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json(order);
+  } catch (error) {
+    next(error);
   }
 };
 

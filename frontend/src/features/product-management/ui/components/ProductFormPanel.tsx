@@ -24,6 +24,12 @@ type ProductFormPanelProps = {
   ) => void;
   headerAction?: ReactNode;
   footerAction?: ReactNode;
+  /** Associates external submit buttons (e.g. sticky bar) with this form. */
+  formId?: string;
+  /** When false, omit the primary submit row (use an external `form={formId}` button). */
+  showFooterSubmit?: boolean;
+  /** Collapse long PDP text fields behind a disclosure to shorten the edit view. */
+  compactLongFields?: boolean;
 };
 
 export const ProductFormPanel = ({
@@ -37,9 +43,60 @@ export const ProductFormPanel = ({
   onFieldChange,
   headerAction,
   footerAction,
+  formId,
+  showFooterSubmit = true,
+  compactLongFields = false,
 }: ProductFormPanelProps) => {
+  const longFields = (
+    <>
+      <label className={styles.field}>
+        <span>Description</span>
+        <textarea
+          className={styles.textArea}
+          value={form.description}
+          onChange={onFieldChange("description")}
+          placeholder="Short product description"
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Fitting</span>
+        <textarea
+          className={styles.textArea}
+          value={form.fitting}
+          onChange={onFieldChange("fitting")}
+          placeholder="Fit notes (e.g. relaxed, true to size)"
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Product detail</span>
+        <textarea
+          className={styles.textArea}
+          value={form.product_detail}
+          onChange={onFieldChange("product_detail")}
+          placeholder="Longer product details for PDP"
+        />
+      </label>
+
+      <label className={styles.field}>
+        <span>Fabric care</span>
+        <textarea
+          className={styles.textArea}
+          value={form.fabric_care}
+          onChange={onFieldChange("fabric_care")}
+          placeholder="Washing and care instructions"
+        />
+      </label>
+    </>
+  );
+
   return (
-    <form className={styles.productEditorForm} onSubmit={onSubmit}>
+    <form
+      id={formId}
+      className={styles.productEditorForm}
+      onSubmit={onSubmit}
+    >
       <div className={styles.editHeader}>
         <h2 className={styles.editTitle}>{title}</h2>
         {headerAction}
@@ -110,56 +167,29 @@ export const ProductFormPanel = ({
         </label>
       </div>
 
-      <label className={styles.field}>
-        <span>Description</span>
-        <textarea
-          className={styles.textArea}
-          value={form.description}
-          onChange={onFieldChange("description")}
-          placeholder="Short product description"
-        />
-      </label>
+      {compactLongFields ? (
+        <details className={styles.extendedFieldsDetails}>
+          <summary className={styles.extendedFieldsSummary}>
+            Extended PDP copy (description, fitting, details, care)
+          </summary>
+          <div className={styles.extendedFieldsBody}>{longFields}</div>
+        </details>
+      ) : (
+        longFields
+      )}
 
-      <label className={styles.field}>
-        <span>Fitting</span>
-        <textarea
-          className={styles.textArea}
-          value={form.fitting}
-          onChange={onFieldChange("fitting")}
-          placeholder="Fit notes (e.g. relaxed, true to size)"
-        />
-      </label>
-
-      <label className={styles.field}>
-        <span>Product detail</span>
-        <textarea
-          className={styles.textArea}
-          value={form.product_detail}
-          onChange={onFieldChange("product_detail")}
-          placeholder="Longer product details for PDP"
-        />
-      </label>
-
-      <label className={styles.field}>
-        <span>Fabric care</span>
-        <textarea
-          className={styles.textArea}
-          value={form.fabric_care}
-          onChange={onFieldChange("fabric_care")}
-          placeholder="Washing and care instructions"
-        />
-      </label>
-
-      <div className={styles.editActions}>
-        {footerAction}
-        <Button
-          type="submit"
-          className={styles.actionButton}
-          disabled={actionLoading}
-        >
-          {submitLabel}
-        </Button>
-      </div>
+      {showFooterSubmit && (
+        <div className={styles.editActions}>
+          {footerAction}
+          <Button
+            type="submit"
+            className={styles.actionButton}
+            disabled={actionLoading}
+          >
+            {submitLabel}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

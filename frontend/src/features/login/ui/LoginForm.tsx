@@ -3,6 +3,7 @@ import { Button } from "@/shared/ui/Button";
 import { TextInput } from "@/shared/ui/Input";
 import { Loading } from "@/shared/ui/Loading";
 import { GoogleSignInButton } from "@/shared/ui";
+import { API_BASE } from "@/shared/api/config";
 import styles from "./LoginForm.module.scss";
 import { useState } from "react";
 import z from "zod";
@@ -35,7 +36,7 @@ export const LoginForm = () => {
     setIsSubmitting(true);
     setErrors({});
     try {
-      const response = await fetch("http://localhost:4000/auth/google", {
+      const response = await fetch(`${API_BASE}/auth/google`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +56,7 @@ export const LoginForm = () => {
   const sendLoginRequest = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("http://localhost:4000/auth/login", {
+      const response = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: {

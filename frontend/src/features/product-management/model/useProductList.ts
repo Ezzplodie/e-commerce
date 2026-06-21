@@ -14,6 +14,7 @@ import {
 } from "../lib/variantAttributes";
 import { getNextVariantImageOrder, moveItem } from "../lib/variantImages";
 import { ProductDto, ProductFormState, VariantFormState } from "../types";
+import { clampPage, getTotalPages, hasMultiplePages } from "@/shared/lib/pagination";
 import { useAdminProducts } from "./useAdminProducts";
 
 type ConfirmState = {
@@ -82,7 +83,7 @@ export const useProductList = () => {
   } | null>(null);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
 
-  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const totalPages = getTotalPages(total, limit);
   const firstItemNumber = products.length ? (page - 1) * limit + 1 : 0;
   const lastItemNumber = products.length
     ? Math.min((page - 1) * limit + products.length, total)
@@ -512,8 +513,11 @@ export const useProductList = () => {
         setPage(1);
         setLimit(nextLimit);
       },
-      goToPreviousPage: () => setPage((prev) => prev - 1),
-      goToNextPage: () => setPage((prev) => prev + 1),
+      hasMultiplePages: hasMultiplePages(total, limit),
+      goToPreviousPage: () =>
+        setPage((prev) => clampPage(prev - 1, getTotalPages(total, limit))),
+      goToNextPage: () =>
+        setPage((prev) => clampPage(prev + 1, getTotalPages(total, limit))),
     },
     materials,
     createPanel: {

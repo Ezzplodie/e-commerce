@@ -14,13 +14,12 @@ import {
   VariantDto,
 } from "../types";
 import { parseResponse } from "@/shared/api/parseResponse";
+import { API_BASE } from "@/shared/api/config";
 import {
   getProductBySlug,
   getProducts,
   toAbsoluteImageUrl,
 } from "@/entities/product/api";
-
-const API_BASE = "http://localhost:4000";
 
 export const getMaterials = async (): Promise<Material[]> => {
   const response = await fetch(`${API_BASE}/materials`, {

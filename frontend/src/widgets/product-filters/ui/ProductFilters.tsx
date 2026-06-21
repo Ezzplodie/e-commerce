@@ -302,6 +302,7 @@ export function ProductFilters(props: ProductFiltersProps) {
         ) : null}
       </div>
 
+      {appliedChips.length > 0 ? (
       <section
         className={styles.applied}
         aria-labelledby="applied-filters-title"
@@ -345,6 +346,7 @@ export function ProductFilters(props: ProductFiltersProps) {
           </Button>
         </div>
       </section>
+      ) : null}
 
       <fieldset className={styles.sections}>
         <legend className={styles.srOnly}>Filter sections</legend>
@@ -366,6 +368,7 @@ export function ProductFilters(props: ProductFiltersProps) {
           </ul>
         </Section>
 
+        {sizesSorted.length > 0 ? (
         <Section id="size" title="Size">
           <ul className={styles.options} aria-label="Size options">
             {sizesSorted.map((o) => (
@@ -383,7 +386,9 @@ export function ProductFilters(props: ProductFiltersProps) {
             ))}
           </ul>
         </Section>
+        ) : null}
 
+        {colors.length > 0 ? (
         <Section id="color" title="Color">
           <ul className={styles.options} aria-label="Color options">
             {colors.map((c) => (
@@ -412,6 +417,7 @@ export function ProductFilters(props: ProductFiltersProps) {
             ))}
           </ul>
         </Section>
+        ) : null}
 
         <Section id="collection" title="Collection">
           <ul className={styles.options} aria-label="Collection options">
@@ -430,6 +436,7 @@ export function ProductFilters(props: ProductFiltersProps) {
           </ul>
         </Section>
 
+        {fabric.length > 0 ? (
         <Section id="fabric" title="Fabric">
           <ul className={styles.options} aria-label="Fabric options">
             {fabric.map((o) => (
@@ -447,6 +454,7 @@ export function ProductFilters(props: ProductFiltersProps) {
             ))}
           </ul>
         </Section>
+        ) : null}
       </fieldset>
     </form>
   );

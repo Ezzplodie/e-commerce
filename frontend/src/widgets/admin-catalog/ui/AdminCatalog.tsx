@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import {
   CategoryManager,
   useAdminCategories,
 } from "@/features/category-management";
 import { ProductList } from "@/features/product-management";
-import { Button } from "@/shared/ui/Button";
 import styles from "./AdminCatalog.module.scss";
 
 export default function AdminCatalog() {
@@ -23,14 +21,12 @@ export default function AdminCatalog() {
 
   return (
     <div className={styles.page}>
-      <div className="container">
-        <div className={styles.topBar}>
-          <Link href="/">
-            <Button className={styles.backButton} variant="secondary">
-              Back to home
-            </Button>
-          </Link>
-        </div>
+      <header className={styles.intro}>
+        <h1 className={styles.title}>Catalog</h1>
+        <p className={styles.subtitle}>
+          Manage categories, products, variants, and media for the storefront.
+        </p>
+      </header>
       <CategoryManager
         categories={categories}
         loading={loading}
@@ -42,7 +38,6 @@ export default function AdminCatalog() {
         onDeleteCategory={removeCategory}
       />
       <ProductList categories={categories} />
-      </div>
     </div>
   );
 }

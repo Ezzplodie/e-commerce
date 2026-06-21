@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
@@ -9,29 +9,21 @@ import "swiper/css/pagination";
 import { ProductListItem } from "@/entities/product/types";
 import { getProductCardImage } from "@/entities/product";
 import Link from "next/link";
+import { Container } from "@/shared/ui/Container";
 import { ProductCard, ProductCardSkeleton } from "@/shared/ui/ProductCard";
-import { getProducts } from "@/entities/product/api";
 import styles from "./BestSellersSection.module.scss";
 
-export function BestSellersSection() {
-  const [products, setProducts] = useState<ProductListItem[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Props {
+  products: ProductListItem[];
+}
 
-  useEffect(() => {
-    const controller = new AbortController();
-    getProducts(3, 1, controller.signal)
-      .then((res) => setProducts(res.products || []))
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, []);
-
+export function BestSellersSection({ products }: Props) {
   const items = useMemo(() => {
-    return products.slice(0, 3).map((p, idx) => ({
+    return products.slice(0, 8).map((p, idx) => ({
       key: p.slug || String(p.id),
+      variantId: p.default_variant_id ?? undefined,
       title: p.name,
-      subtitle: p.description,
+      subtitle: p.description ?? undefined,
       price: p.base_price,
       image: getProductCardImage(p, idx),
       colors: p.colors || [],
@@ -40,65 +32,61 @@ export function BestSellersSection() {
     }));
   }, [products]);
 
-  const skeletonKeys = useMemo(() => ["skeleton-0", "skeleton-1", "skeleton-2"], []);
+  const isEmpty = items.length === 0;
+  const skeletonKeys = useMemo(
+    () => ["skeleton-0", "skeleton-1", "skeleton-2", "skeleton-3"],
+    [],
+  );
+
+  const slides = isEmpty
+    ? skeletonKeys.map((key) => ({ key, item: null }))
+    : items.map((item) => ({ key: item.key, item }));
 
   return (
     <section className={styles.section} aria-label="Best Sellers">
-      <div className={`${styles.inner} container`}>
+      <Container>
         <header className={styles.header}>
-          <h2 className={styles.title}>Best Sellers</h2>
+          <div>
+            <p className={styles.kicker}>Customer favourites</p>
+            <h2 className={styles.title}>Best Sellers</h2>
+          </div>
           <Link className={styles.link} href="/products">
             View all
           </Link>
         </header>
 
-        <div className={styles.desktopGrid} aria-busy={loading}>
-          {loading
-            ? skeletonKeys.map((k) => <ProductCardSkeleton key={k} />)
-            : items.map((p) => (
-                <ProductCard
-                  key={p.key}
-                  title={p.title}
-                  subtitle={p.subtitle ?? undefined}
-                  price={p.price}
-                  image={p.image}
-                  colors={p.colors}
-                  enabledColors={p.enabledColors}
-                  href={p.href}
-                />
-              ))}
-        </div>
-
-        <div className={styles.mobileSlider}>
+        <div className={styles.slider} aria-busy={isEmpty}>
           <Swiper
             modules={[Pagination]}
-            slidesPerView={1}
+            slidesPerView={2}
             spaceBetween={16}
             pagination={{ clickable: true }}
+            breakpoints={{
+              768: { slidesPerView: 3, spaceBetween: 16 },
+              1280: { slidesPerView: 4, spaceBetween: 20 },
+            }}
           >
-            {(loading ? skeletonKeys : items.map((p) => p.key)).map((key, idx) => {
-              const p = !loading ? items[idx] : null;
-              return (
-                <SwiperSlide key={key} className={styles.slide} aria-busy={loading}>
-                  {loading ? (
-                    <ProductCardSkeleton />
-                  ) : (
-                    <ProductCard
-                      title={p!.title}
-                      subtitle={p!.subtitle ?? undefined}
-                      price={p!.price}
-                      image={p!.image}
-                      colors={p!.colors}
-                      enabledColors={p!.enabledColors}
-                      href={p!.href}
-                    />
-                  )}
-                </SwiperSlide>
-              );
-            })}
+            {slides.map(({ key, item }) => (
+              <SwiperSlide key={key} className={styles.slide}>
+                {item ? (
+                  <ProductCard
+                    variantId={item.variantId}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    price={item.price}
+                    image={item.image}
+                    colors={item.colors}
+                    enabledColors={item.enabledColors}
+                    href={item.href}
+                  />
+                ) : (
+                  <ProductCardSkeleton />
+                )}
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

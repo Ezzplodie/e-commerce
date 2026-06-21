@@ -3,11 +3,12 @@
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+
 import { useMemo } from "react";
 import { formatPrice } from "@/shared/lib/formatters";
 import { AvailableColors } from "@/shared/ui/AvailableColors";
 import styles from "./ProductCard.module.scss";
+import { AddToWishListButton } from "@/features/wish-list/ui/AddToWishListButton";
 
 export type ProductCardProps = {
   title: string;
@@ -18,9 +19,11 @@ export type ProductCardProps = {
   colors?: string[];
   enabledColors?: Iterable<string>;
   className?: string;
+  variantId?: number;
 };
 
 export function ProductCard({
+  variantId,
   title,
   subtitle,
   price,
@@ -46,13 +49,9 @@ export function ProductCard({
           sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) 50vw, 420px"
         />
 
-        <button
-          type="button"
-          className={styles.wishlist}
-          aria-label={`Save ${title}`}
-        >
-          <Heart size={16} strokeWidth={1.8} />
-        </button>
+        {variantId ? (
+          <AddToWishListButton title={title} variantId={variantId} />
+        ) : null}
       </div>
 
       <div className={styles.meta}>
@@ -77,11 +76,7 @@ export function ProductCard({
   );
 
   if (href) {
-    return (
-      <Link href={href} className={clsx(styles.card, className)}>
-        {content}
-      </Link>
-    );
+    return <div className={clsx(styles.card, className)}>{content}</div>;
   }
 
   return <article className={clsx(styles.card, className)}>{content}</article>;

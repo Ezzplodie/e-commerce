@@ -2,11 +2,14 @@
 @use "@/shared/styles/mixins" as *;
 
 .info {
-  text-align: center;
+  height: var(--header-announcement-height);
+  padding: 0 var(--side-paddings);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--white);
   background-color: var(--primary-600);
   @include typo.overline-sm;
-  padding: 8px var(--side-paddings);
 }
 
 .header {
@@ -17,10 +20,10 @@
 }
 
 .headerInner {
+  height: var(--header-bar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
 }
 
 .nav {
@@ -69,6 +72,13 @@
     border: 0;
     background: none;
     display: flex;
+    color: var(--black);
+    text-decoration: none;
+    transition: color var(--transition);
+
+    &:hover {
+      color: var(--gray-650);
+    }
   }
   .action.favorites svg {
     transition: var(--transition);
@@ -121,9 +131,14 @@
 .dropdownWrapper {
   display: none;
   position: absolute;
-  width: 100vw;
+  /* Wrapper top extends 24px UP into the header so its bounding box bridges
+     the gap between the (smaller) menu item and the visible dropdown content.
+     The 24px padding-top below pushes the visible content back down to the
+     bottom of the header bar — net visual position is unchanged. */
+  top: calc(var(--header-bar-height) - 24px);
   left: 0;
-  padding-top: 27px;
+  width: 100vw;
+  padding-top: 24px;
 }
 
 .dropdown {

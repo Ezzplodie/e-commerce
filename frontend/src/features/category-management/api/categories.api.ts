@@ -1,8 +1,7 @@
 import { Category } from "@/entities/category/types";
 import { CategoryDto, UpdateCategoryDto } from "../types";
 import { parseResponse } from "@/shared/api/parseResponse";
-
-const API_BASE = "http://localhost:4000";
+import { API_BASE } from "@/shared/api/config";
 
 export const getCategories = async (): Promise<Category[]> => {
   const response = await fetch(`${API_BASE}/categories`, {

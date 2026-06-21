@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import { Container } from "@/shared/ui/Container";
 import styles from "./HomePage.module.scss";
 
 type FaqItem = {
@@ -125,9 +126,7 @@ function FaqAccordionItem({ item }: { item: FaqItem }) {
 export function FaqSection() {
   return (
     <section className={styles.faq} aria-label="FAQ">
-      <div
-        className={`${styles.sectionInner} ${styles.sectionInnerNarrow} container`}
-      >
+      <Container size="narrow">
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>FAQ</h2>
           <p className={styles.sectionSubtitle}>
@@ -140,7 +139,7 @@ export function FaqSection() {
             <FaqAccordionItem key={item.question} item={item} />
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

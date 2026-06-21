@@ -1,0 +1,22 @@
+.page {
+  padding: 0 var(--side-paddings) 32px;
+}
+
+.intro {
+  margin-bottom: 28px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  font-weight: var(--fw-semibold);
+  color: var(--gray-900);
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--gray-700);
+}/*# sourceMappingURL=AdminCatalog.module.css.map */

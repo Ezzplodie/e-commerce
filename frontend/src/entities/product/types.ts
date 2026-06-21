@@ -55,6 +55,7 @@ export type ProductsResponse = {
 export type ProductListItem = Omit<Product, "variants" | "base_price"> & {
   base_price: number;
   variants: ProductVariant[];
+  default_variant_id?: number | null;
   thumbnail_image_link?: string | null;
   colors?: string[];
   enabled_colors?: string[];

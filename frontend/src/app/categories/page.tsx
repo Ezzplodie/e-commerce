@@ -14,15 +14,24 @@ export default async function CategoriesPage() {
         <div className="container">
           <h1 className={styles.title}>Categories</h1>
 
-          <ul className={styles.categoriesGrid}>
-            {categories.map((c) => (
-              <li key={c.slug}>
-                <Link href={`/categories/${c.slug}`} className={styles.categoryCard}>
-                  <span className={styles.categoryName}>{c.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {categories.length === 0 ? (
+            <div className={styles.emptyState} role="status">
+              <h2 className={styles.emptyTitle}>No categories yet</h2>
+              <p className={styles.emptyBody}>
+                Categories will appear here once they are added to the store.
+              </p>
+            </div>
+          ) : (
+            <ul className={styles.categoriesGrid}>
+              {categories.map((c) => (
+                <li key={c.slug}>
+                  <Link href={`/categories/${c.slug}`} className={styles.categoryCard}>
+                    <span className={styles.categoryName}>{c.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </main>
       <Footer />

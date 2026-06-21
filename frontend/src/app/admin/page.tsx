@@ -1,9 +1,5 @@
-import AdminCatalog from "@/widgets/admin-catalog";
+import { redirect } from "next/navigation";
 
 export default function AdminPage() {
-  return (
-    <>
-      <AdminCatalog />
-    </>
-  );
+  redirect("/admin/catalog");
 }

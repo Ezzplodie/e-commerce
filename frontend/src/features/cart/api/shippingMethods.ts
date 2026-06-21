@@ -1,7 +1,6 @@
 import { ShippingMethod } from "../model/types";
 import { parseResponse } from "@/shared/api/parseResponse";
-
-const API_BASE = "http://localhost:4000";
+import { API_BASE } from "@/shared/api/config";
 
 export const getAllShippingMethods = async (): Promise<ShippingMethod[]> => {
   const result = await fetch(`${API_BASE}/shipping-methods`, {

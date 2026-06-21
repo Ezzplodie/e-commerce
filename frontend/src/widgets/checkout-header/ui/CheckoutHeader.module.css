@@ -1,0 +1,25 @@
+.header {
+  background: var(--white);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  min-height: 78px;
+  padding: 32px var(--side-paddings) 0;
+}
+
+.logoLink {
+  display: inline-flex;
+  width: 184px;
+  height: 46px;
+  color: var(--neutral-gray);
+  text-decoration: none;
+}
+
+@media (max-width: 767px) {
+  .inner {
+    min-height: 70px;
+    padding-top: 24px;
+  }
+}/*# sourceMappingURL=CheckoutHeader.module.css.map */

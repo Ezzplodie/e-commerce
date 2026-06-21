@@ -1,8 +1,11 @@
+@use "@/shared/styles/typography" as typo;
+
 .categoryHeader {
-  padding-top: var(--page-padding-top);
+  margin-bottom: 4px;
 }
 
 .categoryTitle {
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+  @include typo.h4;
 }
 

@@ -43,15 +43,20 @@ export const VariantManager = ({
   );
 
   useEffect(() => {
-    setExpandedVariantIds(new Set());
+    queueMicrotask(() => {
+      setExpandedVariantIds(new Set());
+    });
   }, [variantExpansionResetKey]);
 
   useEffect(() => {
-    if (variantUploadError?.variantId != null) {
-      setExpandedVariantIds((prev) => {
-        const next = new Set(prev);
-        next.add(variantUploadError.variantId);
-        return next;
+    const variantId = variantUploadError?.variantId;
+    if (variantId != null) {
+      queueMicrotask(() => {
+        setExpandedVariantIds((prev) => {
+          const next = new Set(prev);
+          next.add(variantId);
+          return next;
+        });
       });
     }
   }, [variantUploadError?.variantId, variantUploadError?.message]);
@@ -69,7 +74,7 @@ export const VariantManager = ({
   };
 
   return (
-    <div className={styles.variantsBlock}>
+    <div id="product-variants-section" className={styles.variantsBlock}>
       <div className={styles.variantsHeader}>
         <div>
           <h3 className={styles.variantsTitle}>Product Variants</h3>

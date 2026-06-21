@@ -11,6 +11,8 @@ import { ProductTable } from "./components/ProductTable";
 import { VariantManager } from "./variant-manager/VariantManager";
 import styles from "./ProductList.module.scss";
 
+const ADMIN_EDIT_PRODUCT_FORM_ID = "admin-product-edit-form";
+
 type ProductListProps = {
   categories: Category[];
 };
@@ -35,6 +37,7 @@ export const ProductList = ({ categories }: ProductListProps) => {
     limit,
     total,
     totalPages,
+    hasMultiplePages,
     firstItemNumber,
     lastItemNumber,
     fetchProducts,
@@ -67,9 +70,11 @@ export const ProductList = ({ categories }: ProductListProps) => {
               <option value="50">50</option>
             </SelectInput>
           </label>
-          <span className={styles.pageChip}>
-            Page {page} / {totalPages}
-          </span>
+          {hasMultiplePages ? (
+            <span className={styles.pageChip}>
+              Page {page} / {totalPages}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -100,27 +105,62 @@ export const ProductList = ({ categories }: ProductListProps) => {
 
       {editPanel.isOpen && (
         <div className={styles.editPanel}>
+          <div
+            id="product-edit-top"
+            className={styles.editScrollAnchor}
+            tabIndex={-1}
+            aria-hidden
+          />
           <ProductFormPanel
-            title={`Edit Product: ${editPanel.selectedProductName}`}
-            submitLabel="Save Changes"
+            title={`Edit: ${editPanel.selectedProductName}`}
+            submitLabel="Save product"
             form={editPanel.form}
             categories={categories}
             materials={materials}
             actionLoading={actionLoading}
             onSubmit={editPanel.onSubmit}
             onFieldChange={editPanel.onFieldChange}
-            headerAction={
-              <Button
-                type="button"
-                className={styles.actionButton}
-                onClick={editPanel.close}
-              >
-                Close
-              </Button>
-            }
+            formId={ADMIN_EDIT_PRODUCT_FORM_ID}
+            showFooterSubmit={false}
+            compactLongFields
           />
 
           <VariantManager {...variants} />
+
+          <div className={styles.editDock}>
+            <p className={styles.editDockHint}>
+              Save applies to product fields above. Each variant has its own Save
+              when expanded.
+            </p>
+            <div className={styles.editDockRow}>
+              <div className={styles.editDockLinks}>
+                <a className={styles.editDockLink} href="#product-edit-top">
+                  Product fields
+                </a>
+                <a className={styles.editDockLink} href="#product-variants-section">
+                  Variants
+                </a>
+              </div>
+              <div className={styles.editDockActions}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className={styles.actionButton}
+                  onClick={editPanel.close}
+                >
+                  Close editor
+                </Button>
+                <Button
+                  type="submit"
+                  form={ADMIN_EDIT_PRODUCT_FORM_ID}
+                  className={styles.actionButton}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? "Saving…" : "Save product"}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -164,22 +204,24 @@ export const ProductList = ({ categories }: ProductListProps) => {
             <p className={styles.counter}>
               Showing {firstItemNumber}-{lastItemNumber} of {total}
             </p>
-            <div className={styles.pagination}>
-              <Button
-                onClick={goToPreviousPage}
-                disabled={page <= 1 || loading}
-                className={styles.actionButton}
-              >
-                Previous
-              </Button>
-              <Button
-                onClick={goToNextPage}
-                disabled={page >= totalPages || loading}
-                className={styles.actionButton}
-              >
-                Next
-              </Button>
-            </div>
+            {hasMultiplePages ? (
+              <div className={styles.pagination}>
+                <Button
+                  onClick={goToPreviousPage}
+                  disabled={page <= 1 || loading}
+                  className={styles.actionButton}
+                >
+                  Previous
+                </Button>
+                <Button
+                  onClick={goToNextPage}
+                  disabled={page >= totalPages || loading}
+                  className={styles.actionButton}
+                >
+                  Next
+                </Button>
+              </div>
+            ) : null}
           </div>
         </>
       )}

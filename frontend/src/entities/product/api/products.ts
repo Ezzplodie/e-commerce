@@ -1,12 +1,11 @@
 import { parseResponse } from "@/shared/api/parseResponse";
+import { API_BASE } from "@/shared/api/config";
 import {
   AttributeValue,
   FilterFacetsResponse,
   Product,
   ProductsListResponse,
 } from "../types";
-
-const API_BASE = "http://localhost:4000";
 
 export async function getAttributeValues(
   attributeCode?: string,

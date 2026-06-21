@@ -1,10 +1,20 @@
 @use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.page {
+  padding: var(--page-padding-top) 0 var(--page-padding-bottom);
+}
 
 .container {
   display: flex;
   align-items: flex-start;
-
   gap: 32px;
+}
+
+.containerNoFilters {
+  .content {
+    width: 100%;
+  }
 }
 
 .filters {
@@ -102,23 +112,36 @@
   color: var(--gray-700);
 }
 
-.productsPlaceholder {
+.productsEmptyState {
   border: 1px solid var(--gray-200);
   background: var(--white);
-  padding: 20px;
+  padding: 40px 24px;
+  text-align: center;
 }
 
-.productsPlaceholderTitle {
-  font-size: 20px;
-  font-weight: var(--fw-semibold);
+.productsEmptyTitle {
+  margin: 0 0 8px;
   color: var(--gray-900);
-  margin-bottom: 8px;
+  @include typo.h5;
 }
 
-.productsPlaceholderBody {
-  color: var(--gray-700);
-  font-size: 14px;
-  line-height: 1.4;
+.productsEmptyBody {
+  margin: 0;
+  color: var(--gray-650);
+  @include typo.body-md;
+
+  a {
+    color: var(--button-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.productsEmptyBody + .productsEmptyBody {
+  margin-top: 12px;
 }
 
 @include tablet {
@@ -146,5 +169,9 @@
 
   .productsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .productsEmptyState {
+    padding: 32px 16px;
   }
 }

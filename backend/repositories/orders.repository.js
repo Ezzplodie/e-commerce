@@ -10,6 +10,7 @@ const VARIANT_IMAGES_TABLE = "ecommerce.variant_images";
 const VARIANT_ATTRIBUTE_VALUES_TABLE = "ecommerce.variant_attribute_values";
 const ATTRIBUTE_VALUES_TABLE = "ecommerce.attribute_values";
 const ATTRIBUTES_TABLE = "ecommerce.attributes";
+const USERS_TABLE = "ecommerce.users";
 const DEFAULT_ORDER_CURRENCY = "USD";
 
 function toNumber(value) {
@@ -522,6 +523,132 @@ export const getOrderWithItemsRepository = async (order_id, user_id) => {
       ORDER BY oi.id ASC
     `,
     [order_id, user_id],
+  );
+
+  return mapOrderWithItems(rows);
+};
+
+function mapAdminOrderListRow(row) {
+  return {
+    ...mapOrderSummary(row),
+    user_id: row.user_id,
+    customer_email: row.customer_email ?? null,
+  };
+}
+
+export const getAllOrdersAdminRepository = async ({
+  limit,
+  offset,
+  status,
+}) => {
+  const conditions = [];
+  const params = [];
+  let p = 1;
+
+  if (status) {
+    conditions.push(`o.status = $${p}`);
+    params.push(status);
+    p += 1;
+  }
+
+  const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const countResult = await pool.query(
+    `
+      SELECT COUNT(*)::int AS total
+      FROM ${ORDERS_TABLE} o
+      ${whereClause}
+    `,
+    params,
+  );
+
+  const total = Number(countResult.rows[0]?.total ?? 0);
+
+  const listParams = [...params, limit, offset];
+  const limitIdx = p;
+  const offsetIdx = p + 1;
+
+  const { rows } = await pool.query(
+    `
+      SELECT
+        o.*,
+        u.email AS customer_email,
+        (
+          SELECT COUNT(*)::int
+          FROM ${ORDER_ITEMS_TABLE} oi
+          WHERE oi.order_id = o.id
+        ) AS item_count
+      FROM ${ORDERS_TABLE} o
+      LEFT JOIN ${USERS_TABLE} u ON u.id = o.user_id
+      ${whereClause}
+      ORDER BY o.created_at DESC, o.id DESC
+      LIMIT $${limitIdx} OFFSET $${offsetIdx}
+    `,
+    listParams,
+  );
+
+  return {
+    orders: rows.map(mapAdminOrderListRow),
+    total,
+  };
+};
+
+export const getOrderByIdAdminRepository = async (order_id) => {
+  const { rows } = await pool.query(
+    `
+      SELECT
+        o.*,
+        COUNT(oi.id)::int AS item_count
+      FROM ${ORDERS_TABLE} o
+      LEFT JOIN ${ORDER_ITEMS_TABLE} oi ON oi.order_id = o.id
+      WHERE o.id = $1
+      GROUP BY o.id
+      LIMIT 1
+    `,
+    [order_id],
+  );
+
+  return rows[0] ? mapOrderSummary(rows[0]) : null;
+};
+
+export const getOrderWithItemsAdminRepository = async (order_id) => {
+  const { rows } = await pool.query(
+    `
+      SELECT
+        o.id AS id,
+        o.status,
+        o.total_price,
+        o.shipping_cost,
+        o.shipping_first_name,
+        o.shipping_last_name,
+        o.shipping_email,
+        o.shipping_phone,
+        o.shipping_city,
+        o.shipping_address,
+        o.shipping_postal_code,
+        o.shipping_country,
+        o.shipping_company,
+        o.shipping_apartment,
+        o.created_at,
+        oi.id AS item_id,
+        oi.variant_id,
+        oi.product_id,
+        oi.sku_snapshot,
+        oi.product_name_snapshot,
+        oi.variant_name_snapshot,
+        oi.color_snapshot,
+        oi.size_snapshot,
+        oi.image_url_snapshot,
+        oi.currency,
+        oi.price AS item_price,
+        oi.quantity AS item_quantity,
+        oi.line_total
+      FROM ${ORDERS_TABLE} o
+      LEFT JOIN ${ORDER_ITEMS_TABLE} oi ON oi.order_id = o.id
+      WHERE o.id = $1
+      ORDER BY oi.id ASC
+    `,
+    [order_id],
   );
 
   return mapOrderWithItems(rows);

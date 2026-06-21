@@ -1,7 +1,6 @@
 import { parseResponse } from "@/shared/api/parseResponse";
+import { API_BASE } from "@/shared/api/config";
 import type { Category } from "../types";
-
-const API_BASE = "http://localhost:4000";
 
 export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
   const response = await fetch(`${API_BASE}/categories`, {
