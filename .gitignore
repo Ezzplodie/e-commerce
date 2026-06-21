@@ -9,3 +9,14 @@ PROJECT_CONTEXT.local.md
 # Local / diploma imports and context (not part of the app)
 DIPLOMA_CONTEXT.md
 _imports/
+.diplom-work/
+docs/
+assets-out/
+/ris-3-*.png
+/ris-3-*.svg
+e-backend/
+
+# Tooling / generated output
+.github/skills/
+frontend/lint-output.txt
+frontend/lint_output.txt

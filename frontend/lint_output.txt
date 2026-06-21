@@ -1,4 +1,0 @@
-
-> e-commerce@0.1.0 lint
-> eslint
-
