@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import { Container } from "@/shared/ui/Container";
-import styles from "./HomePage.module.scss";
+import styles from "./FaqSection.module.scss";
 
 type FaqItem = {
   question: string;

@@ -1,0 +1,87 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+.trust {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.trustInner {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 36px 0;
+  list-style: none;
+  /* margin-block (not margin) so we don't wipe out Container's
+     `margin-inline: auto` centering on the inner element. */
+  margin-block: 0;
+}
+
+.trustItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.trustIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--primary-25);
+  color: var(--primary-700);
+  flex-shrink: 0;
+}
+
+.trustText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  max-width: 240px;
+}
+
+.trustTitle {
+  @include typo.caption-lg;
+  color: var(--black);
+}
+
+.trustBody {
+  @include typo.body-xs;
+  color: var(--gray-700);
+}
+
+@include tablet {
+  .trustInner {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    padding: 28px 0;
+  }
+}
+
+@include mobile {
+  .trustInner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 12px;
+    padding: 24px 0;
+  }
+
+  .trustText {
+    max-width: 100%;
+  }
+}
+
+/* Very small phones (Galaxy Fold closed, iPhone SE 1, etc.) */
+@media (max-width: 359.98px) {
+  .trustInner {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 22px 0;
+  }
+}

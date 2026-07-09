@@ -7,7 +7,7 @@ export const getWishList = async (): Promise<WishListItem[]> => {
     method: "GET",
     credentials: "include",
   });
-  return parseResponse<WishListItem[]>(response);
+  return parseResponse<WishListItem[]>(response, { redirectOn401: false });
 };
 
 export const addItemToWishList = async (
@@ -17,6 +17,9 @@ export const addItemToWishList = async (
     method: "POST",
     credentials: "include",
     body: JSON.stringify({ variant_id: variantId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
   return parseResponse<WishListItem>(response);
 };

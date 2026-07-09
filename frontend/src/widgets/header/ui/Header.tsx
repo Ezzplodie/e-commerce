@@ -14,7 +14,7 @@ import { useCartStore } from "@/features/cart";
 import Link from "next/link";
 import type { Category } from "@/entities/category";
 import { getCategories } from "@/entities/category";
-
+import { useWishListStore } from "@/features/wish-list/model/wishListStore";
 const Header = () => {
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -27,6 +27,13 @@ const Header = () => {
       .then((res) => setCategories(res))
       .catch(() => setCategories([]));
     return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const { isLoaded, isLoading, load } = useWishListStore.getState();
+    if (!isLoaded && !isLoading) {
+      void load();
+    }
   }, []);
 
   const collectionMenus = useMemo(() => {

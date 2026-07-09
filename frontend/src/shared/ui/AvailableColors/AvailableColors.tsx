@@ -1,9 +1,11 @@
+"use client";
 import clsx from "clsx";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { normalizeColor } from "@/shared/lib/color";
 import { ColorPickerButton } from "@/shared/ui/ColorPickerButton";
 import { AvailableColorsProps } from "./AvailableColors.types";
 import styles from "./AvailableColors.module.scss";
+import { useRouter } from "next/navigation";
 
 export function AvailableColors({
   colors,
@@ -11,9 +13,11 @@ export function AvailableColors({
   enabledColors,
   onSelectColor,
   className,
+  href,
   buttonClassName,
   variant = "default",
 }: AvailableColorsProps) {
+  const router = useRouter();
   const enabledSet = useMemo(
     () =>
       enabledColors ? new Set(Array.from(enabledColors, normalizeColor)) : null,
@@ -35,6 +39,20 @@ export function AvailableColors({
     });
   }, [colors]);
 
+  const handleColorClick = useCallback(
+    (color: string, event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      if (onSelectColor) {
+        onSelectColor(color);
+        return;
+      }
+      if (href) {
+        router.push(`${href}?color=${normalizeColor(color)}`);
+      }
+    },
+    [href, onSelectColor, router],
+  );
+
   return (
     <div
       className={clsx(
@@ -44,16 +62,16 @@ export function AvailableColors({
       )}
     >
       {uniqueColors.map((color) => {
-        const normalized = normalizeColor(color);
-        const isEnabled = enabledSet ? enabledSet.has(normalized) : true;
+        const normalizedColor = normalizeColor(color);
+        const isEnabled = enabledSet ? enabledSet.has(normalizedColor) : true;
 
         return (
           <ColorPickerButton
-            key={normalized}
+            key={normalizedColor}
             color={color}
-            onClick={() => onSelectColor?.(color)}
+            onColorClick={handleColorClick}
             disabled={!isEnabled}
-            selected={normalizedSelectedColor === normalized}
+            selected={normalizedSelectedColor === normalizedColor}
             className={buttonClassName}
             variant={variant}
           />

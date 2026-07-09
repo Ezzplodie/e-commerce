@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
   images: {
@@ -32,6 +33,12 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack(config) {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      // Images should live in shared/assets; prefer static imports + next/image
+      "@images": path.join(__dirname, "public", "images"),
+    };
+
     config.module.rules.push({
       test: /\.svg$/,
       use: ["@svgr/webpack"],

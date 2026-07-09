@@ -7,4 +7,9 @@ export type ColorPickerButtonProps = {
   selected?: boolean;
   className?: string;
   variant?: ColorPickerButtonVariant;
+  href?: string;
+  onColorClick?: (
+    color: string,
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => void;
 };

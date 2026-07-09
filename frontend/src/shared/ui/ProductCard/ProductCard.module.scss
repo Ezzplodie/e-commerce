@@ -1,10 +1,23 @@
 @use "@/shared/styles/mixins" as *;
 @use "@/shared/styles/typography" as typo;
 
-.card {
+.card,
+.cardWrapper {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardWrapper {
+  color: inherit;
+}
+
+.cardLink {
   color: inherit;
   text-decoration: none;
 }
@@ -16,23 +29,27 @@
   background: var(--primary-25);
 }
 
+.imageLink {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
 .image {
   object-fit: cover;
   transition: transform var(--transition);
 }
 
-.meta {
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-}
-
-.copy {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
 }
 
 .title {
@@ -42,15 +59,34 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
 .subtitle {
   @include typo.body-xs;
   margin: 0;
   color: var(--neutral-gray);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.detailsInline {
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+}
+
+.detailsInline .subtitle {
+  min-width: 0;
 }
 
 .price {
@@ -62,6 +98,7 @@
 .colors {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 10px;
 }
 
@@ -69,7 +106,8 @@
   /* keep layout consistent with card spacing */
 }
 
-.card:hover {
+.card:hover,
+.cardWrapper:hover {
   .image {
     transform: scale(1.04);
   }
@@ -78,6 +116,5 @@
 @include mobile {
   .imageWrap {
     aspect-ratio: 320 / 360;
-    border-radius: 10px;
   }
 }

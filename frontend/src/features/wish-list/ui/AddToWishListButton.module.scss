@@ -15,3 +15,12 @@
   cursor: pointer;
   z-index: 100;
 }
+
+.wishlist svg {
+  pointer-events: none;
+}
+
+.saved svg path {
+  fill: var(--favorite);
+  stroke: var(--favorite);
+}

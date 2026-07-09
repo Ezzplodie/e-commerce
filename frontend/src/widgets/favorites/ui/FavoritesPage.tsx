@@ -4,73 +4,72 @@
 //   - useEffect(() => load(), [load])
 //   - useWishListStore selectors
 // without flipping the directive later.
-
+import { useEffect } from "react";
 import Header from "@/widgets/header";
 import Footer from "@/widgets/footer";
+import { Container } from "@/shared/ui/Container";
 import styles from "./FavoritesPage.module.scss";
-import { useEffect } from "react";
-import { useWishListStore } from "@/features/wish-list/model/wishListStore";
-const { load, items, isLoading, error } = useWishListStore.getState();
+
+import {
+  AddToWishListButton,
+  useWishListStore,
+} from "@/features/wish-list";
+import { ProductsGrid, ProductGridItem } from "@/shared/ui/ProductGrid";
+import { mapWishListItemToCard } from "@/features/wish-list/lib/mapWishListItemToCard";
 
 export function FavoritesPage() {
-  console.log(load);
-  console.log(items);
   // TODO: pull state + actions from the wish-list feature store, e.g.:
-  //   const items = useWishListStore((s) => s.items);
-  //   const isLoading = useWishListStore((s) => s.isLoading);
-  //   const error = useWishListStore((s) => s.error);
-  //   const load = useWishListStore((s) => s.load);
-  //
-  // TODO: load on mount:
-  //   useEffect(() => { load(); }, [load]);
-  // useEffect(() => {
-  //   load();
-  // }, [load]);
+
+  const items = useWishListStore((s) => s.items);
+  const isLoading = useWishListStore((s) => s.isLoading);
+  const isLoaded = useWishListStore((s) => s.isLoaded);
+  const error = useWishListStore((s) => s.error);
+  const load = useWishListStore((s) => s.load);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <>
       <Header />
       <main className={styles.page}>
-        <div className="container">
+        <Container>
           <h1 className={styles.title}>Favorites</h1>
+          {(!isLoaded || isLoading) && (
+            <ProductsGrid isLoading skeletonCount={4} items={[]} columns={4} />
+          )}
 
-          {/* TODO (loading state):
-              {isLoading && (
-                <div className={styles.state} role="status">Loading...</div>
-              )}
-          */}
+          {isLoaded && !isLoading && items.length === 0 && (
+            <div className={styles.emptyState} role="status">
+              <h2 className={styles.emptyTitle}>No favorites yet</h2>
+              <p className={styles.emptyBody}>
+                Items you mark as favorite will appear here.
+              </p>
+            </div>
+          )}
 
-          {/* TODO (error state):
-              {error && !isLoading && (
-                <div className={styles.state} role="alert">{error}</div>
-              )}
-          */}
+          {isLoaded && items.length > 0 && (
+            <ProductsGrid
+              columns={4}
+              items={items.map((item) => {
+                const card = mapWishListItemToCard(item);
 
-          {/* Empty state — render only when not loading and items.length === 0 */}
-          <div className={styles.emptyState} role="status">
-            <h2 className={styles.emptyTitle}>No favorites yet</h2>
-            <p className={styles.emptyBody}>
-              Items you mark as favorite will appear here.
-            </p>
-          </div>
-
-          {/* TODO (list state):
-              {!isLoading && items.length > 0 && (
-                <ul className={styles.grid}>
-                  {items.map((item) => (
-                    <li key={item.wish_list_id}>
-                      <ProductCard
-                        title={item.product_name}
-                        price={item.price}
-                        image={item.image_url ?? ""}
-                        href={`/products/${item.product_slug}`}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-          */}
-        </div>
+                return {
+                  ...card,
+                  imageAction: (
+                    <AddToWishListButton
+                      title={card.title}
+                      variantId={card.variantId!}
+                    />
+                  ),
+                } as ProductGridItem;
+              })}
+              isLoading={isLoading}
+              skeletonCount={items.length}
+            />
+          )}
+        </Container>
       </main>
       <Footer />
     </>

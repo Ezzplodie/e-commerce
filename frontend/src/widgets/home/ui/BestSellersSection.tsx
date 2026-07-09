@@ -10,6 +10,7 @@ import { ProductListItem } from "@/entities/product/types";
 import { getProductCardImage } from "@/entities/product";
 import Link from "next/link";
 import { Container } from "@/shared/ui/Container";
+import { AddToWishListButton } from "@/features/wish-list";
 import { ProductCard, ProductCardSkeleton } from "@/shared/ui/ProductCard";
 import styles from "./BestSellersSection.module.scss";
 
@@ -70,7 +71,6 @@ export function BestSellersSection({ products }: Props) {
               <SwiperSlide key={key} className={styles.slide}>
                 {item ? (
                   <ProductCard
-                    variantId={item.variantId}
                     title={item.title}
                     subtitle={item.subtitle}
                     price={item.price}
@@ -78,6 +78,14 @@ export function BestSellersSection({ products }: Props) {
                     colors={item.colors}
                     enabledColors={item.enabledColors}
                     href={item.href}
+                    imageAction={
+                      item.variantId ? (
+                        <AddToWishListButton
+                          title={item.title}
+                          variantId={item.variantId}
+                        />
+                      ) : undefined
+                    }
                   />
                 ) : (
                   <ProductCardSkeleton />

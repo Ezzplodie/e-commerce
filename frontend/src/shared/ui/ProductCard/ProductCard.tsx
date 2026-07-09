@@ -2,13 +2,13 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import Link from "next/link";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { formatPrice } from "@/shared/lib/formatters";
+import { resolveProductCardImage } from "@/shared/lib/resolveProductCardImage";
 import { AvailableColors } from "@/shared/ui/AvailableColors";
 import styles from "./ProductCard.module.scss";
-import { AddToWishListButton } from "@/features/wish-list/ui/AddToWishListButton";
+import Link from "next/link";
 
 export type ProductCardProps = {
   title: string;
@@ -18,12 +18,12 @@ export type ProductCardProps = {
   href?: string;
   colors?: string[];
   enabledColors?: Iterable<string>;
+  selectedColor?: string;
   className?: string;
-  variantId?: number;
+  imageAction?: ReactNode;
 };
 
 export function ProductCard({
-  variantId,
   title,
   subtitle,
   price,
@@ -31,53 +31,93 @@ export function ProductCard({
   href,
   colors,
   enabledColors,
+  selectedColor,
   className,
+  imageAction,
 }: ProductCardProps) {
   const uniqueColors = useMemo(
     () => Array.from(new Set(colors || [])),
     [colors],
   );
+  const showInlineSelectedColor = Boolean(selectedColor);
+  const imageSrc = resolveProductCardImage(image);
 
-  const content = (
-    <>
-      <div className={styles.imageWrap}>
+  const imageBlock = (
+    <div className={styles.imageWrap}>
+      {href ? (
+        <Link href={href} className={styles.imageLink} aria-label={title}>
+          <Image
+            src={imageSrc}
+            alt={title}
+            fill
+            className={styles.image}
+            sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) 50vw, 420px"
+          />
+        </Link>
+      ) : (
         <Image
-          src={image}
+          src={imageSrc}
           alt={title}
           fill
           className={styles.image}
           sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) 50vw, 420px"
         />
+      )}
 
-        {variantId ? (
-          <AddToWishListButton title={title} variantId={variantId} />
-        ) : null}
-      </div>
+      {imageAction}
+    </div>
+  );
 
-      <div className={styles.meta}>
-        <div className={styles.copy}>
-          <h3 className={styles.title}>{title}</h3>
-          {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
-        </div>
-
+  const infoBlock = (
+    <div className={styles.info}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>{title}</h3>
         <strong className={styles.price}>{formatPrice(price)}</strong>
       </div>
 
-      {uniqueColors.length ? (
-        <AvailableColors
-          variant="default"
-          colors={uniqueColors}
-          enabledColors={enabledColors}
-          className={styles.colors}
-          buttonClassName={styles.colorButton}
-        />
-      ) : null}
-    </>
+      {(subtitle || uniqueColors.length > 0) && (
+        <div
+          className={clsx(
+            styles.details,
+            showInlineSelectedColor && styles.detailsInline,
+          )}
+        >
+          {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+        </div>
+      )}
+    </div>
   );
 
+  const colorsBlock =
+    uniqueColors.length > 0 ? (
+      <AvailableColors
+        variant="default"
+        colors={uniqueColors}
+        selectedColor={selectedColor}
+        enabledColors={enabledColors}
+        className={styles.colors}
+        buttonClassName={styles.colorButton}
+        href={href}
+      />
+    ) : null;
+
   if (href) {
-    return <div className={clsx(styles.card, className)}>{content}</div>;
+    return (
+      <div className={clsx(styles.cardWrapper, className)}>
+        {imageBlock}
+        <Link href={href} className={styles.cardLink}>
+          {infoBlock}
+        </Link>
+        {colorsBlock}
+      </div>
+    );
   }
 
-  return <article className={clsx(styles.card, className)}>{content}</article>;
+  return (
+    <article className={clsx(styles.card, className)}>
+      {imageBlock}
+      {infoBlock}
+      {colorsBlock}
+    </article>
+  );
 }

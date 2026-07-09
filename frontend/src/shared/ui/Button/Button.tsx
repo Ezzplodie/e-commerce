@@ -1,22 +1,20 @@
 import clsx from "clsx";
 import styles from "./Button.module.scss";
+import type { ElementType } from "react";
 import { ButtonProps } from "./Button.types";
 
-export function Button({
+export function Button<T extends ElementType = "button">({
+  as,
   className,
-  type = "button",
   variant = "primary",
   children,
-
   ...props
-}: ButtonProps) {
+}: ButtonProps<T>) {
+  const Component = (as || "button") as ElementType;
+
   return (
-    <button
-      type={type}
-      className={clsx(styles.button, styles[variant], className)}
-      {...props}
-    >
+    <Component className={clsx(styles.button, styles[variant], className)} {...props}>
       {children}
-    </button>
+    </Component>
   );
 }

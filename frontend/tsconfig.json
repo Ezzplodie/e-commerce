@@ -64,7 +64,8 @@
       "@/shared/types/*": ["./src/shared/types/*"],
       "@/shared/styles": ["./src/shared/styles"],
       "@/shared/styles/*": ["./src/shared/styles/*"],
-      "@/public/*": ["./public/*"]
+      "@/public/*": ["./public/*"],
+      "@images/*": ["./public/images/*"]
     },
     /* ============================================
        NEXT.JS PLUGIN

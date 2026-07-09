@@ -1,6 +1,6 @@
 import { Truck, RotateCcw, ShieldCheck, Leaf } from "lucide-react";
 import { Container } from "@/shared/ui/Container";
-import styles from "./HomePage.module.scss";
+import styles from "./TrustStrip.module.scss";
 
 const ITEMS = [
   {

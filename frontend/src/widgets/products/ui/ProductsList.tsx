@@ -1,12 +1,14 @@
 "use client";
+
 import styles from "./ProductsPage.module.scss";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ProductsListResponse } from "@/entities/product/types";
 import { getProductsByQuery } from "@/entities/product/api";
-import { ProductCard, ProductCardSkeleton } from "@/shared/ui/ProductCard";
-import { getProductCardImage } from "@/entities/product";
+import { mapProductListItemToCard } from "@/entities/product";
+import { AddToWishListButton } from "@/features/wish-list";
+import { ProductsGrid } from "@/shared/ui/ProductGrid";
 import {
   clampPage,
   getTotalPages,
@@ -16,6 +18,9 @@ import {
 export function ProductsList() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // --- List state (page, items from API) ---
+
   const [products, setProducts] = useState<ProductsListResponse>({
     products: [],
     page: 1,
@@ -23,6 +28,7 @@ export function ProductsList() {
     total: 0,
   });
   const [error, setError] = useState<string | null>(null);
+  const [loadedKey, setLoadedKey] = useState<string>("");
 
   const searchString = useMemo(() => searchParams.toString(), [searchParams]);
 
@@ -30,9 +36,31 @@ export function ProductsList() {
     () => `${searchString}|limit=${products.limit}|page=${products.page}`,
     [searchString, products.limit, products.page],
   );
-  const [loadedKey, setLoadedKey] = useState<string>("");
+
   const isLoading = loadedKey !== requestKey;
   const filtersKeyRef = useRef(searchString);
+
+  // --- Map API products → ProductCard props ---
+
+  const cardItems = useMemo(
+    () =>
+      products.products.map((product, index) => {
+        const card = mapProductListItemToCard(product, index);
+
+        return {
+          ...card,
+          imageAction: card.variantId ? (
+            <AddToWishListButton
+              title={card.title}
+              variantId={card.variantId}
+            />
+          ) : undefined,
+        };
+      }),
+    [products.products],
+  );
+
+  // --- Fetch products when URL filters or page change ---
 
   useEffect(() => {
     const controller = new AbortController();
@@ -69,6 +97,8 @@ export function ProductsList() {
     return () => controller.abort();
   }, [products.limit, products.page, searchString, requestKey]);
 
+  // --- Pagination ---
+
   const totalPages = useMemo(
     () => getTotalPages(products.total, products.limit),
     [products.total, products.limit],
@@ -91,6 +121,12 @@ export function ProductsList() {
     }));
   }, []);
 
+  const showPagination = shouldShowPagination(products.total, products.limit, {
+    isLoading,
+  });
+
+  // --- Filters & empty state ---
+
   const hasActiveFilters = useMemo(() => {
     if (searchParams.getAll("size").length > 0) return true;
     if (searchParams.getAll("color").length > 0) return true;
@@ -110,9 +146,8 @@ export function ProductsList() {
   }, [pathname, searchString]);
 
   const isEmpty = !isLoading && !error && products.products.length === 0;
-  const showPagination = shouldShowPagination(products.total, products.limit, {
-    isLoading,
-  });
+
+  // --- Render ---
 
   return (
     <div className={styles.productsListWrap}>
@@ -137,27 +172,11 @@ export function ProductsList() {
           ) : null}
         </div>
       ) : (
-        <div className={styles.productsGrid} aria-busy={isLoading}>
-          {isLoading
-            ? Array.from({ length: products.limit }).map((_, idx) => (
-                <ProductCardSkeleton key={`skeleton-${idx}`} />
-              ))
-            : products.products.map((product, idx) => (
-                <ProductCard
-                  variantId={product.default_variant_id ?? undefined}
-                  key={product.slug || String(product.id)}
-                  title={product.name}
-                  subtitle={product.description ?? undefined}
-                  price={product.base_price}
-                  image={getProductCardImage(product, idx)}
-                  href={
-                    product.slug ? `/products/${product.slug}` : "/products"
-                  }
-                  colors={product.colors || []}
-                  enabledColors={new Set(product.enabled_colors || [])}
-                />
-              ))}
-        </div>
+        <ProductsGrid
+          items={cardItems}
+          isLoading={isLoading}
+          skeletonCount={products.limit}
+        />
       )}
 
       {showPagination ? (

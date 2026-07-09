@@ -46,49 +46,40 @@
   height: auto;
 }
 
-/* ===========================
-   Pagination (no fading)
-   ===========================
-   - Swiper's default makes inactive bullets opacity: 0.2 — override to 1.
-   - Swiper sometimes adds the "active-prev / active-next / active-prev-prev /
-     active-next-next" classes which scale bullets down (the dynamic-bullets
-     look) — override transform to none so they all stay the same size and
-     visibility. */
+.slider {
+  :global(.swiper) {
+    position: relative;
+    padding-bottom: 45px;
+  }
 
-.slider :global(.swiper-pagination) {
-  position: static;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding-top: 24px;
-}
+  :global(.swiper-pagination) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: absolute;
+    bottom: 0;
+  }
 
-.slider :global(.swiper-pagination-bullet),
-.slider :global(.swiper-pagination-bullet-active-prev),
-.slider :global(.swiper-pagination-bullet-active-next),
-.slider :global(.swiper-pagination-bullet-active-prev-prev),
-.slider :global(.swiper-pagination-bullet-active-next-next) {
-  width: 8px;
-  height: 8px;
-  margin: 0;
-  opacity: 1;
-  transform: none;
-  border-radius: 50px;
-  background: var(--gray-400);
-  cursor: pointer;
-  transition:
-    width 0.2s ease,
-    // height 0.2s ease,
-    background-color 0.2s ease;
-}
+  :global(.swiper-pagination-bullet) {
+    width: 8px;
+    height: 8px;
+    margin: 0;
+    opacity: 1;
+    transform: none;
+    border-radius: 50px;
+    background: var(--gray-400);
+    cursor: pointer;
+    transition: var(--transition);
+  }
 
-.slider :global(.swiper-pagination-bullet-active) {
-  width: 12px;
-  height: 12px;
-  background: var(--gray-700);
-  opacity: 1;
-  transform: none;
+  :global(.swiper-pagination-bullet-active) {
+    width: 12px;
+    height: 12px;
+    background: var(--gray-700);
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @include tablet {
@@ -106,7 +97,9 @@
     margin-bottom: 20px;
   }
 
-  .slider :global(.swiper-pagination) {
-    padding-top: 16px;
+  .slider {
+    :global(.swiper) {
+      padding-bottom: 32px;
+    }
   }
 }

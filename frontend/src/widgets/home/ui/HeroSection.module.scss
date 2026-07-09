@@ -1,0 +1,153 @@
+@use "@/shared/styles/mixins" as *;
+@use "@/shared/styles/typography" as typo;
+
+@keyframes heroZoom {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes heroRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  padding: 88px 0;
+  background: var(--primary-25);
+  isolation: isolate;
+}
+
+.heroMedia {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: center;
+  animation: heroZoom 14s ease-out forwards;
+  will-change: transform;
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(13, 16, 12, 0.72) 0%,
+    rgba(13, 16, 12, 0.4) 45%,
+    rgba(13, 16, 12, 0.05) 80%
+  );
+}
+
+.heroOuter {
+  position: relative;
+  z-index: 1;
+}
+
+.heroInner {
+  /* Container handles width + side padding + max-width. */
+}
+
+.heroCopy {
+  max-width: 620px;
+  color: var(--white);
+  animation: heroRise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.heroKicker {
+  @include typo.overline-sm;
+  margin: 0 0 14px;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  @include typo.display-1;
+  margin: 0 0 18px;
+  color: var(--white);
+}
+
+.heroTitleAccent {
+  font-weight: var(--fw-regular);
+  font-style: italic;
+}
+
+.heroSubtitle {
+  @include typo.body-lg;
+  margin: 0 0 28px;
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 520px;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroImage {
+    animation: none;
+  }
+  .heroCopy {
+    animation: none;
+  }
+}
+
+@include tablet {
+  .hero {
+    min-height: 56vh;
+    padding: 72px 0;
+  }
+
+  .heroTitle {
+    @include typo.display-2;
+  }
+}
+
+@include mobile {
+  .hero {
+    min-height: 64vh;
+    padding: 56px 0;
+  }
+
+  .heroScrim {
+    background: linear-gradient(
+      180deg,
+      rgba(13, 16, 12, 0.55) 0%,
+      rgba(13, 16, 12, 0.35) 50%,
+      rgba(13, 16, 12, 0.2) 100%
+    );
+  }
+
+  .heroTitle {
+    @include typo.h1;
+  }
+
+  .heroSubtitle {
+    @include typo.body-md;
+  }
+
+  .heroActions {
+    gap: 14px;
+  }
+}

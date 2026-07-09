@@ -1,19 +1,16 @@
 import clsx from "clsx";
 import type { CSSProperties } from "react";
-import {
-  getMappedColorValue,
-  normalizeColor,
-} from "@/shared/lib/color";
+import { getMappedColorValue, normalizeColor } from "@/shared/lib/color";
 import { ColorPickerButtonProps } from "./ColorPickerButton.types";
 import styles from "./ColorPickerButton.module.scss";
 
 export function ColorPickerButton({
   color,
-  onClick,
   disabled = false,
   className,
   selected = false,
   variant = "default",
+  onColorClick,
 }: ColorPickerButtonProps) {
   const colorValue = getMappedColorValue(color);
   const buttonStyle = {
@@ -26,8 +23,10 @@ export function ColorPickerButton({
 
   return (
     <button
+      disabled={disabled}
       style={buttonStyle}
       type="button"
+      onClick={(event) => onColorClick?.(color, event)}
       className={clsx(
         styles.colorButton,
         variant === "productDetails"
@@ -39,8 +38,6 @@ export function ColorPickerButton({
             : styles.selected),
         className,
       )}
-      onClick={onClick}
-      disabled={disabled}
       aria-label={`Select color ${color}`}
       aria-pressed={selected}
     ></button>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/shared/ui/Container";
 import type { Category } from "@/entities/category";
-import styles from "./HomePage.module.scss";
+import styles from "./CategoriesSection.module.scss";
 
 const CATEGORY_IMAGES = [
   "https://images.pexels.com/photos/2887766/pexels-photo-2887766.jpeg?auto=compress&cs=tinysrgb&w=1400",

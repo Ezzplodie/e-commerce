@@ -1,4 +1,5 @@
 import type {
+  CSSProperties,
   ComponentPropsWithoutRef,
   ElementType,
   ReactNode,
@@ -25,6 +26,8 @@ type ContainerOwnProps<T extends ElementType> = {
   size?: ContainerSize;
   /** Classes for the outer (side-padding) wrapper. */
   className?: string;
+  /** Inline styles for the outer (side-padding) wrapper. */
+  outerStyle?: CSSProperties;
   /** Classes for the inner (max-width centered) wrapper. */
   innerClassName?: string;
   children?: ReactNode;
@@ -38,6 +41,7 @@ export function Container<T extends ElementType = "div">({
   as,
   size = "default",
   className,
+  outerStyle,
   innerClassName,
   children,
   ...rest
@@ -45,7 +49,7 @@ export function Container<T extends ElementType = "div">({
   const Inner = (as || "div") as ElementType;
 
   return (
-    <div className={clsx(styles.outer, className)}>
+    <div className={clsx(styles.outer, className)} style={outerStyle}>
       <Inner
         className={clsx(
           styles.inner,

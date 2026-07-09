@@ -8,9 +8,7 @@
   width: 100%;
   max-width: 1320px;
   box-sizing: border-box;
-  /* Use longhand properties so consumers of `innerClassName` can reset
-     the vertical default of <ul>/<h*> (e.g. `margin-block: 0`) without
-     accidentally clearing the horizontal centering Container owns. */
+
   margin-inline: auto;
   margin-block: 0;
 }
@@ -21,4 +19,4 @@
 
 .wide {
   max-width: 1480px;
-}/*# sourceMappingURL=Container.module.css.map */
+} /*# sourceMappingURL=Container.module.css.map */

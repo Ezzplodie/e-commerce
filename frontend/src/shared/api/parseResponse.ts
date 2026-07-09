@@ -39,13 +39,34 @@ function extractErrorMessage(text: string): string {
   }
 }
 
-export async function parseResponse<T>(response: Response): Promise<T> {
+export type ParseResponseOptions = {
+  /** When false, 401 throws UnauthorizedError without redirecting to /login. */
+  redirectOn401?: boolean;
+};
+
+export async function parseResponse<T>(
+  response: Response,
+  options: ParseResponseOptions = {},
+): Promise<T> {
+  const { redirectOn401 = true } = options;
+
   if (response.ok) {
-    return response.json() as Promise<T>;
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const text = await response.text();
+    if (!text.trim()) {
+      return undefined as T;
+    }
+
+    return JSON.parse(text) as T;
   }
 
   if (response.status === 401) {
-    safeRedirectToLogin();
+    if (redirectOn401) {
+      safeRedirectToLogin();
+    }
     throw new UnauthorizedError();
   }
 

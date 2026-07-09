@@ -67,12 +67,6 @@
   color: var(--black);
 }
 
-.productsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-
 .pagination {
   display: flex;
   align-items: center;
@@ -148,13 +142,10 @@
   .container {
     flex-direction: column;
   }
+
   .filters {
     width: 100%;
     flex: 0 0 auto;
-  }
-
-  .productsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -165,10 +156,6 @@
 
   .mobileFiltersBar {
     display: block;
-  }
-
-  .productsGrid {
-    grid-template-columns: 1fr;
   }
 
   .productsEmptyState {
